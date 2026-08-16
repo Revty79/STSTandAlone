@@ -1,0 +1,74 @@
+.brand-logo {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo--image {
+  display: block;
+  width: min(70vw, 760px);
+  max-height: 38vh;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgb(0 0 0 / 48%));
+}
+
+.brand-logo--wordmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  color: #ede5d4;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: clamp(3.6rem, 9.5vw, 8rem);
+  font-weight: 400;
+  line-height: 0.8;
+  text-align: center;
+  text-shadow:
+    0 2px 1px rgb(0 0 0 / 70%),
+    0 12px 32px rgb(0 0 0 / 55%),
+    0 0 54px rgb(113 162 164 / 10%);
+}
+
+.brand-logo--wordmark::before,
+.brand-logo--wordmark::after {
+  position: absolute;
+  top: 48%;
+  width: clamp(34px, 6vw, 90px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(178 149 94 / 68%));
+  content: "";
+}
+
+.brand-logo--wordmark::before {
+  right: calc(100% + clamp(14px, 2.5vw, 38px));
+}
+
+.brand-logo--wordmark::after {
+  left: calc(100% + clamp(14px, 2.5vw, 38px));
+  transform: rotate(180deg);
+}
+
+.brand-logo__serrian {
+  margin-left: 0.38em;
+  color: #bda978;
+  font-size: 0.3em;
+  letter-spacing: 0.38em;
+  line-height: 1;
+}
+
+.brand-logo__tide {
+  margin-left: 0.14em;
+  letter-spacing: 0.14em;
+}
+
+@media (max-width: 620px) {
+  .brand-logo--wordmark::before,
+  .brand-logo--wordmark::after {
+    display: none;
+  }
+}
+
+@media (max-height: 560px) {
+  .brand-logo--wordmark {
+    font-size: clamp(3rem, 13vh, 5.4rem);
+  }
+}
