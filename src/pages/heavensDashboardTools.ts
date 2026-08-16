@@ -1,10 +1,6 @@
-export type HeavensDashboardTool = {
-  id: string;
-  title: string;
-  description: string;
-};
+import type { PortalActionDefinition } from "../components/PortalActionCard";
 
-export const HEAVENS_DASHBOARD_TOOLS: readonly HeavensDashboardTool[] = [
+export const HEAVENS_DASHBOARD_TOOLS: readonly PortalActionDefinition[] = [
   {
     id: "races",
     title: "Races",

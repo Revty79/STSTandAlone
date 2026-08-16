@@ -1,0 +1,137 @@
+.portal-action-card {
+  position: relative;
+  display: flex;
+  min-height: 144px;
+  padding: 21px 22px 20px 27px;
+  overflow: hidden;
+  border: 1px solid rgb(130 158 158 / 21%);
+  border-radius: 5px;
+  color: inherit;
+  background:
+    linear-gradient(145deg, rgb(28 45 51 / 78%), rgb(8 16 21 / 90%)),
+    rgb(10 19 24 / 90%);
+  box-shadow:
+    0 13px 31px rgb(0 0 0 / 23%),
+    inset 0 1px rgb(255 255 255 / 3%);
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.portal-action-card::after {
+  position: absolute;
+  right: -34px;
+  bottom: -48px;
+  width: 112px;
+  height: 112px;
+  border: 1px solid rgb(188 158 99 / 8%);
+  border-radius: 50%;
+  content: "";
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.portal-action-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(194 163 103 / 55%);
+  background:
+    linear-gradient(145deg, rgb(35 56 62 / 89%), rgb(10 20 25 / 95%)),
+    rgb(11 21 26 / 95%);
+  box-shadow:
+    0 18px 38px rgb(0 0 0 / 31%),
+    0 0 24px rgb(98 145 146 / 6%),
+    inset 0 1px rgb(255 255 255 / 5%);
+}
+
+.portal-action-card:hover::after {
+  transform: scale(1.12);
+  border-color: rgb(204 174 112 / 19%);
+}
+
+.portal-action-card:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 8px 18px rgb(0 0 0 / 30%),
+    inset 0 2px 5px rgb(0 0 0 / 20%);
+}
+
+.portal-action-card:focus-visible {
+  outline: 2px solid #d9bd82;
+  outline-offset: 4px;
+}
+
+.portal-action-card__ornament {
+  position: absolute;
+  top: 17px;
+  right: 18px;
+  color: rgb(188 158 99 / 48%);
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+}
+
+.portal-action-card__title {
+  max-width: calc(100% - 28px);
+  color: #eee6d7;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: clamp(1.14rem, 2vw, 1.34rem);
+  letter-spacing: 0.025em;
+}
+
+.portal-action-card__description {
+  max-width: 92%;
+  margin-top: 10px;
+  color: rgb(213 216 211 / 61%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 0.83rem;
+  line-height: 1.48;
+}
+
+.portal-action-card--realms {
+  border-color: rgb(125 157 165 / 25%);
+  background:
+    radial-gradient(circle at 88% 15%, rgb(78 122 129 / 9%), transparent 30%),
+    linear-gradient(145deg, rgb(24 43 50 / 84%), rgb(7 15 21 / 93%));
+}
+
+.portal-action-card--realms:hover {
+  border-color: rgb(184 160 108 / 58%);
+  background:
+    radial-gradient(circle at 88% 15%, rgb(93 142 145 / 14%), transparent 32%),
+    linear-gradient(145deg, rgb(32 55 62 / 92%), rgb(9 19 25 / 97%));
+}
+
+.portal-action-card--featured {
+  grid-column: span 2;
+}
+
+.portal-action-card--featured .portal-action-card__description {
+  max-width: 72%;
+}
+
+@media (max-width: 660px) {
+  .portal-action-card {
+    min-height: 128px;
+  }
+
+  .portal-action-card--featured {
+    grid-column: span 1;
+  }
+
+  .portal-action-card--featured .portal-action-card__description {
+    max-width: 92%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-action-card,
+  .portal-action-card::after {
+    transition-duration: 0.01ms;
+  }
+}

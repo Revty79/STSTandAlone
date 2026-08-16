@@ -1,4 +1,4 @@
-.heavens-dashboard-page {
+.realms-dashboard-page {
   position: relative;
   width: 100%;
   height: 100vh;
@@ -8,69 +8,68 @@
   isolation: isolate;
   color: #eee8dc;
   background:
-    radial-gradient(ellipse at 18% 0%, rgb(38 79 85 / 24%) 0%, transparent 42%),
-    radial-gradient(ellipse at 88% 40%, rgb(45 39 57 / 18%) 0%, transparent 42%),
-    linear-gradient(155deg, #05080b 0%, #0a1218 52%, #05080b 100%);
+    radial-gradient(ellipse at 78% 5%, rgb(40 82 88 / 25%) 0%, transparent 44%),
+    radial-gradient(ellipse at 6% 60%, rgb(47 51 66 / 18%) 0%, transparent 42%),
+    linear-gradient(150deg, #05080b 0%, #09141a 54%, #05090c 100%);
   scrollbar-color: rgb(155 133 88 / 54%) rgb(4 8 11 / 70%);
   scrollbar-width: thin;
 }
 
-.heavens-dashboard-page__texture {
+.realms-dashboard-page__texture {
   position: fixed;
   z-index: -1;
   inset: 0;
   background:
-    linear-gradient(90deg, rgb(255 255 255 / 1%) 1px, transparent 1px),
-    linear-gradient(rgb(255 255 255 / 0.8%) 1px, transparent 1px),
-    radial-gradient(ellipse at 50% 0%, rgb(99 143 143 / 10%), transparent 48%),
+    linear-gradient(115deg, transparent 48%, rgb(255 255 255 / 1%) 50%, transparent 52%),
+    radial-gradient(ellipse at 50% 0%, rgb(85 139 142 / 11%), transparent 50%),
     radial-gradient(ellipse at center, transparent 38%, rgb(0 0 0 / 48%) 100%);
-  background-size: 72px 72px, 72px 72px, auto, auto;
-  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 66%), transparent 92%);
+  background-size: 96px 96px, auto, auto;
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 62%), transparent 94%);
   pointer-events: none;
 }
 
-.heavens-dashboard {
-  width: min(100% - clamp(32px, 6vw, 80px), 1160px);
+.realms-dashboard {
+  width: min(100% - clamp(32px, 6vw, 80px), 1080px);
   margin: 0 auto;
   padding: clamp(24px, 4vw, 44px) 0 38px;
 }
 
-.heavens-dashboard__header {
+.realms-dashboard__header {
   display: grid;
-  padding: 0 0 clamp(24px, 4vw, 38px);
+  padding-bottom: clamp(24px, 4vw, 38px);
   border-bottom: 1px solid rgb(190 162 105 / 22%);
   grid-template-columns: minmax(250px, 0.82fr) minmax(360px, 1.18fr);
   align-items: center;
 }
 
-.heavens-dashboard__brand {
+.realms-dashboard__brand {
   display: flex;
   min-height: 100px;
   align-items: center;
   justify-content: center;
 }
 
-.heavens-dashboard__brand .brand-logo--wordmark {
+.realms-dashboard__brand .brand-logo--wordmark {
   font-size: clamp(3rem, 5.2vw, 4.6rem);
 }
 
-.heavens-dashboard__brand .brand-logo--wordmark::before,
-.heavens-dashboard__brand .brand-logo--wordmark::after {
+.realms-dashboard__brand .brand-logo--wordmark::before,
+.realms-dashboard__brand .brand-logo--wordmark::after {
   display: none;
 }
 
-.heavens-dashboard__brand .brand-logo--image {
+.realms-dashboard__brand .brand-logo--image {
   width: min(36vw, 430px);
   max-height: 118px;
 }
 
-.heavens-dashboard__identity {
+.realms-dashboard__identity {
   padding: 8px 0 8px clamp(34px, 5vw, 66px);
   border-left: 1px solid rgb(190 162 105 / 24%);
 }
 
-.heavens-dashboard__eyebrow,
-.heavens-dashboard__section-heading > p {
+.realms-dashboard__eyebrow,
+.realms-dashboard__section-heading > p {
   margin: 0 0 8px;
   color: #bda978;
   font-size: 0.67rem;
@@ -78,7 +77,7 @@
   letter-spacing: 0.25em;
 }
 
-.heavens-dashboard__identity h2 {
+.realms-dashboard__identity h2 {
   margin: 0;
   color: #f0e8d9;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -91,7 +90,7 @@
     0 0 42px rgb(89 137 139 / 9%);
 }
 
-.heavens-dashboard__welcome {
+.realms-dashboard__welcome {
   margin: 13px 0 0;
   color: rgb(224 222 212 / 66%);
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -99,18 +98,18 @@
   letter-spacing: 0.025em;
 }
 
-.heavens-dashboard__welcome strong {
+.realms-dashboard__welcome strong {
   color: rgb(239 232 218 / 88%);
   font-weight: 400;
 }
 
-.campaign-control {
+.realm-control {
   margin-top: clamp(28px, 4vw, 42px);
   padding: clamp(24px, 3.5vw, 36px);
   border: 1px solid rgb(190 162 105 / 24%);
   border-radius: 7px;
   background:
-    linear-gradient(145deg, rgb(25 40 46 / 84%), rgb(8 16 21 / 91%)),
+    linear-gradient(145deg, rgb(23 42 49 / 86%), rgb(8 16 21 / 92%)),
     rgb(10 18 23 / 91%);
   box-shadow:
     0 24px 58px rgb(0 0 0 / 32%),
@@ -118,7 +117,7 @@
   backdrop-filter: blur(7px);
 }
 
-.heavens-dashboard__section-heading {
+.realms-dashboard__section-heading {
   display: flex;
   margin-bottom: 20px;
   align-items: baseline;
@@ -126,12 +125,12 @@
   gap: 22px;
 }
 
-.heavens-dashboard__section-heading > p {
+.realms-dashboard__section-heading > p {
   margin: 0;
   white-space: nowrap;
 }
 
-.heavens-dashboard__section-heading h3 {
+.realms-dashboard__section-heading h3 {
   margin: 0;
   color: #ede5d7;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -141,11 +140,11 @@
   text-align: right;
 }
 
-.campaign-control__rows {
+.realm-control__rows {
   border-top: 1px solid rgb(137 162 160 / 14%);
 }
 
-.campaign-control__row {
+.realm-control__row {
   display: grid;
   padding: 14px 0;
   border-bottom: 1px solid rgb(137 162 160 / 12%);
@@ -154,19 +153,19 @@
   gap: 16px;
 }
 
-.campaign-control__row:last-child {
+.realm-control__row:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
-.campaign-control__row label {
+.realm-control__row label {
   color: rgb(235 228 214 / 82%);
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
   font-size: 0.94rem;
   letter-spacing: 0.05em;
 }
 
-.campaign-control__row select {
+.realm-control__row select {
   width: 100%;
   height: 44px;
   padding: 9px 38px 9px 13px;
@@ -185,11 +184,11 @@
     box-shadow 160ms ease;
 }
 
-.campaign-control__row select:hover {
+.realm-control__row select:hover {
   border-color: rgb(157 181 180 / 46%);
 }
 
-.campaign-control__row select:focus-visible {
+.realm-control__row select:focus-visible {
   border-color: rgb(213 180 116 / 74%);
   background-color: rgb(4 11 15 / 78%);
   box-shadow:
@@ -197,14 +196,8 @@
     inset 0 2px 7px rgb(0 0 0 / 25%);
 }
 
-.campaign-control__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 9px;
-}
-
-.campaign-control__actions button,
-.heavens-dashboard__return {
+.realm-control__create,
+.realms-dashboard__return {
   min-height: 42px;
   padding: 9px 17px;
   border: 1px solid rgb(190 162 105 / 48%);
@@ -226,8 +219,8 @@
     box-shadow 160ms ease;
 }
 
-.campaign-control__actions button:hover,
-.heavens-dashboard__return:hover {
+.realm-control__create:hover,
+.realms-dashboard__return:hover {
   transform: translateY(-1px);
   border-color: rgb(220 188 123 / 78%);
   background: linear-gradient(180deg, rgb(50 68 72 / 95%), rgb(24 36 42 / 97%));
@@ -236,87 +229,35 @@
     0 0 18px rgb(174 145 91 / 7%);
 }
 
-.campaign-control__actions button:active,
-.heavens-dashboard__return:active {
+.realm-control__create:active,
+.realms-dashboard__return:active {
   transform: translateY(1px);
 }
 
-.campaign-control__actions button:focus-visible,
-.heavens-dashboard__return:focus-visible,
-.heavens-dashboard__logout:focus-visible,
-.campaign-information__close:focus-visible {
+.realm-control__row select:focus-visible,
+.realm-control__create:focus-visible,
+.realms-dashboard__return:focus-visible,
+.realms-dashboard__logout:focus-visible {
   outline: 2px solid #d9bd82;
   outline-offset: 4px;
 }
 
-.campaign-information {
-  margin-top: 22px;
-  padding: 22px 0 2px;
-  border-top: 1px solid rgb(190 162 105 / 18%);
-}
-
-.campaign-information__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.campaign-information__header p {
-  margin: 0 0 7px;
-  color: #bda978;
-  font-size: 0.65rem;
-  font-weight: 650;
-  letter-spacing: 0.22em;
-}
-
-.campaign-information__header h4 {
-  margin: 0;
-  color: #ede5d7;
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  font-size: 1.35rem;
-  font-weight: 400;
-  letter-spacing: 0.025em;
-}
-
-.campaign-information__close {
-  padding: 5px 0;
-  border: 0;
-  color: rgb(201 181 141 / 80%);
-  background: transparent;
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  font-size: 0.84rem;
-  cursor: pointer;
-  transition: color 150ms ease;
-}
-
-.campaign-information__close:hover {
-  color: #ecd9b0;
-}
-
-.campaign-information__message {
-  margin: 12px 0 0;
-  color: rgb(213 216 211 / 62%);
-  font-size: 0.86rem;
-  line-height: 1.55;
-}
-
-.heavens-tools {
+.realms-actions {
   margin-top: clamp(36px, 5vw, 56px);
 }
 
-.heavens-dashboard__section-heading--tools {
+.realms-dashboard__section-heading--actions {
   padding-bottom: 17px;
   border-bottom: 1px solid rgb(190 162 105 / 19%);
 }
 
-.heavens-tools__grid {
+.realms-actions__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 15px;
 }
 
-.heavens-dashboard__notice {
+.realms-dashboard__notice {
   min-height: 21px;
   margin: 19px 0 0;
   color: rgb(196 190 174 / 54%);
@@ -326,11 +267,11 @@
   transition: color 160ms ease;
 }
 
-.heavens-dashboard__notice.is-visible {
+.realms-dashboard__notice.is-visible {
   color: rgb(215 188 132 / 86%);
 }
 
-.heavens-dashboard__footer {
+.realms-dashboard__footer {
   display: flex;
   margin-top: 26px;
   padding-top: 24px;
@@ -340,13 +281,13 @@
   gap: 11px;
 }
 
-.heavens-dashboard__return {
+.realms-dashboard__return {
   min-width: 224px;
   min-height: 48px;
   font-size: 0.98rem;
 }
 
-.heavens-dashboard__logout {
+.realms-dashboard__logout {
   padding: 6px 10px;
   border: 0;
   color: rgb(201 181 141 / 80%);
@@ -358,99 +299,78 @@
   transition: color 150ms ease;
 }
 
-.heavens-dashboard__logout:hover {
+.realms-dashboard__logout:hover {
   color: #ecd9b0;
 }
 
-@media (max-width: 980px) {
-  .campaign-control__row {
-    grid-template-columns: 86px minmax(210px, 1fr);
-  }
-
-  .campaign-control__actions {
-    grid-column: 2;
-  }
-
-  .heavens-tools__grid {
+@media (max-width: 900px) {
+  .realms-actions__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .heavens-dashboard__header {
+  .realms-dashboard__header {
     grid-template-columns: 1fr;
   }
 
-  .heavens-dashboard__brand {
+  .realms-dashboard__brand {
     min-height: 78px;
   }
 
-  .heavens-dashboard__identity {
+  .realms-dashboard__identity {
     padding: 22px 0 0;
     border-top: 1px solid rgb(190 162 105 / 20%);
     border-left: 0;
     text-align: center;
   }
 
-  .heavens-dashboard__identity h2 {
+  .realms-dashboard__identity h2 {
     font-size: clamp(2.35rem, 10vw, 3.5rem);
   }
 
-  .heavens-dashboard__section-heading {
+  .realms-dashboard__section-heading {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
   }
 
-  .heavens-dashboard__section-heading h3 {
+  .realms-dashboard__section-heading h3 {
     text-align: left;
   }
 
-  .campaign-control__row {
+  .realm-control__row {
     padding-block: 17px;
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
-  .campaign-control__actions {
+  .realm-control__create {
+    width: fit-content;
     margin-top: 2px;
-    grid-column: 1;
-    justify-content: flex-start;
   }
 }
 
 @media (max-width: 660px) {
-  .heavens-dashboard {
-    width: min(100% - 28px, 1160px);
+  .realms-dashboard {
+    width: min(100% - 28px, 1080px);
   }
 
-  .campaign-control {
+  .realm-control {
     padding: 22px 19px;
   }
 
-  .campaign-control__actions--character {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .campaign-control__actions button {
-    white-space: normal;
-  }
-
-  .heavens-tools__grid {
+  .realms-actions__grid {
     grid-template-columns: 1fr;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .campaign-control__row select,
-  .campaign-control__actions button,
-  .campaign-information__close,
-  .heavens-dashboard__notice,
-  .heavens-dashboard__return,
-  .heavens-dashboard__logout {
+  .realm-control__row select,
+  .realm-control__create,
+  .realms-dashboard__notice,
+  .realms-dashboard__return,
+  .realms-dashboard__logout {
     transition-duration: 0.01ms;
   }
 }

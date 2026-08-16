@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
-import { HeavensToolCard } from "../components/HeavensToolCard";
-import type { AuthSession } from "../types/user";
+import { CampaignInformationPanel } from "../components/CampaignInformationPanel";
 import {
-  HEAVENS_DASHBOARD_TOOLS,
-  type HeavensDashboardTool,
-} from "./heavensDashboardTools";
+  PortalActionCard,
+  type PortalActionDefinition,
+} from "../components/PortalActionCard";
+import type { AuthSession } from "../types/user";
+import { HEAVENS_DASHBOARD_TOOLS } from "./heavensDashboardTools";
 import "../styles/heavens-dashboard.css";
 
 type HeavensDashboardPageProps = {
@@ -26,12 +27,14 @@ export function HeavensDashboardPage({
   onLogout,
 }: HeavensDashboardPageProps) {
   const [notice, setNotice] = useState("");
+  const [isCampaignInformationOpen, setIsCampaignInformationOpen] =
+    useState(false);
 
   function showComingSoon(label: string) {
     setNotice(`${label} is coming soon.`);
   }
 
-  function selectTool(tool: HeavensDashboardTool) {
+  function selectTool(tool: PortalActionDefinition) {
     showComingSoon(tool.title);
   }
 
@@ -70,6 +73,14 @@ export function HeavensDashboardPage({
                 <option value="">{CONTROL_PLACEHOLDERS.campaign}</option>
               </select>
               <div className="campaign-control__actions">
+                <button
+                  type="button"
+                  aria-expanded={isCampaignInformationOpen}
+                  aria-controls="campaign-information"
+                  onClick={() => setIsCampaignInformationOpen(true)}
+                >
+                  View Campaign
+                </button>
                 <button
                   type="button"
                   onClick={() => showComingSoon("Create Campaign")}
@@ -115,6 +126,12 @@ export function HeavensDashboardPage({
               </div>
             </div>
           </div>
+
+          {isCampaignInformationOpen && (
+            <CampaignInformationPanel
+              onClose={() => setIsCampaignInformationOpen(false)}
+            />
+          )}
         </section>
 
         <section
@@ -128,7 +145,12 @@ export function HeavensDashboardPage({
 
           <div className="heavens-tools__grid">
             {HEAVENS_DASHBOARD_TOOLS.map((tool) => (
-              <HeavensToolCard key={tool.id} tool={tool} onSelect={selectTool} />
+              <PortalActionCard
+                key={tool.id}
+                action={tool}
+                variant="heavens"
+                onSelect={selectTool}
+              />
             ))}
           </div>
 

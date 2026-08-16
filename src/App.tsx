@@ -4,7 +4,7 @@ import { AccessChoicePage } from "./pages/AccessChoicePage";
 import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
-import { RealmsPlaceholderPage } from "./pages/RealmsPlaceholderPage";
+import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { authService } from "./services/authService";
 import {
   authorizeDestination,
@@ -105,7 +105,7 @@ function App() {
         );
       case "realms":
         return (
-          <RealmsPlaceholderPage
+          <RealmsDashboardPage
             session={session}
             onReturn={
               canAccessDestination(session, "access-choice")
