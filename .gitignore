@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Runtime SQLite files belong in the operating system app-data directory.
+*.db
+*.db-shm
+*.db-wal
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,0 +1,83 @@
+.atmospheric-page {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: clamp(28px, 5vw, 64px);
+  overflow-x: hidden;
+  overflow-y: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 16%, rgb(55 102 108 / 24%) 0%, transparent 43%),
+    radial-gradient(ellipse at 14% 100%, rgb(31 55 75 / 30%) 0%, transparent 46%),
+    radial-gradient(ellipse at 92% 82%, rgb(47 35 55 / 20%) 0%, transparent 38%),
+    linear-gradient(155deg, #05070a 0%, #0a1118 50%, #05070a 100%);
+  place-items: center;
+}
+
+.atmospheric-page::before {
+  position: absolute;
+  z-index: -1;
+  width: min(72vw, 780px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(190 162 105 / 8%);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 60%, rgb(5 8 12 / 32%) 74%, transparent 75%);
+  box-shadow:
+    0 0 0 clamp(18px, 3vw, 38px) rgb(139 169 165 / 2%),
+    0 0 130px rgb(86 132 136 / 8%);
+  content: "";
+}
+
+.atmospheric-page::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px),
+    linear-gradient(rgb(255 255 255 / 0.9%) 1px, transparent 1px),
+    radial-gradient(ellipse at center, transparent 28%, rgb(0 0 0 / 56%) 100%);
+  background-size: 64px 64px, 64px 64px, auto;
+  content: "";
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 50%), transparent 90%);
+  pointer-events: none;
+}
+
+.atmospheric-page__content {
+  display: flex;
+  width: min(100%, 920px);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 4vh, 40px);
+}
+
+.atmospheric-page__brand .brand-logo--wordmark {
+  font-size: clamp(3rem, 7vw, 5.25rem);
+}
+
+.atmospheric-page__brand .brand-logo--image {
+  width: min(52vw, 520px);
+  max-height: 22vh;
+}
+
+@media (max-height: 820px) {
+  .atmospheric-page {
+    padding-block: 24px;
+    place-items: start center;
+  }
+
+  .atmospheric-page__content {
+    gap: 22px;
+  }
+
+  .atmospheric-page__brand .brand-logo--wordmark {
+    font-size: clamp(2.8rem, 10vh, 4rem);
+  }
+}
+
+@media (max-height: 620px) {
+  .atmospheric-page {
+    overflow-y: auto;
+  }
+}

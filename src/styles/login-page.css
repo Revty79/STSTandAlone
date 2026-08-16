@@ -1,0 +1,260 @@
+.login-page__back {
+  position: fixed;
+  z-index: 3;
+  top: clamp(18px, 3vw, 34px);
+  left: clamp(18px, 3vw, 38px);
+  padding: 8px 10px;
+  border: 0;
+  color: rgb(225 216 196 / 74%);
+  background: transparent;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: 0.94rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.login-page__back span {
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 160ms ease;
+}
+
+.login-page__back:hover {
+  color: #f2e7d2;
+}
+
+.login-page__back:hover span {
+  transform: translateX(-3px);
+}
+
+.login-page__back:focus-visible,
+.login-page__mode-action:focus-visible,
+.authenticated-page__text-action:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid #d9bd82;
+  outline-offset: 4px;
+}
+
+.login-page__panel {
+  width: min(100%, 455px);
+  padding: clamp(25px, 4vw, 38px);
+  border: 1px solid rgb(190 162 105 / 27%);
+  border-radius: 7px;
+  background:
+    linear-gradient(145deg, rgb(26 39 45 / 86%), rgb(10 17 23 / 92%)),
+    rgb(11 17 22 / 90%);
+  box-shadow:
+    0 28px 68px rgb(0 0 0 / 46%),
+    inset 0 1px rgb(255 255 255 / 4%);
+  backdrop-filter: blur(8px);
+}
+
+.login-page__header {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.login-page__eyebrow,
+.authenticated-page__access {
+  margin: 0 0 10px;
+  color: #bda978;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+}
+
+.login-page__header h2,
+.authenticated-page__header h2,
+.destination-page__panel h2 {
+  margin: 0;
+  color: #eee6d7;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.25rem);
+  font-weight: 400;
+  letter-spacing: 0.035em;
+  text-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+}
+
+.login-page__header > p:last-child,
+.authenticated-page__header > p:last-child {
+  margin: 9px 0 0;
+  color: rgb(218 220 216 / 65%);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.login-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.login-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: rgb(235 227 211 / 80%);
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: 0.84rem;
+  letter-spacing: 0.065em;
+}
+
+.login-page__field input {
+  width: 100%;
+  height: 46px;
+  padding: 10px 13px;
+  border: 1px solid rgb(132 158 160 / 28%);
+  border-radius: 4px;
+  outline: none;
+  color: #f2ede4;
+  background: rgb(3 8 12 / 54%);
+  box-shadow: inset 0 2px 7px rgb(0 0 0 / 28%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.login-page__field input:hover:not(:disabled) {
+  border-color: rgb(151 179 179 / 42%);
+}
+
+.login-page__field input:focus {
+  border-color: rgb(206 176 115 / 75%);
+  background: rgb(4 10 14 / 72%);
+  box-shadow:
+    0 0 0 3px rgb(190 157 94 / 9%),
+    inset 0 2px 7px rgb(0 0 0 / 28%);
+}
+
+.login-page__field input:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.login-page__feedback {
+  min-height: 20px;
+  margin: -2px 0 -4px;
+  color: rgb(229 188 155 / 92%);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.login-page__feedback.is-visible {
+  opacity: 1;
+}
+
+.login-page__primary-action,
+.access-choice-page__choices button,
+.destination-page__return-action {
+  min-height: 52px;
+  padding: 13px 24px;
+  border: 1px solid rgb(196 164 102 / 62%);
+  border-radius: 4px;
+  color: #f7f0e3;
+  background: linear-gradient(180deg, rgb(43 56 61 / 94%), rgb(22 31 37 / 96%));
+  box-shadow:
+    0 11px 28px rgb(0 0 0 / 31%),
+    inset 0 1px rgb(255 255 255 / 7%);
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: 1.03rem;
+  letter-spacing: 0.055em;
+  cursor: pointer;
+  transition:
+    transform 170ms ease,
+    border-color 170ms ease,
+    background 170ms ease,
+    box-shadow 170ms ease;
+}
+
+.login-page__primary-action:hover:not(:disabled),
+.access-choice-page__choices button:hover,
+.destination-page__return-action:hover {
+  transform: translateY(-2px);
+  border-color: rgb(220 188 123 / 86%);
+  background: linear-gradient(180deg, rgb(51 68 72 / 97%), rgb(25 36 42 / 98%));
+  box-shadow:
+    0 14px 34px rgb(0 0 0 / 39%),
+    0 0 22px rgb(174 145 91 / 9%);
+}
+
+.login-page__primary-action:active:not(:disabled),
+.access-choice-page__choices button:active,
+.destination-page__return-action:active {
+  transform: translateY(1px);
+}
+
+.login-page__primary-action:focus-visible,
+.access-choice-page__choices button:focus-visible,
+.destination-page__return-action:focus-visible {
+  outline: 2px solid #d9bd82;
+  outline-offset: 4px;
+}
+
+.login-page__primary-action:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.login-page__mode-action,
+.authenticated-page__text-action {
+  display: block;
+  margin: 20px auto 0;
+  padding: 5px 8px;
+  border: 0;
+  color: rgb(201 181 141 / 84%);
+  background: transparent;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.035em;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.login-page__mode-action:hover:not(:disabled),
+.authenticated-page__text-action:hover {
+  color: #ecd9b0;
+}
+
+.login-page__mode-action:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+@media (max-height: 820px) {
+  .login-page__panel {
+    padding: 23px 30px;
+  }
+
+  .login-page__header {
+    margin-bottom: 19px;
+  }
+
+  .login-page__form {
+    gap: 13px;
+  }
+
+  .login-page__field input {
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page__back,
+  .login-page__back span,
+  .login-page__field input,
+  .login-page__feedback,
+  .login-page__primary-action,
+  .login-page__mode-action {
+    transition-duration: 0.01ms;
+  }
+}

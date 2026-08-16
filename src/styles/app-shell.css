@@ -1,0 +1,22 @@
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  animation: app-screen-enter 240ms ease-out both;
+}
+
+@keyframes app-screen-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell {
+    animation-duration: 0.01ms;
+  }
+}
