@@ -1,0 +1,1739 @@
+{
+  "schemaVersion": 1,
+  "sourceSha256": "48b0592462e3367e16649a85193e1ff8c5bb11f7ac9d02b2245ca83c62ea680f",
+  "sourceRowCount": 373,
+  "duplicateSourceRowsCollapsed": 2,
+  "canonicalRecordCount": 371,
+  "recordsWithWarnings": 225,
+  "totalWarnings": 589,
+  "aliases": [
+    "Earthen Grasp (Novice) -> Earthen Tangle",
+    "Maelstrom Vortex (Water) -> Maelstrom",
+    "Blink Step (Psychoportation) -> Blink",
+    "Threads of Fate (Novice) -> Whispered Fate",
+    "Umbral Veil (Umbrakinesis) -> Umbral Cloak"
+  ],
+  "correctedCatalogNames": [
+    "Chrono-Burst",
+    "Chrono-Stasis Field"
+  ],
+  "addedCatalogNames": [
+    "Soul Lock"
+  ],
+  "reviewQueue": [
+    {
+      "targetName": "Adrenal Surge",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "All-Seeing Veil",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Annihilation Field",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (60 ft radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Arcane Lockdown",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "counter-cancel was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "counter-cancel was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Aria of Sacred Union",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Arsenal Field",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Ascendant Weapon Sigil",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "Spatial Bubble was retained in source metadata but excluded from active construction because the calculator requires an AoE Shape."
+      ]
+    },
+    {
+      "targetName": "Astral Chains",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Attune Item",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "Unrecognized duration \"Duration: 1 Day (special)\" was retained only in source metadata."
+      ]
+    },
+    {
+      "targetName": "Avatar of Chimera",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Ballad of Shared Triumph",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "Multi-Target count was not explicit; imported one additional target for review.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Battle Hymn of Fury",
+      "warnings": [
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Bind Undead",
+      "warnings": [
+        "link-bind was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Blink Assault",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Bond of Trust",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Bulwark Sigil",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Cacophony of Nightmares",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (1 step)\" cannot be encoded by the current non-stackable rule.",
+        "stun-daze was moved into a Control container required by the calculator.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Carnival of Courage",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Cataclysm",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (120 ft)\" was retained without invented scaling.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Cataclysm of Grief",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (180 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"5 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Cataclysmic Convergence",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Cataclysmic Rift",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Cathedral of Sleep",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Cellular Mend",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Cellular Regeneration",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Chains of Dread",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "illusion-mask was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Chains of Melancholy",
+      "warnings": [
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Charged Grasp",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Chorus of Delight",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Chrono-Burst",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Chrono-Stasis Field",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Circle of Binding",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (20 ft radius)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Concord of Ten Thousand",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (40 ft radius)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Concordance of One Heart",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Continental Rift",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Crown of Thorns",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"3 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Crushing Dread",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Crushing Grasp",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Cycle of Rebirth",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere/Zone (Large, 11)\" was retained without invented scaling.",
+        "Non-step Lingering duration \"Combat Round (5) + Lingering (2)\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Cyclone Prison",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Dampen Aura",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Dimensional Anchor",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "link-bind was moved from an incomplete Temporal/Spatial container into Target.",
+        "debuff was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Dimensional Peek",
+      "warnings": [
+        "reveal-detect was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Dirge of the Hollow Heart",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Dirge of Weariness",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Dissonant Disarm",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Dominion of the Heart",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (100 ft radius = 10)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds (15)\" cannot be encoded by the current non-stackable rule.",
+        "link-bind was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Dream Bastion",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Dream Snare",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Dreamwalk",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "link-bind was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Earthen Grasp",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Echo of Emotion",
+      "warnings": [
+        "reveal-detect was moved from an incomplete AoE into Target; the source provides no calculator-valid Shape."
+      ]
+    },
+    {
+      "targetName": "Echo of Mourning",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Echo of Resilience",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Echo of Unease",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Eclipse of Eternity",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Eclipse of Truth",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (100 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + 3 Lingering Steps\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Eclipse Shroud",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "illusion-mask was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "illusion-mask was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Edge Sigil",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Elegy of Despair",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Eternal Black Sun",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (100 ft radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + lingering corruption (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Eternal Bloom",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere/Zone (Large, 11)\" was retained without invented scaling.",
+        "Non-step Lingering duration \"Combat Round (5) + Lingering (2)\" requires manual rules review.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Eternal Concord of Realms",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Zone/Cube (5 + 4 sizes = 17)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds (15) + Lingering 5 steps (10)\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Eternal Dreamfall",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (200 ft radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Eternal Eclipse",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"3 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "illusion-mask was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "illusion-mask was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Eternal Horizon Gate",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (1 mile)\" was retained without invented scaling.",
+        "Non-step Lingering duration \"Lingering (permanent until dispelled)\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Eternal Jubilee",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (120 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (2 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose.",
+        "counter-cancel was moved from Control into Target because it is not a Control Stand-Alone.",
+        "buff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Eternal Vow",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"3 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose.",
+        "counter-cancel was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Expose the Flaw",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Eyes Beyond Time",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "buff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "reveal-detect was moved from Control into Target because it is not a Control Stand-Alone.",
+        "buff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Far-Seer’s Eye",
+      "warnings": [
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Festival Spark",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Flame Jet",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Fleshbind Curse",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "transform-alter was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Force Barrier",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "create-destroy-basic was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Force Lance",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Force Wave",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Foresight Step",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Fracture of the Infinite",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Funeral Chains",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (60 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (2 steps)\" cannot be encoded by the current non-stackable rule.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Gate",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Genesis Dominion",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere/Zone (15, colossal)\" was retained without invented scaling.",
+        "Non-step Lingering duration \"Combat Round (5) + Lingering (6)\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Genesis Metamorphosis",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Non-step Lingering duration \"Combat Round (5) + Lingering (4)\" requires manual rules review.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "transform-alter was moved from Control into Target because it is not a Control Stand-Alone.",
+        "transform-alter was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Genesis Renewal",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Genesis Transmutation",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Non-step Lingering duration \"Lingering (hours)\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Gentle Reprieve",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Grasp of the Pale Host",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "grapple-restrain was moved into a Control container required by the calculator.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Grave Cataclysm",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Grave Grasp",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Harmonic Shielding",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Harmony’s Embrace",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Harrowing Dirge",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Healing Chorus",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Heart’s Whisper",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Heckle",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Hellstorm Crucible",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Hive Dominion",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Zone (1 mile radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (10 steps)\" cannot be encoded by the current non-stackable rule.",
+        "link-bind was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "transfer-life-force was moved from Control into Target because it is not a Control Stand-Alone.",
+        "link-bind was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Hypermetabolic Overdrive",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Incendiary Rebuke",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Infernal Maelstrom",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere/Zone (30 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering\" cannot be encoded by the current non-stackable rule.",
+        "Non-step Lingering duration \"2 Combat Rounds + Lingering\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Inferno Wave",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "knockdown was moved into a Control container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Infinite Labyrinth",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Iron Skin",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Joyful Guard",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Kinetic Armor",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Kinetic Push",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Labyrinth of the Sleeper",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere/Cube/Zone (Large x3)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Lamenting Shackles",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Leviathan’s Awakening",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "knockdown was moved into a Control container required by the calculator.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Lightning Chain",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Lingering Paranoia",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Maelstrom",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Maelstrom Vortex",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Marrow Rot",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Mass Levitation",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Mass Resize",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Maze of Mirrors",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (20 ft)\" was retained without invented scaling.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Mending Serenade",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Metabolic Burn",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Metabolic Dominion",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering (1 step)\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Metabolic Purge",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Mindquake",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Mirror of Reversal",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Molten Surge",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (10 ft)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Momentary Dread",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Night Terror",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Nightfang Manifest",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Nightmare Dominion",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (100 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "immobilize was moved into a Control container required by the calculator.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Nightmare Menagerie",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Nightmare Sculpt",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Oblivion Eclipse",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator.",
+        "banish was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Oblivion Veil",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (300 ft radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (5 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Oracle’s Reposition",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Packform Shift",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Pale Harvest",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for transfer-life-force; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Pale Legion",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Phantasmal Army",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Phantasmal Echoes",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Phantasmal Host",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "illusion-mask was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Phantom Footfalls",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Phase Hand",
+      "warnings": [
+        "transform-alter was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Phase Passage",
+      "warnings": [
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (10 ft)\" was retained without invented scaling.",
+        "transform-alter was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Plagueform Wave",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "transform-alter was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Psi-Edge Blade",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Psychic Domination",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "link-bind was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Puppet Strings",
+      "warnings": [
+        "link-bind was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Quantum Chorus",
+      "warnings": [
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Quantum Convergence",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (3 steps)\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Quantum Hum",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Radiant Harmony",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose.",
+        "buff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Rage Dominion",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (100 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (2 steps)\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Ragequake",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (40 ft)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Reflective Maelstrom",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "link-bind was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Regenerative Metamorphosis",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Resize Trinket",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Resonant Shatter",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Resonant Shiver",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Revelation Aria",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Revelation of Eternity",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (300 ft radius)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Revelation of Hearts",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Revelry Unending",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "No deterministic quantity was found for healing; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Riptide Grasp",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Rock Armor",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Runeward",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Scorching Ray",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Seal of Silence",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "counter-cancel was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "counter-cancel was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Seal of the Eclipsed Gate",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (40 ft radius)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Seed of Doubt",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Seismic Fury",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (60 ft)\" was retained without invented scaling.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Seismic Rupture",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (60 ft)\" was retained without invented scaling."
+      ]
+    },
+    {
+      "targetName": "Shadow Cataclysm",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + Lingering 2 steps\" cannot be encoded by the current non-stackable rule.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Shadow Maw",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "grapple-restrain was moved into a Control container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Shadow Snare",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "grapple-restrain was moved into a Control container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Shared Dream",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Multi-Target count was not explicit; imported one additional target for review."
+      ]
+    },
+    {
+      "targetName": "Shuddering Chord",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Slow Tether",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Soothing Pulse",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Soul Lock",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "link-bind was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Spark of Laughter",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Spatial Anchor",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Spatial Rend",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Spatial Veil",
+      "warnings": [
+        "illusion-mask was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Specter’s Whisper",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Stasis Snare",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "immobilize was moved into a Control container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Steal the Smile",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Stone Spire",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Storm Nexus",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"2 Combat Rounds\" cannot be encoded by the current non-stackable rule.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Stormcall Surge",
+      "warnings": [
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Suffocating Dome",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Sweeping Roar",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Symphony of Alignment",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "buff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "accelerate-hasten was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Symphony of Devotion",
+      "warnings": [
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Symphony of Exultation",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Symphony of Souls",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (50 ft radius = 8)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds (10)\" cannot be encoded by the current non-stackable rule.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Tearful Lament",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Telekinetic Crush",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Telekinetic Maelstrom",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "Spatial Bubble was moved into an AoE container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Telekinetic Pull",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Telepathic Storm",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Temporal Glimpse",
+      "warnings": [
+        "buff was moved from an incomplete Temporal/Spatial container into Target."
+      ]
+    },
+    {
+      "targetName": "Terror Pulse",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "The Shattered City",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (30 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"2 Combat Rounds + 2 Lingering Steps\" cannot be encoded by the current non-stackable rule."
+      ]
+    },
+    {
+      "targetName": "Threads of Destiny",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "buff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "buff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "Threads of Fate",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "decelerate-slow was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Tide Push",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Tide Wall",
+      "warnings": [
+        "buff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Titan's Grasp",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multi-Target count was not explicit; imported one additional target for review.",
+        "grapple-restrain was moved into a Control container required by the calculator.",
+        "anchor-lock was moved into a Control container required by the calculator."
+      ]
+    },
+    {
+      "targetName": "Tuning Note",
+      "warnings": [
+        "No deterministic quantity was found for healing; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Umbral Step",
+      "warnings": [
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multi-Target count was not explicit; imported one additional target for review."
+      ]
+    },
+    {
+      "targetName": "Unveiled Affection",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "Progressive conditions required the Progressive Spell modifier; no tier changes were invented from prose."
+      ]
+    },
+    {
+      "targetName": "Veil of Shadowstep",
+      "warnings": [
+        "Multiple Combat Steps in \"2 Combat Steps\" are not defined as stackable."
+      ]
+    },
+    {
+      "targetName": "Vexing Aria",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for decelerate-slow; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Vital Exchange",
+      "warnings": [
+        "No deterministic quantity was found for transfer-life-force; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Wail of the Forsaken",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Weapon Spark",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "No deterministic quantity was found for damage; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Web of Insight",
+      "warnings": [
+        "target container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Whisper of Tongues",
+      "warnings": [
+        "No deterministic quantity was found for buff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Whispered Fate",
+      "warnings": [
+        "No deterministic quantity was found for accelerate-hasten; imported at its base quantity of 1.",
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1."
+      ]
+    },
+    {
+      "targetName": "Wind Shear",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    },
+    {
+      "targetName": "World’s Whisper",
+      "warnings": [
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Worldfire Convergence",
+      "warnings": [
+        "No deterministic quantity was found for damage; imported at its base quantity of 1.",
+        "temporal-spatial container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "control container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering\" cannot be encoded by the current non-stackable rule.",
+        "Non-step Lingering duration \"3 Combat Rounds + Lingering\" requires manual rules review."
+      ]
+    },
+    {
+      "targetName": "Worldshaper’s Bastion",
+      "warnings": [
+        "Multiple Combat Rounds in \"Lingering (3 rounds)\" cannot be encoded by the current non-stackable rule.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone.",
+        "damage was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Worldshaper’s Maw",
+      "warnings": [
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed."
+      ]
+    },
+    {
+      "targetName": "Worldstorm",
+      "warnings": [
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (10 steps)\" cannot be encoded by the current non-stackable rule.",
+        "create-destroy-major was moved from an incomplete Temporal/Spatial container into Target.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone."
+      ]
+    },
+    {
+      "targetName": "Wrath Unleashed",
+      "warnings": [
+        "No deterministic quantity was found for debuff; imported at its base quantity of 1.",
+        "aoe container has no directly parsed Stand-Alone effect and will remain visibly invalid until reviewed.",
+        "Sphere/Cube/Zone size steps are undefined; \"Sphere (60 ft)\" was retained without invented scaling.",
+        "Multiple Combat Rounds in \"3 Combat Rounds + Lingering (1 step)\" cannot be encoded by the current non-stackable rule.",
+        "debuff was moved from Control into Target because it is not a Control Stand-Alone.",
+        "debuff was attached to the shaped AoE so the active construction satisfies the calculator's direct-effect rule."
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "generate:skill-seed": "node scripts/generate-skill-seed.mjs",
+    "generate:spell-seed": "node scripts/generate-spell-seed.mjs",
     "test": "vitest run",
     "preview": "vite preview",
     "tauri": "tauri"

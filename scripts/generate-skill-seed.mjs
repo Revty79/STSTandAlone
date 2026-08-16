@@ -17,7 +17,10 @@ const migrationPath = path.join(
   "migrations",
   "0003_seed_skill_catalog.sql",
 );
-const sourcePath = path.resolve(process.argv[2] ?? canonicalSourcePath);
+const arguments_ = process.argv.slice(2);
+const createInitialMigration = arguments_.includes("--create-initial-migration");
+const sourceArgument = arguments_.find((argument) => !argument.startsWith("--"));
+const sourcePath = path.resolve(sourceArgument ?? canonicalSourcePath);
 const expectedHeaders = [
   "Primary Attribute",
   "Secondary Attribute",
@@ -236,12 +239,12 @@ const migration = serializeMigration(rows, sourceHash);
 
 await mkdir(path.dirname(canonicalSourcePath), { recursive: true });
 await mkdir(path.dirname(migrationPath), { recursive: true });
-await Promise.all([
-  writeFile(canonicalSourcePath, canonicalSource, "utf8"),
-  writeFile(migrationPath, migration, "utf8"),
-]);
+await writeFile(canonicalSourcePath, canonicalSource, "utf8");
+if (createInitialMigration) {
+  await writeFile(migrationPath, migration, "utf8");
+}
 
 const relationshipCount = rows.filter(({ parentName }) => parentName).length;
 process.stdout.write(
-  `Generated ${rows.length} Skills and ${relationshipCount} parent relationships.\n`,
+  `${createInitialMigration ? "Generated migration 0003 for" : "Validated"} ${rows.length} Skills and ${relationshipCount} parent relationships.${createInitialMigration ? "" : " Migration 0003 is immutable; later catalog changes belong in a new migration."}\n`,
 );

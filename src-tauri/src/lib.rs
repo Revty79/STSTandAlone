@@ -8,6 +8,8 @@ const INITIAL_ACCOUNT_MIGRATION: &str =
 const SKILLS_MIGRATION: &str = include_str!("../migrations/0002_create_skills.sql");
 const SKILL_CATALOG_MIGRATION: &str =
     include_str!("../migrations/0003_seed_skill_catalog.sql");
+const SPELL_CONSTRUCTION_MIGRATION: &str =
+    include_str!("../migrations/0004_seed_spell_construction.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,6 +32,12 @@ pub fn run() {
             sql: SKILL_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "seed_spell_construction",
+            sql: SPELL_CONSTRUCTION_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -49,6 +57,7 @@ pub fn run() {
 mod tests {
     use super::{
         INITIAL_ACCOUNT_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+        SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -414,5 +423,183 @@ mod tests {
             .expect("recount canonical relationships");
         assert_eq!(canonical_skills_after_reapply, 1_136);
         assert_eq!(relationships_after_reapply, 989);
+    }
+
+    #[test]
+    fn spell_construction_migration_maps_every_source_row_and_preserves_user_edits() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("apply account migration");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("apply skills migration");
+        connection
+            .execute_batch(SKILL_CATALOG_MIGRATION)
+            .expect("seed canonical Skill catalog");
+
+        // Simulate a database that already received the original misspelled
+        // migration 0003 identities before this correction shipped.
+        connection
+            .execute(
+                "UPDATE skills SET name = 'CHAono-Burst', source_external_id = ?1 \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND name = 'Chrono-Burst' COLLATE NOCASE",
+                ["skill-830880db386529175e3214b637602a93128526f826ee07f872e5ea080cec7dd8"],
+            )
+            .expect("restore legacy Chrono-Burst identity");
+        connection
+            .execute(
+                "UPDATE skills SET name = 'CHAono-Stasis Field', source_external_id = ?1 \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND name = 'Chrono-Stasis Field' COLLATE NOCASE",
+                ["skill-f56975e81ce6487f9649728c0f0cad519c9a6003520181479430adc8f8a87c55"],
+            )
+            .expect("restore legacy Chrono-Stasis identity");
+
+        let flaming_dart_id: i64 = connection
+            .query_row(
+                "SELECT id FROM skills \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND name = 'Flaming Dart' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("load Flaming Dart id");
+        connection
+            .execute(
+                "INSERT INTO skill_extensions (skill_id, extension_type, schema_version, data_json) \
+                 VALUES (?1, 'spell-construction', 6, ?2)",
+                params![flaming_dart_id, r#"{"schemaVersion":6,"marker":"preserved-user-edit"}"#],
+            )
+            .expect("insert a preexisting user Spell Construction extension");
+
+        connection
+            .execute_batch(SPELL_CONSTRUCTION_MIGRATION)
+            .expect("seed Spell Construction documents");
+
+        let canonical_magic_skills: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND lower(classification) IN ('spell', 'psionic skill', 'reverberation')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count canonical magic Skills");
+        let construction_extensions: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions extension \
+                 JOIN skills skill ON skill.id = extension.skill_id \
+                 WHERE skill.source_system = 'serrian-tide-core' \
+                   AND extension.extension_type = 'spell-construction'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count Spell Construction extensions");
+        let source_extensions: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions extension \
+                 JOIN skills skill ON skill.id = extension.skill_id \
+                 WHERE skill.source_system = 'serrian-tide-core' \
+                   AND extension.extension_type = 'spell-import-source'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count Spell source extensions");
+        let retained_source_rows: i64 = connection
+            .query_row(
+                "SELECT SUM(json_array_length(json_extract(data_json, '$.sourceRows'))) \
+                 FROM skill_extensions WHERE extension_type = 'spell-import-source'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count retained source rows");
+        let invalid_json: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions \
+                 WHERE extension_type IN ('spell-construction', 'spell-import-source') \
+                   AND json_valid(data_json) = 0",
+                [],
+                |row| row.get(0),
+            )
+            .expect("validate seeded JSON");
+
+        assert_eq!(canonical_magic_skills, 371);
+        assert_eq!(construction_extensions, 371);
+        assert_eq!(source_extensions, 371);
+        assert_eq!(retained_source_rows, 373, "duplicate rows must remain auditable");
+        assert_eq!(invalid_json, 0);
+
+        let preserved_marker: String = connection
+            .query_row(
+                "SELECT json_extract(data_json, '$.marker') FROM skill_extensions \
+                 WHERE skill_id = ?1 AND extension_type = 'spell-construction'",
+                [flaming_dart_id],
+                |row| row.get(0),
+            )
+            .expect("reload preserved extension");
+        assert_eq!(preserved_marker, "preserved-user-edit");
+
+        let (soul_parent, framework_id, tradition, source_cost): (String, i64, String, i64) = connection
+            .query_row(
+                "SELECT parent.name, \
+                        json_extract(construction.data_json, '$.frameworkSkillId'), \
+                        json_extract(construction.data_json, '$.tradition'), \
+                        json_extract(source.data_json, '$.spreadsheetReference.statedSpellCost') \
+                 FROM skills soul \
+                 JOIN skill_relationships relationship \
+                   ON relationship.skill_id = soul.id \
+                  AND relationship.relationship_type = 'parent' \
+                 JOIN skills parent ON parent.id = relationship.related_skill_id \
+                 JOIN skill_extensions construction \
+                   ON construction.skill_id = soul.id \
+                  AND construction.extension_type = 'spell-construction' \
+                 JOIN skill_extensions source \
+                   ON source.skill_id = soul.id \
+                  AND source.extension_type = 'spell-import-source' \
+                 WHERE soul.source_system = 'serrian-tide-core' \
+                   AND soul.name = 'Soul Lock' COLLATE NOCASE",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .expect("load Soul Lock seed");
+        let death_id: i64 = connection
+            .query_row(
+                "SELECT id FROM skills WHERE source_system = 'serrian-tide-core' \
+                 AND name = 'Death' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("load Death framework id");
+        assert_eq!(soul_parent, "Death");
+        assert_eq!(framework_id, death_id);
+        assert_eq!(tradition, "Spellcraft/Talismanism/Faith");
+        assert_eq!(source_cost, 84);
+
+        let legacy_chrono_names: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills WHERE source_system = 'serrian-tide-core' \
+                 AND name IN ('CHAono-Burst', 'CHAono-Stasis Field')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count legacy Chrono spell names");
+        assert_eq!(legacy_chrono_names, 0);
+
+        connection
+            .execute_batch(SPELL_CONSTRUCTION_MIGRATION)
+            .expect("reapply Spell seed idempotently");
+        let extension_count_after_reapply: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions extension \
+                 JOIN skills skill ON skill.id = extension.skill_id \
+                 WHERE skill.source_system = 'serrian-tide-core' \
+                   AND extension.extension_type IN ('spell-construction', 'spell-import-source')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("recount Spell extensions");
+        assert_eq!(extension_count_after_reapply, 742);
     }
 }
