@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { initializeDatabase } from "./data/database";
 import { AccessChoicePage } from "./pages/AccessChoicePage";
-import { HeavensPlaceholderPage } from "./pages/HeavensPlaceholderPage";
+import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsPlaceholderPage } from "./pages/RealmsPlaceholderPage";
@@ -97,7 +97,7 @@ function App() {
         );
       case "heavens":
         return (
-          <HeavensPlaceholderPage
+          <HeavensDashboardPage
             session={session}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
