@@ -312,8 +312,76 @@
 
 .heavens-tools__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 15px;
+}
+
+.heavens-tools__grid--core .portal-action-card:nth-child(5) {
+  width: calc(50% - 7.5px);
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.heavens-tools__grid--core .portal-action-card:nth-child(2) {
+  border-color: rgb(190 162 105 / 41%);
+  background:
+    radial-gradient(circle at 88% 15%, rgb(153 124 74 / 8%), transparent 34%),
+    linear-gradient(145deg, rgb(32 51 57 / 86%), rgb(9 18 23 / 94%));
+}
+
+.heavens-future {
+  margin-top: clamp(31px, 4vw, 44px);
+  padding-top: 22px;
+  border-top: 1px solid rgb(190 162 105 / 14%);
+}
+
+.heavens-future__heading {
+  display: flex;
+  margin-bottom: 15px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.heavens-future__heading p {
+  margin: 0;
+  color: rgb(189 169 120 / 72%);
+  font-size: 0.63rem;
+  font-weight: 650;
+  letter-spacing: 0.24em;
+}
+
+.heavens-future__heading h4 {
+  margin: 0;
+  color: rgb(224 217 202 / 69%);
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.heavens-tools__grid--future {
+  gap: 12px;
+}
+
+.heavens-tools__grid--future .portal-action-card {
+  min-height: 116px;
+  border-color: rgb(130 158 158 / 14%);
+  background:
+    linear-gradient(145deg, rgb(24 38 44 / 57%), rgb(7 14 18 / 75%)),
+    rgb(9 17 21 / 76%);
+  box-shadow:
+    0 10px 24px rgb(0 0 0 / 18%),
+    inset 0 1px rgb(255 255 255 / 2%);
+}
+
+.heavens-tools__grid--future .portal-action-card__title {
+  color: rgb(232 224 209 / 75%);
+  font-size: 1.1rem;
+}
+
+.heavens-tools__grid--future .portal-action-card__description {
+  color: rgb(200 205 200 / 48%);
 }
 
 .heavens-dashboard__notice {
@@ -371,9 +439,6 @@
     grid-column: 2;
   }
 
-  .heavens-tools__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 760px) {
@@ -404,6 +469,12 @@
 
   .heavens-dashboard__section-heading h3 {
     text-align: left;
+  }
+
+  .heavens-future__heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
 
   .campaign-control__row {
@@ -440,6 +511,11 @@
 
   .heavens-tools__grid {
     grid-template-columns: 1fr;
+  }
+
+  .heavens-tools__grid--core .portal-action-card:nth-child(5) {
+    width: 100%;
+    grid-column: auto;
   }
 
 }

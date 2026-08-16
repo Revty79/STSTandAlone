@@ -29,6 +29,9 @@ describe("dashboard shells", () => {
     );
 
     expect(dashboard).toContain("View Campaign");
+    expect(dashboard).toContain("FUTURE EXPANSION");
+    expect(dashboard).not.toContain("Magic &amp; Spells");
+    expect(dashboard).not.toContain("Special Abilities");
     expect(information).toContain("No Campaign Selected");
     expect(information).toContain(
       "Select a campaign to view its information.",

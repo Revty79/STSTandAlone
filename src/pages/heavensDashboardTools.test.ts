@@ -1,21 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { HEAVENS_DASHBOARD_TOOLS } from "./heavensDashboardTools";
+import {
+  HEAVENS_CORE_TOOLS,
+  HEAVENS_DASHBOARD_TOOLS,
+  HEAVENS_FUTURE_TOOLS,
+} from "./heavensDashboardTools";
 
 describe("Heavens dashboard tools", () => {
-  it("contains the nine approved creation libraries exactly once", () => {
-    const titles = HEAVENS_DASHBOARD_TOOLS.map((tool) => tool.title);
-
-    expect(titles).toEqual([
+  it("contains only the five approved core systems", () => {
+    expect(HEAVENS_CORE_TOOLS.map((tool) => tool.title)).toEqual([
       "Races",
       "Skills",
-      "Magic & Spells",
       "Equipment",
       "Inventory",
-      "Special Abilities",
-      "Genres / Worlds",
       "Creatures & NPCs",
+    ]);
+  });
+
+  it("keeps the two undecided systems in future expansion", () => {
+    expect(HEAVENS_FUTURE_TOOLS.map((tool) => tool.title)).toEqual([
+      "Genres / Worlds",
       "Game Rules",
     ]);
+  });
+
+  it("does not model Magic or Special Abilities as separate systems", () => {
+    const titles = HEAVENS_DASHBOARD_TOOLS.map((tool) => tool.title);
+    const skills = HEAVENS_CORE_TOOLS.find((tool) => tool.id === "skills");
+
+    expect(titles).not.toContain("Magic & Spells");
+    expect(titles).not.toContain("Special Abilities");
+    expect(skills?.description).toContain("magical");
     expect(new Set(HEAVENS_DASHBOARD_TOOLS.map((tool) => tool.id)).size).toBe(
       HEAVENS_DASHBOARD_TOOLS.length,
     );
