@@ -32,6 +32,7 @@ export type SkillSummary = Pick<
   | "updatedAt"
 > & {
   relationshipCount: number;
+  parentNames: string[];
   hasSpellConstruction: boolean;
 };
 

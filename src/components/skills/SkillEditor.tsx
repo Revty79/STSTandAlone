@@ -42,6 +42,24 @@ const TABS: readonly { id: SkillEditorTab; label: string }[] = [
   { id: "preview", label: "Preview" },
 ];
 
+const DEFAULT_CLASSIFICATIONS = [
+  "standard",
+  "sphere",
+  "spell",
+  "discipline",
+  "psionic skill",
+  "resonance",
+  "reverberation",
+  "magic access",
+  "magic regeneration",
+  "magic stabalization",
+  "special ability",
+] as const;
+
+function classificationLabel(classification: string): string {
+  return classification.replace(/\b\w/g, (letter) => letter.toLocaleUpperCase());
+}
+
 export function SkillEditor({
   draft,
   filterOptions,
@@ -94,6 +112,13 @@ export function SkillEditor({
     ...filterOptions.secondaryAttributes,
     ...(draft.core.secondaryAttribute ? [draft.core.secondaryAttribute] : []),
   ]);
+  const classificationOptions = [
+    ...new Set([
+      ...DEFAULT_CLASSIFICATIONS,
+      ...filterOptions.classifications,
+      draft.core.classification,
+    ]),
+  ].filter(Boolean);
 
   return (
     <section className="skill-editor">
@@ -159,9 +184,9 @@ export function SkillEditor({
               </label>
               <label>
                 <span>Classification</span>
-                <input
+                <select
                   key={hasAttribute ? "classification-enabled" : "classification-automatic"}
-                  list="skill-classifications"
+                  aria-label="Classification"
                   value={draft.core.classification}
                   disabled={!hasAttribute}
                   title={
@@ -170,7 +195,13 @@ export function SkillEditor({
                       : "Skills without an attribute are Special Abilities."
                   }
                   onChange={(event) => updateCore({ classification: event.target.value })}
-                />
+                >
+                  {classificationOptions.map((classification) => (
+                    <option key={classification} value={classification}>
+                      {classificationLabel(classification)}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
                 <span>Tier</span>
@@ -232,19 +263,6 @@ export function SkillEditor({
                 onChange={(event) => updateCore({ definition: event.target.value })}
               />
             </label>
-            <datalist id="skill-classifications">
-              {[
-                ...new Set([
-                  "standard",
-                  "sphere",
-                  "spell",
-                  "special ability",
-                  "discipline",
-                  "resonance",
-                  ...filterOptions.classifications,
-                ]),
-              ].map((value) => <option key={value} value={value} />)}
-            </datalist>
           </div>
         )}
         {activeTab === "pathing" && (

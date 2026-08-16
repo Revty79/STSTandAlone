@@ -363,7 +363,8 @@
 }
 
 .skill-library__row-name,
-.skill-library__row-meta {
+.skill-library__row-meta,
+.skill-library__row-parents {
   display: block;
 }
 
@@ -390,6 +391,20 @@
   text-overflow: ellipsis;
   text-transform: capitalize;
   white-space: nowrap;
+}
+
+.skill-library__row-parents {
+  margin-top: 3px;
+  overflow: hidden;
+  color: rgb(178 201 197 / 62%);
+  font-size: 0.62rem;
+  letter-spacing: 0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-library__row-parents.is-root {
+  color: rgb(211 192 149 / 48%);
 }
 
 .skill-library__empty,

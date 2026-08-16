@@ -6,6 +6,8 @@ const DATABASE_URL: &str = "sqlite:serrian-tide.db";
 const INITIAL_ACCOUNT_MIGRATION: &str =
     include_str!("../migrations/0001_create_local_accounts.sql");
 const SKILLS_MIGRATION: &str = include_str!("../migrations/0002_create_skills.sql");
+const SKILL_CATALOG_MIGRATION: &str =
+    include_str!("../migrations/0003_seed_skill_catalog.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,6 +22,12 @@ pub fn run() {
             version: 2,
             description: "create_skills",
             sql: SKILLS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 3,
+            description: "seed_skill_catalog",
+            sql: SKILL_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
     ];
@@ -39,7 +47,9 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{INITIAL_ACCOUNT_MIGRATION, SKILLS_MIGRATION};
+    use super::{
+        INITIAL_ACCOUNT_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+    };
     use rusqlite::{params, Connection};
 
     #[test]
@@ -273,5 +283,136 @@ mod tests {
             plan.contains("idx_skills_classification"),
             "classification paging should use its compound index; plan was: {plan}"
         );
+    }
+
+    #[test]
+    fn catalog_migration_seeds_complete_idempotent_skill_tree() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("apply account migration");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("apply skills migration");
+        connection
+            .execute(
+                "INSERT INTO skills (name, classification, tier, primary_attribute, definition) \
+                 VALUES ('Load-Bearing', 'custom', 1, 'STR', 'User-authored version.')",
+                [],
+            )
+            .expect("insert user Skill with a canonical display name");
+
+        connection
+            .execute_batch(SKILL_CATALOG_MIGRATION)
+            .expect("seed canonical Skill catalog");
+
+        let canonical_skills: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills WHERE source_system = 'serrian-tide-core'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count canonical Skills");
+        let canonical_relationships: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_relationships relationship \
+                 JOIN skills child ON child.id = relationship.skill_id \
+                 WHERE child.source_system = 'serrian-tide-core' \
+                   AND relationship.relationship_type = 'parent' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count canonical parent relationships");
+        let spell_skills: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND classification = 'spell' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count spell Skills");
+        let spell_extensions: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions extension \
+                 JOIN skills skill ON skill.id = extension.skill_id \
+                 WHERE skill.source_system = 'serrian-tide-core'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count canonical extensions");
+        let duplicate_display_names: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills WHERE name = 'Load-Bearing' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count preserved duplicate display names");
+
+        assert_eq!(canonical_skills, 1_136);
+        assert_eq!(canonical_relationships, 989);
+        assert_eq!(spell_skills, 191);
+        assert_eq!(spell_extensions, 0, "spell math must not be invented");
+        assert_eq!(
+            duplicate_display_names, 2,
+            "canonical seeding must not overwrite a user-authored Skill"
+        );
+
+        let charm_parent: String = connection
+            .query_row(
+                "SELECT parent.name \
+                 FROM skills child \
+                 JOIN skill_relationships relationship ON relationship.skill_id = child.id \
+                 JOIN skills parent ON parent.id = relationship.related_skill_id \
+                 WHERE child.source_system = 'serrian-tide-core' \
+                   AND child.name = 'Charm' COLLATE NOCASE \
+                   AND relationship.relationship_type = 'parent' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("load Charm parent");
+        assert_eq!(charm_parent, "Spellcraft");
+
+        let (powerlifting_tier, powerlifting_primary, powerlifting_secondary, definition): (
+            i64,
+            String,
+            Option<String>,
+            String,
+        ) = connection
+            .query_row(
+                "SELECT tier, primary_attribute, secondary_attribute, definition \
+                 FROM skills \
+                 WHERE source_system = 'serrian-tide-core' \
+                   AND name = 'Powerlifting' COLLATE NOCASE",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .expect("load Powerlifting fields");
+        assert_eq!(powerlifting_tier, 2);
+        assert_eq!(powerlifting_primary, "STR");
+        assert_eq!(powerlifting_secondary, None);
+        assert!(definition.contains('—'), "Unicode definitions must remain intact");
+
+        connection
+            .execute_batch(SKILL_CATALOG_MIGRATION)
+            .expect("reapply seed migration idempotently");
+        let canonical_skills_after_reapply: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills WHERE source_system = 'serrian-tide-core'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("recount canonical Skills");
+        let relationships_after_reapply: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_relationships relationship \
+                 JOIN skills child ON child.id = relationship.skill_id \
+                 WHERE child.source_system = 'serrian-tide-core'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("recount canonical relationships");
+        assert_eq!(canonical_skills_after_reapply, 1_136);
+        assert_eq!(relationships_after_reapply, 989);
     }
 }

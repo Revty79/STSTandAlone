@@ -38,6 +38,12 @@ class MemorySkillRepository implements SkillRepository {
         secondaryAttribute: skill.secondaryAttribute,
         updatedAt: skill.updatedAt,
         relationshipCount: relationships.length,
+        parentNames: relationships
+          .filter(
+            ({ relationshipType }) =>
+              relationshipType.toLowerCase() === "parent",
+          )
+          .map(({ relatedSkillName }) => relatedSkillName),
         hasSpellConstruction: extensions.some(
           ({ extensionType }) =>
             extensionType === SKILL_EXTENSION_TYPE.SPELL_CONSTRUCTION,

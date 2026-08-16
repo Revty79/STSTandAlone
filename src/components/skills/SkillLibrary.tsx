@@ -213,7 +213,9 @@ export function SkillLibrary({
               onClick={() => onSelect(skill)}
             >
               <span className="skill-library__row-name">
-                {view === "tree" && depth > 0 ? <span aria-hidden="true">↳</span> : null}
+                {view === "tree" && (depth > 0 || skill.parentNames.length > 0) ? (
+                  <span aria-hidden="true">↳</span>
+                ) : null}
                 {skill.name}
               </span>
               <span className="skill-library__row-meta">
@@ -221,6 +223,13 @@ export function SkillLibrary({
                 {skill.tier ? ` · Tier ${skill.tier}` : " · N/A"}
                 {skill.hasSpellConstruction ? " · Spell Construction" : ""}
               </span>
+              {skill.parentNames.length > 0 ? (
+                <span className="skill-library__row-parents">
+                  {skill.parentNames.length === 1 ? "Parent" : "Parents"}: {skill.parentNames.join(", ")}
+                </span>
+              ) : (
+                <span className="skill-library__row-parents is-root">Root Skill</span>
+              )}
             </button>
           ))
         )}

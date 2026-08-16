@@ -51,6 +51,7 @@ type SkillSummaryRow = Pick<
   | "updated_at"
 > & {
   relationship_count: number | string;
+  parent_names: string | null;
   has_spell_construction: number | string;
 };
 
@@ -139,6 +140,9 @@ function mapSummary(row: SkillSummaryRow): SkillSummary {
     secondaryAttribute: row.secondary_attribute,
     updatedAt: row.updated_at,
     relationshipCount: Number(row.relationship_count),
+    parentNames: (row.parent_names ?? "")
+      .split("\u001f")
+      .filter(Boolean),
     hasSpellConstruction: Boolean(Number(row.has_spell_construction)),
   };
 }
@@ -236,6 +240,12 @@ export class TauriSkillRepository implements SkillRepository {
          s.updated_at,
          (SELECT COUNT(*) FROM skill_relationships sr WHERE sr.skill_id = s.id)
            AS relationship_count,
+         (SELECT GROUP_CONCAT(parent.name, char(31))
+          FROM skill_relationships parent_relationship
+          JOIN skills parent ON parent.id = parent_relationship.related_skill_id
+          WHERE parent_relationship.skill_id = s.id
+            AND parent_relationship.relationship_type = 'parent' COLLATE NOCASE)
+           AS parent_names,
          EXISTS(
            SELECT 1 FROM skill_extensions se
            WHERE se.skill_id = s.id AND se.extension_type = 'spell-construction'
@@ -308,6 +318,7 @@ export class TauriSkillRepository implements SkillRepository {
          s.secondary_attribute,
          s.updated_at,
          0 AS relationship_count,
+         NULL AS parent_names,
          EXISTS(
            SELECT 1 FROM skill_extensions se
            WHERE se.skill_id = s.id AND se.extension_type = 'spell-construction'
