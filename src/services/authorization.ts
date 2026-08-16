@@ -16,6 +16,7 @@ export function canAccessDestination(
   switch (destination) {
     case "access-choice":
     case "heavens":
+    case "skills":
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
       return (

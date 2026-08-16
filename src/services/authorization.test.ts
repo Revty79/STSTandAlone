@@ -24,6 +24,7 @@ describe("role authorization", () => {
     expect(hasRole(session, USER_ROLE.GOD)).toBe(true);
     expect(getPostLoginDestination(session)).toBe("access-choice");
     expect(canAccessDestination(session, "heavens")).toBe(true);
+    expect(canAccessDestination(session, "skills")).toBe(true);
     expect(canAccessDestination(session, "realms")).toBe(true);
   });
 
@@ -33,6 +34,7 @@ describe("role authorization", () => {
     expect(getPostLoginDestination(session)).toBe("realms");
     expect(canAccessDestination(session, "access-choice")).toBe(false);
     expect(canAccessDestination(session, "heavens")).toBe(false);
+    expect(canAccessDestination(session, "skills")).toBe(false);
     expect(canAccessDestination(session, "realms")).toBe(true);
   });
 
@@ -41,5 +43,6 @@ describe("role authorization", () => {
 
     expect(authorizeDestination(session, "access-choice")).toBe("realms");
     expect(authorizeDestination(session, "heavens")).toBe("realms");
+    expect(authorizeDestination(session, "skills")).toBe("realms");
   });
 });

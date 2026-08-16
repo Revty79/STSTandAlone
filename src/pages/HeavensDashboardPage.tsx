@@ -14,6 +14,7 @@ import "../styles/heavens-dashboard.css";
 
 type HeavensDashboardPageProps = {
   session: AuthSession;
+  onOpenSkills: () => void;
   onReturn: () => void;
   onLogout: () => void;
 };
@@ -26,6 +27,7 @@ const CONTROL_PLACEHOLDERS = {
 
 export function HeavensDashboardPage({
   session,
+  onOpenSkills,
   onReturn,
   onLogout,
 }: HeavensDashboardPageProps) {
@@ -38,6 +40,10 @@ export function HeavensDashboardPage({
   }
 
   function selectTool(tool: PortalActionDefinition) {
+    if (tool.id === "skills") {
+      onOpenSkills();
+      return;
+    }
     showComingSoon(tool.title);
   }
 

@@ -5,6 +5,7 @@ import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
+import { SkillsPage } from "./pages/SkillsPage";
 import { authService } from "./services/authService";
 import {
   authorizeDestination,
@@ -99,7 +100,16 @@ function App() {
         return (
           <HeavensDashboardPage
             session={session}
+            onOpenSkills={() => navigateAuthenticated("skills")}
             onReturn={() => navigateAuthenticated("access-choice")}
+            onLogout={logout}
+          />
+        );
+      case "skills":
+        return (
+          <SkillsPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}
           />
         );

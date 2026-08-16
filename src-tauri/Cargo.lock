@@ -3379,6 +3379,8 @@ name = "serrian-tide-standalone"
 version = "0.2.0"
 dependencies = [
  "rusqlite",
+ "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-sql",

@@ -20,6 +20,7 @@ describe("dashboard shells", () => {
     const dashboard = renderToStaticMarkup(
       <HeavensDashboardPage
         session={sessionWith([USER_ROLE.GOD, USER_ROLE.PLAYER])}
+        onOpenSkills={vi.fn()}
         onReturn={vi.fn()}
         onLogout={vi.fn()}
       />,
