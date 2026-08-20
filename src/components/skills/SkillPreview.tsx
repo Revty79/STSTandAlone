@@ -5,6 +5,13 @@ import {
   SKILL_EXTENSION_TYPE,
   type SaveSkillAggregate,
 } from "../../types/skill";
+import { SpellPreview } from "./SpellPreview";
+
+const MAGIC_CLASSIFICATIONS = new Set([
+  "spell",
+  "psionic skill",
+  "reverberation",
+]);
 
 export function SkillPreview({ draft }: { draft: SaveSkillAggregate }) {
   const spellExtension = draft.extensions.find(
@@ -14,6 +21,9 @@ export function SkillPreview({ draft }: { draft: SaveSkillAggregate }) {
   const spell = spellExtension?.data as SpellDocument | undefined;
   const calculation = spell ? calculateSpell(spell) : null;
   const validation = spell && calculation ? validateSpell(spell, undefined, calculation) : null;
+  const isMagicSkill = MAGIC_CLASSIFICATIONS.has(
+    draft.core.classification.toLocaleLowerCase(),
+  );
 
   return (
     <article className="skill-preview">
@@ -46,15 +56,15 @@ export function SkillPreview({ draft }: { draft: SaveSkillAggregate }) {
         )}
       </section>
       {spell && calculation && validation ? (
+        <SpellPreview
+          spell={spell}
+          calculation={calculation}
+          validation={validation}
+        />
+      ) : isMagicSkill ? (
         <section className="skill-preview__spell">
           <h4>Spell Construction</h4>
-          <dl className="skill-preview__facts">
-            <div><dt>Tradition</dt><dd>{spell.tradition}</dd></div>
-            <div><dt>Base Mana</dt><dd>{calculation.baseSpellManaCost}</dd></div>
-            <div><dt>Spell Mastery</dt><dd>{calculation.baseSpellMastery}</dd></div>
-            <div><dt>Combat Casting</dt><dd>{calculation.baseCombatCastingTime} Initiative</dd></div>
-            <div><dt>Validation</dt><dd>{validation.status}</dd></div>
-          </dl>
+          <p>No Spell Construction document is attached to this magic Skill yet.</p>
         </section>
       ) : null}
     </article>

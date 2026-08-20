@@ -717,14 +717,19 @@
 .skill-preview__facts {
   display: grid;
   margin: 19px 0;
-  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 135px), 1fr));
   gap: 9px;
 }
 
 .skill-preview__facts > div {
+  min-width: 0;
   padding: 11px;
   border: 1px solid rgb(133 158 157 / 15%);
   background: rgb(4 10 14 / 31%);
+}
+
+.skill-preview__facts--spell {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
 }
 
 .skill-preview dt {
@@ -735,9 +740,11 @@
 }
 
 .skill-preview dd {
+  min-width: 0;
   margin: 5px 0 0;
   color: #e5dfd2;
   font: 400 0.91rem "Palatino Linotype", Georgia, serif;
+  overflow-wrap: anywhere;
 }
 
 .skill-preview section {
@@ -762,6 +769,267 @@
   color: #789f9d;
   font-size: 0.7rem;
   text-transform: uppercase;
+}
+
+.skill-preview__detail-group {
+  min-width: 0;
+  margin-top: 18px;
+  padding-top: 17px;
+  border-top: 1px solid rgb(135 157 151 / 14%);
+}
+
+.skill-preview__detail-group > h5,
+.skill-preview__container h6 {
+  margin: 0;
+  color: #ddd2bb;
+  font: 400 0.93rem "Palatino Linotype", Georgia, serif;
+  letter-spacing: 0.035em;
+}
+
+.skill-preview__text-facts {
+  display: grid;
+  margin: 10px 0 0;
+  gap: 10px;
+}
+
+.skill-preview__text-facts > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border-left: 2px solid rgb(190 162 105 / 32%);
+  background: rgb(4 10 14 / 25%);
+}
+
+.skill-preview__text-facts dd {
+  white-space: pre-wrap;
+}
+
+.skill-preview__containers,
+.skill-preview__milestones {
+  display: grid;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.skill-preview__container {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgb(124 153 151 / 18%);
+  border-left: 2px solid rgb(190 162 105 / 30%);
+  border-radius: 4px;
+  background: rgb(5 13 17 / 36%);
+}
+
+.skill-preview__container > header,
+.skill-preview__milestones article > header {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skill-preview__container > header span,
+.skill-preview__milestones article > header span,
+.skill-preview__changes > span {
+  display: block;
+  margin: 0 0 3px;
+  color: #a99a78;
+  font-size: 0.59rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.skill-preview__container > header b,
+.skill-preview__component-list > li > b {
+  flex: 0 0 auto;
+  color: #cdb77f;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.skill-preview__component-list,
+.skill-preview__issues,
+.skill-preview__changes ul {
+  display: grid;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+  gap: 6px;
+}
+
+.skill-preview__component-list > li {
+  display: flex;
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid rgb(124 153 151 / 11%);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.skill-preview__component-list > li > div {
+  min-width: 0;
+}
+
+.skill-preview__component-list strong {
+  display: block;
+  color: #ddd7ca;
+  font-weight: 400;
+}
+
+.skill-preview__component-list li span {
+  display: block;
+  margin: 2px 0 0;
+}
+
+.skill-preview__component-list p {
+  margin: 5px 0 0;
+  color: rgb(231 225 213 / 58%);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.skill-preview__component-list > li > b.is-negative {
+  color: #91aaa5;
+}
+
+.skill-preview__container-modifiers,
+.skill-preview__container .skill-preview__container {
+  margin-top: 10px;
+}
+
+.skill-preview__container-modifiers > h6 {
+  color: #b9aa89;
+  font-size: 0.72rem;
+}
+
+.skill-preview__empty,
+.skill-preview__policy,
+.skill-preview__changes p {
+  margin: 8px 0 0;
+  color: rgb(231 225 213 / 58%);
+  font: 400 0.78rem/1.5 "Palatino Linotype", Georgia, serif;
+}
+
+.skill-preview__milestones {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.skill-preview__milestones > article {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgb(124 153 151 / 15%);
+  background: rgb(4 10 14 / 25%);
+}
+
+.skill-preview__milestones article > header strong {
+  color: #dfd6c4;
+  font: 400 0.85rem "Palatino Linotype", Georgia, serif;
+  overflow-wrap: anywhere;
+}
+
+.skill-preview__milestones dl {
+  display: grid;
+  margin: 9px 0 0;
+  gap: 7px;
+}
+
+.skill-preview__milestones dl > div {
+  min-width: 0;
+}
+
+.skill-preview__milestones dd {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.skill-preview__changes {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgb(124 153 151 / 12%);
+}
+
+.skill-preview__changes li {
+  padding-left: 9px;
+  border-left: 1px solid rgb(190 162 105 / 25%);
+  font-size: 0.76rem;
+}
+
+.skill-preview__issues li {
+  display: grid;
+  padding: 9px 10px;
+  border-left: 2px solid #977d50;
+  background: rgb(4 10 14 / 25%);
+  gap: 3px;
+}
+
+.skill-preview__issues strong {
+  color: #dfd1b4;
+  font-weight: 400;
+}
+
+.skill-preview__issues li span,
+.skill-preview__issues small {
+  margin: 0;
+  color: rgb(231 225 213 / 58%);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.skill-preview__issues small {
+  color: #789f9d;
+}
+
+.skill-preview__table-wrap {
+  min-width: 0;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.skill-preview__table-wrap table {
+  width: 100%;
+  min-width: 470px;
+  border-collapse: collapse;
+  color: rgb(231 225 213 / 68%);
+  font-size: 0.74rem;
+}
+
+.skill-preview__table-wrap th,
+.skill-preview__table-wrap td {
+  padding: 8px;
+  border-bottom: 1px solid rgb(124 153 151 / 13%);
+  text-align: left;
+  vertical-align: top;
+}
+
+.skill-preview__table-wrap th:last-child,
+.skill-preview__table-wrap td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.skill-preview__table-wrap td strong,
+.skill-preview__table-wrap td span,
+.skill-preview__table-wrap td small {
+  display: block;
+}
+
+.skill-preview__table-wrap td strong {
+  color: #ddd7ca;
+  font-weight: 400;
+}
+
+.skill-preview__table-wrap td span,
+.skill-preview__table-wrap td small {
+  margin-top: 2px;
+  color: rgb(231 225 213 / 48%);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .skills-page__discard-confirm {
