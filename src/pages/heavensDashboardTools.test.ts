@@ -3,6 +3,7 @@ import {
   HEAVENS_CORE_TOOLS,
   HEAVENS_DASHBOARD_TOOLS,
   HEAVENS_FUTURE_TOOLS,
+  getHeavensToolDestination,
 } from "./heavensDashboardTools";
 
 describe("Heavens dashboard tools", () => {
@@ -33,5 +34,11 @@ describe("Heavens dashboard tools", () => {
     expect(new Set(HEAVENS_DASHBOARD_TOOLS.map((tool) => tool.id)).size).toBe(
       HEAVENS_DASHBOARD_TOOLS.length,
     );
+  });
+
+  it("connects the Races and Skills cards to their real destinations", () => {
+    expect(getHeavensToolDestination("races")).toBe("races");
+    expect(getHeavensToolDestination("skills")).toBe("skills");
+    expect(getHeavensToolDestination("equipment")).toBeNull();
   });
 });

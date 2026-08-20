@@ -46,3 +46,10 @@ export const HEAVENS_DASHBOARD_TOOLS: readonly PortalActionDefinition[] = [
   ...HEAVENS_CORE_TOOLS,
   ...HEAVENS_FUTURE_TOOLS,
 ];
+
+export function getHeavensToolDestination(
+  toolId: string,
+): "races" | "skills" | null {
+  if (toolId === "races" || toolId === "skills") return toolId;
+  return null;
+}

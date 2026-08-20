@@ -1,15 +1,16 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
 
+mod race_commands;
 mod skill_commands;
 
 const DATABASE_URL: &str = "sqlite:serrian-tide.db";
 const INITIAL_ACCOUNT_MIGRATION: &str =
     include_str!("../migrations/0001_create_local_accounts.sql");
 const SKILLS_MIGRATION: &str = include_str!("../migrations/0002_create_skills.sql");
-const SKILL_CATALOG_MIGRATION: &str =
-    include_str!("../migrations/0003_seed_skill_catalog.sql");
+const SKILL_CATALOG_MIGRATION: &str = include_str!("../migrations/0003_seed_skill_catalog.sql");
 const SPELL_CONSTRUCTION_MIGRATION: &str =
     include_str!("../migrations/0004_seed_spell_construction.sql");
+const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -38,10 +39,17 @@ pub fn run() {
             sql: SPELL_CONSTRUCTION_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "create_races",
+            sql: RACES_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            race_commands::save_race_aggregate,
             skill_commands::save_skill_aggregate
         ])
         .plugin(
@@ -56,7 +64,7 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        INITIAL_ACCOUNT_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
         SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
@@ -400,7 +408,10 @@ mod tests {
         assert_eq!(powerlifting_tier, 2);
         assert_eq!(powerlifting_primary, "STR");
         assert_eq!(powerlifting_secondary, None);
-        assert!(definition.contains('—'), "Unicode definitions must remain intact");
+        assert!(
+            definition.contains('—'),
+            "Unicode definitions must remain intact"
+        );
 
         connection
             .execute_batch(SKILL_CATALOG_MIGRATION)
@@ -528,7 +539,10 @@ mod tests {
         assert_eq!(canonical_magic_skills, 371);
         assert_eq!(construction_extensions, 371);
         assert_eq!(source_extensions, 371);
-        assert_eq!(retained_source_rows, 373, "duplicate rows must remain auditable");
+        assert_eq!(
+            retained_source_rows, 373,
+            "duplicate rows must remain auditable"
+        );
         assert_eq!(invalid_json, 0);
 
         let preserved_marker: String = connection
@@ -541,9 +555,10 @@ mod tests {
             .expect("reload preserved extension");
         assert_eq!(preserved_marker, "preserved-user-edit");
 
-        let (soul_parent, framework_id, tradition, source_cost): (String, i64, String, i64) = connection
-            .query_row(
-                "SELECT parent.name, \
+        let (soul_parent, framework_id, tradition, source_cost): (String, i64, String, i64) =
+            connection
+                .query_row(
+                    "SELECT parent.name, \
                         json_extract(construction.data_json, '$.frameworkSkillId'), \
                         json_extract(construction.data_json, '$.tradition'), \
                         json_extract(source.data_json, '$.spreadsheetReference.statedSpellCost') \
@@ -560,10 +575,10 @@ mod tests {
                   AND source.extension_type = 'spell-import-source' \
                  WHERE soul.source_system = 'serrian-tide-core' \
                    AND soul.name = 'Soul Lock' COLLATE NOCASE",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
-            )
-            .expect("load Soul Lock seed");
+                    [],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+                )
+                .expect("load Soul Lock seed");
         let death_id: i64 = connection
             .query_row(
                 "SELECT id FROM skills WHERE source_system = 'serrian-tide-core' \
@@ -601,5 +616,126 @@ mod tests {
             )
             .expect("recount Spell extensions");
         assert_eq!(extension_count_after_reapply, 742);
+    }
+
+    #[test]
+    fn races_migration_preserves_existing_data_and_enforces_owned_relationships() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("apply account migration");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("apply Skills migration");
+        connection
+            .execute(
+                "INSERT INTO users (username, password_hash, password_salt, password_iterations)
+                 VALUES ('ExistingOwner', 'hash', 'salt', 310000)",
+                [],
+            )
+            .expect("insert existing user");
+        let user_id = connection.last_insert_rowid();
+        connection
+            .execute("INSERT INTO skills (name) VALUES ('Shift Forms')", [])
+            .expect("insert existing Skill");
+        let skill_id = connection.last_insert_rowid();
+
+        connection
+            .execute_batch(RACES_MIGRATION)
+            .expect("apply Races after existing migrations");
+        let surviving_users: i64 = connection
+            .query_row("SELECT COUNT(*) FROM users", [], |row| row.get(0))
+            .expect("count users");
+        let surviving_skills: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("count Skills");
+        assert_eq!((surviving_users, surviving_skills), (1, 1));
+
+        connection
+            .execute(
+                "INSERT INTO races (name, created_by_user_id, base_magic) VALUES (?1, ?2, 2)",
+                params!["Test Race", user_id],
+            )
+            .expect("insert Race");
+        let race_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO race_attribute_caps (race_id, attribute_key, max_value, sort_order)
+                 VALUES (?1, 'STR', 50, 0), (?1, 'Energon', 60, 1)",
+                [race_id],
+            )
+            .expect("insert standard and custom caps");
+        assert!(
+            connection
+                .execute(
+                    "INSERT INTO race_attribute_caps (race_id, attribute_key, max_value)
+                     VALUES (?1, 'str', 55)",
+                    [race_id],
+                )
+                .is_err(),
+            "duplicate cap keys must be rejected without regard to case"
+        );
+        connection
+            .execute(
+                "INSERT INTO race_movement_modes (race_id, movement_mode, base_value, sort_order)
+                 VALUES (?1, 'Land', 2, 0), (?1, 'Swim', 4, 1)",
+                [race_id],
+            )
+            .expect("insert multiple movement modes");
+        connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id, skill_id, link_type, value, sort_order)
+                 VALUES (?1, ?2, 'bonus', 4, 0), (?1, ?2, 'granted', NULL, 0)",
+                params![race_id, skill_id],
+            )
+            .expect("insert bonus and granted Skill links");
+
+        connection
+            .execute("DELETE FROM skills WHERE id = ?1", [skill_id])
+            .expect("delete referenced Skill safely");
+        let race_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM races", [], |row| row.get(0))
+            .expect("count Races after Skill delete");
+        let links_after_skill_delete: i64 = connection
+            .query_row("SELECT COUNT(*) FROM race_skill_links", [], |row| {
+                row.get(0)
+            })
+            .expect("count links after Skill delete");
+        assert_eq!(race_count, 1);
+        assert_eq!(links_after_skill_delete, 0);
+
+        connection
+            .execute("INSERT INTO skills (name) VALUES ('Dark Vision')", [])
+            .expect("insert surviving Skill");
+        let surviving_skill_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id, skill_id, link_type)
+                 VALUES (?1, ?2, 'granted')",
+                params![race_id, surviving_skill_id],
+            )
+            .expect("link surviving Skill");
+        connection
+            .execute("DELETE FROM races WHERE id = ?1", [race_id])
+            .expect("delete Race");
+
+        let child_rows: i64 = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM race_attribute_caps) +
+                   (SELECT COUNT(*) FROM race_movement_modes) +
+                   (SELECT COUNT(*) FROM race_skill_links)",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count Race-owned rows");
+        let skills_after_race_delete: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("count Skills after Race delete");
+        assert_eq!(child_rows, 0);
+        assert_eq!(
+            skills_after_race_delete, 1,
+            "deleting a Race must not delete Skills"
+        );
     }
 }

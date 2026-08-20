@@ -5,6 +5,7 @@ import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
+import { RacesPage } from "./pages/RacesPage";
 import { SkillsPage } from "./pages/SkillsPage";
 import { authService } from "./services/authService";
 import {
@@ -100,6 +101,7 @@ function App() {
         return (
           <HeavensDashboardPage
             session={session}
+            onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
@@ -108,6 +110,14 @@ function App() {
       case "skills":
         return (
           <SkillsPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "races":
+        return (
+          <RacesPage
             session={session}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}

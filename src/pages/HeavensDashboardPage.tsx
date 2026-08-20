@@ -9,11 +9,13 @@ import type { AuthSession } from "../types/user";
 import {
   HEAVENS_CORE_TOOLS,
   HEAVENS_FUTURE_TOOLS,
+  getHeavensToolDestination,
 } from "./heavensDashboardTools";
 import "../styles/heavens-dashboard.css";
 
 type HeavensDashboardPageProps = {
   session: AuthSession;
+  onOpenRaces: () => void;
   onOpenSkills: () => void;
   onReturn: () => void;
   onLogout: () => void;
@@ -27,6 +29,7 @@ const CONTROL_PLACEHOLDERS = {
 
 export function HeavensDashboardPage({
   session,
+  onOpenRaces,
   onOpenSkills,
   onReturn,
   onLogout,
@@ -40,7 +43,12 @@ export function HeavensDashboardPage({
   }
 
   function selectTool(tool: PortalActionDefinition) {
-    if (tool.id === "skills") {
+    const destination = getHeavensToolDestination(tool.id);
+    if (destination === "races") {
+      onOpenRaces();
+      return;
+    }
+    if (destination === "skills") {
       onOpenSkills();
       return;
     }
