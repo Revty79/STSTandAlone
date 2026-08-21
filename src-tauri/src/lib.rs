@@ -1,5 +1,6 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
 
+mod item_commands;
 mod race_commands;
 mod skill_commands;
 
@@ -12,6 +13,8 @@ const SPELL_CONSTRUCTION_MIGRATION: &str =
     include_str!("../migrations/0004_seed_spell_construction.sql");
 const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql");
 const RACE_CATALOG_MIGRATION: &str = include_str!("../migrations/0006_seed_race_catalog.sql");
+const ITEMS_MIGRATION: &str = include_str!("../migrations/0007_create_item_catalog.sql");
+const ITEM_CATALOG_MIGRATION: &str = include_str!("../migrations/0008_seed_item_catalog.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -52,10 +55,23 @@ pub fn run() {
             sql: RACE_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 7,
+            description: "create_item_catalog",
+            sql: ITEMS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 8,
+            description: "seed_item_catalog",
+            sql: ITEM_CATALOG_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            item_commands::save_item_aggregate,
             race_commands::save_race_aggregate,
             skill_commands::save_skill_aggregate
         ])
@@ -71,8 +87,9 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION, SKILLS_MIGRATION,
-        SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
+        INITIAL_ACCOUNT_MIGRATION, ITEMS_MIGRATION, ITEM_CATALOG_MIGRATION, RACES_MIGRATION,
+        RACE_CATALOG_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+        SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -911,5 +928,149 @@ mod tests {
             .expect("reload preserved edit");
         assert_eq!(counts_after_reapply, (56, 336, 57, 283));
         assert_eq!(preserved_edit, "Preserved user edit.");
+    }
+
+    #[test]
+    fn item_catalog_migrations_seed_one_universal_catalog_without_touching_existing_systems() {
+        let connection = Connection::open_in_memory().expect("open fresh Item catalog database");
+        for (label, migration) in [
+            ("accounts", INITIAL_ACCOUNT_MIGRATION),
+            ("Skills schema", SKILLS_MIGRATION),
+            ("Skill catalog", SKILL_CATALOG_MIGRATION),
+            ("Spell construction", SPELL_CONSTRUCTION_MIGRATION),
+            ("Races schema", RACES_MIGRATION),
+            ("Race catalog", RACE_CATALOG_MIGRATION),
+            ("Items schema", ITEMS_MIGRATION),
+        ] {
+            connection
+                .execute_batch(migration)
+                .unwrap_or_else(|error| panic!("apply {label}: {error}"));
+        }
+        connection
+            .execute(
+                "INSERT INTO items (
+                   name, catalog_scope, cost_credits, category, subtype, weight,
+                   created_by_user_id
+                 ) VALUES ('Crowbar', 'equipment', 99, 'User Tool', 'Variant', 6, NULL)",
+                [],
+            )
+            .expect("insert user Item with canonical display name");
+        let user_item_id = connection.last_insert_rowid();
+
+        connection
+            .execute_batch(ITEM_CATALOG_MIGRATION)
+            .expect("seed canonical Item catalog");
+
+        let counts: (i64, i64, i64, i64, i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM items WHERE source_system = 'serrian-tide-item-sheet'),
+                   (SELECT COUNT(*) FROM item_genre_tags genre JOIN items item ON item.id = genre.item_id WHERE item.source_system = 'serrian-tide-item-sheet'),
+                   (SELECT COUNT(*) FROM item_weapon_profiles WHERE source_system = 'serrian-tide-item-sheet'),
+                   (SELECT COUNT(*) FROM item_weapon_profiles WHERE source_system = 'serrian-tide-item-sheet' AND weapon_role = 'primary' COLLATE NOCASE),
+                   (SELECT COUNT(*) FROM item_weapon_profiles WHERE source_system = 'serrian-tide-item-sheet' AND weapon_role = 'improvised' COLLATE NOCASE),
+                   (SELECT COUNT(*) FROM item_armor_profiles WHERE source_system = 'serrian-tide-item-sheet'),
+                   (SELECT COUNT(*) FROM skills WHERE source_system = 'serrian-tide-core'),
+                   (SELECT COUNT(*) FROM race_skill_links link JOIN races race ON race.id = link.race_id WHERE race.source_system = 'serrian-tide-race-sheet')",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?,
+                        row.get(4)?, row.get(5)?, row.get(6)?, row.get(7)?,
+                    ))
+                },
+            )
+            .expect("count fresh canonical Item aggregates");
+        assert_eq!(counts, (817, 1468, 206, 161, 45, 189, 1137, 283));
+
+        let construction_extensions: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_extensions
+                 WHERE extension_type IN ('spell-construction', 'spell-import-source')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count preserved Spell extensions");
+        assert_eq!(construction_extensions, 742);
+
+        let canonical_crowbar: (i64, String, f64) = connection
+            .query_row(
+                "SELECT COUNT(*), weapon.weapon_role, item.cost_credits
+                 FROM items item
+                 JOIN item_weapon_profiles weapon ON weapon.item_id = item.id
+                 WHERE item.source_system = 'serrian-tide-item-sheet'
+                   AND item.name = 'Crowbar' COLLATE NOCASE",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("reload merged Crowbar");
+        assert_eq!(canonical_crowbar, (1, "improvised".to_string(), 10.0));
+        let duplicate_crowbar_names: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM items WHERE name = 'Crowbar' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count allowed duplicate Item names");
+        assert_eq!(duplicate_crowbar_names, 2);
+
+        let spiked_shield_profiles: (i64, i64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM item_weapon_profiles weapon WHERE weapon.item_id = item.id),
+                   (SELECT COUNT(*) FROM item_armor_profiles armor WHERE armor.item_id = item.id)
+                 FROM items item
+                 WHERE item.source_system = 'serrian-tide-item-sheet'
+                   AND item.name = 'Spiked Shield' COLLATE NOCASE",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("reload dual-profile Spiked Shield");
+        assert_eq!(spiked_shield_profiles, (1, 1));
+        let zero_damage_smoke_bomb: f64 = connection
+            .query_row(
+                "SELECT weapon.damage FROM item_weapon_profiles weapon
+                 JOIN items item ON item.id = weapon.item_id
+                 WHERE item.source_system = 'serrian-tide-item-sheet'
+                   AND item.name = 'Smoke Bomb' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("reload zero-damage Weapon");
+        assert_eq!(zero_damage_smoke_bomb, 0.0);
+
+        let duplicate_source_identity = connection.execute(
+            "INSERT INTO items (
+               name, catalog_scope, source_system, source_external_id
+             ) SELECT 'Duplicate Source', 'equipment', source_system, source_external_id
+               FROM items WHERE source_system = 'serrian-tide-item-sheet' LIMIT 1",
+            [],
+        );
+        assert!(duplicate_source_identity.is_err());
+
+        connection
+            .execute(
+                "UPDATE items SET effect_description = 'Preserved canonical edit.'
+                 WHERE source_system = 'serrian-tide-item-sheet'
+                   AND name = 'Rope (50 ft)' COLLATE NOCASE",
+                [],
+            )
+            .expect("edit canonical Item");
+        connection
+            .execute_batch(ITEM_CATALOG_MIGRATION)
+            .expect("reapply Item catalog seed idempotently");
+        let after_reapply: (i64, i64, String) = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM items WHERE source_system = 'serrian-tide-item-sheet'),
+                   (SELECT COUNT(*) FROM items WHERE id = ?1),
+                   (SELECT effect_description FROM items
+                    WHERE source_system = 'serrian-tide-item-sheet'
+                      AND name = 'Rope (50 ft)' COLLATE NOCASE)",
+                [user_item_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("verify idempotent Item seed");
+        assert_eq!(after_reapply, (817, 1, "Preserved canonical edit.".to_string()));
     }
 }

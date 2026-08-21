@@ -23,9 +23,14 @@ export const HEAVENS_CORE_TOOLS: readonly PortalActionDefinition[] = [
     description: "Shape the inventory content available within Serrian Tide.",
   },
   {
-    id: "creatures-npcs",
-    title: "Creatures & NPCs",
-    description: "Create and manage creatures and non-player characters.",
+    id: "creatures",
+    title: "Creatures",
+    description: "Create and manage creatures within Serrian Tide.",
+  },
+  {
+    id: "npcs",
+    title: "NPCs",
+    description: "Create and manage non-player characters.",
   },
 ];
 
@@ -49,7 +54,10 @@ export const HEAVENS_DASHBOARD_TOOLS: readonly PortalActionDefinition[] = [
 
 export function getHeavensToolDestination(
   toolId: string,
-): "races" | "skills" | null {
-  if (toolId === "races" || toolId === "skills") return toolId;
+): "races" | "skills" | "equipment" | "inventory" | null {
+  if (
+    toolId === "races" || toolId === "skills" ||
+    toolId === "equipment" || toolId === "inventory"
+  ) return toolId;
   return null;
 }

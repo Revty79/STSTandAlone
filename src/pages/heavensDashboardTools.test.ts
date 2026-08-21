@@ -7,13 +7,14 @@ import {
 } from "./heavensDashboardTools";
 
 describe("Heavens dashboard tools", () => {
-  it("contains only the five approved core systems", () => {
+  it("contains the six approved core systems", () => {
     expect(HEAVENS_CORE_TOOLS.map((tool) => tool.title)).toEqual([
       "Races",
       "Skills",
       "Equipment",
       "Inventory",
-      "Creatures & NPCs",
+      "Creatures",
+      "NPCs",
     ]);
   });
 
@@ -36,9 +37,12 @@ describe("Heavens dashboard tools", () => {
     );
   });
 
-  it("connects the Races and Skills cards to their real destinations", () => {
+  it("connects the completed library cards to their real destinations", () => {
     expect(getHeavensToolDestination("races")).toBe("races");
     expect(getHeavensToolDestination("skills")).toBe("skills");
-    expect(getHeavensToolDestination("equipment")).toBeNull();
+    expect(getHeavensToolDestination("equipment")).toBe("equipment");
+    expect(getHeavensToolDestination("inventory")).toBe("inventory");
+    expect(getHeavensToolDestination("creatures")).toBeNull();
+    expect(getHeavensToolDestination("npcs")).toBeNull();
   });
 });

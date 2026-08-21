@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { initializeDatabase } from "./data/database";
 import { AccessChoicePage } from "./pages/AccessChoicePage";
+import { EquipmentPage } from "./pages/EquipmentPage";
 import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
+import { InventoryPage } from "./pages/InventoryPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { RacesPage } from "./pages/RacesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -103,6 +105,8 @@ function App() {
             session={session}
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
+            onOpenEquipment={() => navigateAuthenticated("equipment")}
+            onOpenInventory={() => navigateAuthenticated("inventory")}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
           />
@@ -118,6 +122,22 @@ function App() {
       case "races":
         return (
           <RacesPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "equipment":
+        return (
+          <EquipmentPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "inventory":
+        return (
+          <InventoryPage
             session={session}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}

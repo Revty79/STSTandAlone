@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "sourceSystem": "serrian-tide-item-sheet",
+  "scopeByItemCategory": {
+    "Tool": "equipment",
+    "Artifact": "equipment",
+    "Consumable": "inventory",
+    "Service": "inventory"
+  },
+  "weaponRolePolicy": {
+    "defaultRole": "primary",
+    "improvisedNames": [
+      "Improvised Club",
+      "Chainsaw",
+      "Cleaver",
+      "Rusty Pipe",
+      "Brick",
+      "Chains",
+      "Meat Hook",
+      "Scythe",
+      "Rebar Club",
+      "Shiv",
+      "Meat Cleaver",
+      "Hatchet",
+      "Pickaxe",
+      "Fire Axe",
+      "Sledgehammer",
+      "Wrench (Large)",
+      "Crowbar",
+      "Pipe Wrench",
+      "Baseball Bat",
+      "Tire Iron",
+      "Billiard Cue",
+      "Beer Bottle",
+      "Frying Pan",
+      "Chair",
+      "Shovel",
+      "Pitchfork",
+      "Improvised Spear",
+      "Fishing Spear",
+      "Scalpel",
+      "Sharpened Bone",
+      "Rust Sawblade",
+      "Mantrap Jaw",
+      "Sickle",
+      "Harpoon Spear",
+      "Steam Drill",
+      "Bone Saw",
+      "Ice Pick",
+      "Shattered Bottle",
+      "Staple Gun",
+      "Kitchen Knife",
+      "Meat Tenderizer",
+      "Laptop Smash",
+      "Toilet Lid",
+      "Refrigerator Door",
+      "Traffic Sign"
+    ]
+  },
+  "armorRowCorrections": [
+    {
+      "name": "Bone Mask",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Witch’s Veil",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Spore Hood",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Exo-Helmet",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Gravity Shield",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Temporal Armor",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    },
+    {
+      "name": "Phase Suit",
+      "action": "missing-type-shift",
+      "reason": "The 11-cell source row omits Armor Type; Genre Tags through Narrative Notes are shifted left one column."
+    }
+  ],
+  "mergeDecisions": [
+    {
+      "canonicalName": "Crowbar",
+      "baseSource": { "tab": "Items", "name": "Crowbar" },
+      "attachSources": [{ "tab": "Weapons", "name": "Crowbar" }],
+      "reason": "The Items row defines the ordinary Tool; the Weapons row supplies its improvised combat profile."
+    },
+    {
+      "canonicalName": "Shovel",
+      "baseSource": { "tab": "Items", "name": "Shovel" },
+      "attachSources": [{ "tab": "Weapons", "name": "Shovel" }],
+      "reason": "The Items row defines the ordinary Tool; the Weapons row supplies its improvised combat profile."
+    },
+    {
+      "canonicalName": "Spiked Shield",
+      "baseSource": { "tab": "Armor", "name": "Spiked Shield" },
+      "attachSources": [{ "tab": "Weapons", "name": "Spiked Shield" }],
+      "reason": "One purpose-built shield has both Armor and Weapon behavior and therefore uses one universal Item identity."
+    }
+  ]
+}
