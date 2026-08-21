@@ -1,0 +1,719 @@
+{
+  "schemaVersion": 1,
+  "sourceSystem": "serrian-tide-race-sheet",
+  "sourceSha256": "cd23d0122b0330bc00811b8678a4234ebb1e8757b82007b7a63df8b5be1aa36f",
+  "policy": "Only case-insensitive exact matches to existing Skills are linked. No Skills or aliases are created.",
+  "sourceCounts": {
+    "races": 56,
+    "bonusReferences": 248,
+    "grantedReferences": 36
+  },
+  "importedCounts": {
+    "races": 56,
+    "attributeCaps": 336,
+    "movementModes": 57,
+    "bonusLinks": 217,
+    "grantedLinks": 32
+  },
+  "unresolvedReferenceCount": 35,
+  "unresolvedUniqueNameCount": 13,
+  "unresolvedByName": [
+    {
+      "sourceSkillName": "Academics",
+      "occurrences": [
+        {
+          "raceName": "Féarai Elves",
+          "linkType": "bonus",
+          "sourceSkillName": "Academics",
+          "sourceValue": "4",
+          "sourceRow": 50,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Access to all Spheres",
+      "occurrences": [
+        {
+          "raceName": "Féarai Elves",
+          "linkType": "granted",
+          "sourceSkillName": "Access to all Spheres",
+          "sourceValue": "3",
+          "sourceRow": 50,
+          "sourceColumn": "Racial Special Abilitie 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Acrobatics",
+      "occurrences": [
+        {
+          "raceName": "Shift-Folk (Feline)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "3",
+          "sourceRow": 34,
+          "sourceColumn": "Bonus Skill 3",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Avian)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "4",
+          "sourceRow": 36,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Musteline)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "2",
+          "sourceRow": 38,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Murine)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "2",
+          "sourceRow": 39,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Lagomorph)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "5",
+          "sourceRow": 42,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Marsupial)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "4",
+          "sourceRow": 44,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Primate)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "4",
+          "sourceRow": 46,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Anuran)",
+          "linkType": "bonus",
+          "sourceSkillName": "Acrobatics",
+          "sourceValue": "4",
+          "sourceRow": 47,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Arcana",
+      "occurrences": [
+        {
+          "raceName": "Féarai Elves",
+          "linkType": "bonus",
+          "sourceSkillName": "Arcana",
+          "sourceValue": "5",
+          "sourceRow": 50,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Athletics",
+      "occurrences": [
+        {
+          "raceName": "Centaur",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "5",
+          "sourceRow": 32,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Lupine)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "2",
+          "sourceRow": 33,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Ursine)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "4",
+          "sourceRow": 35,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Bovine)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "5",
+          "sourceRow": 37,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Lagomorph)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "2",
+          "sourceRow": 42,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Marsupial)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "5",
+          "sourceRow": 44,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Chelonian)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "3",
+          "sourceRow": 45,
+          "sourceColumn": "Bonus Skill 3",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Primate)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "4",
+          "sourceRow": 46,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Carapace)",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "3",
+          "sourceRow": 48,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Gold Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "5",
+          "sourceRow": 51,
+          "sourceColumn": "Bonus Skill 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Red Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "4",
+          "sourceRow": 52,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Blue Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Athletics",
+          "sourceValue": "4",
+          "sourceRow": 54,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Crafting",
+      "occurrences": [
+        {
+          "raceName": "Smallfolk",
+          "linkType": "bonus",
+          "sourceSkillName": "Crafting",
+          "sourceValue": "2",
+          "sourceRow": 30,
+          "sourceColumn": "Bonus Skill 5",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Shift-Folk (Ursine)",
+          "linkType": "bonus",
+          "sourceSkillName": "Crafting",
+          "sourceValue": "2",
+          "sourceRow": 35,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Harbinger Elf Breserker Rage",
+      "occurrences": [
+        {
+          "raceName": "Harbinger Elf",
+          "linkType": "granted",
+          "sourceSkillName": "Harbinger Elf Breserker Rage",
+          "sourceValue": null,
+          "sourceRow": 22,
+          "sourceColumn": "Racial Special Abilitie 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Hovdering",
+      "occurrences": [
+        {
+          "raceName": "Féarai Elves",
+          "linkType": "granted",
+          "sourceSkillName": "Hovdering",
+          "sourceValue": "3",
+          "sourceRow": 50,
+          "sourceColumn": "Racial Special Abilitie 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Intimidation",
+      "occurrences": [
+        {
+          "raceName": "Red Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Intimidation",
+          "sourceValue": "3",
+          "sourceRow": 52,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Non",
+      "occurrences": [
+        {
+          "raceName": "Wild Elf",
+          "linkType": "granted",
+          "sourceSkillName": "Non",
+          "sourceValue": null,
+          "sourceRow": 20,
+          "sourceColumn": "Racial Special Abilitie 1",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
+      "occurrences": [
+        {
+          "raceName": "Moonshade Elf",
+          "linkType": "bonus",
+          "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
+          "sourceValue": "5",
+          "sourceRow": 25,
+          "sourceColumn": "Bonus Skill 3",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Strategy",
+      "occurrences": [
+        {
+          "raceName": "Féarai Elves",
+          "linkType": "bonus",
+          "sourceSkillName": "Strategy",
+          "sourceValue": "3",
+          "sourceRow": 50,
+          "sourceColumn": "Bonus Skill 3",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Gold Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Strategy",
+          "sourceValue": "4",
+          "sourceRow": 51,
+          "sourceColumn": "Bonus Skill 2",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Silver Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Strategy",
+          "sourceValue": "3",
+          "sourceRow": 55,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        },
+        {
+          "raceName": "Grey Naga Orang",
+          "linkType": "bonus",
+          "sourceSkillName": "Strategy",
+          "sourceValue": "3",
+          "sourceRow": 57,
+          "sourceColumn": "Bosus Skill 4",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    },
+    {
+      "sourceSkillName": "Technology",
+      "occurrences": [
+        {
+          "raceName": "Night Elf",
+          "linkType": "bonus",
+          "sourceSkillName": "Technology",
+          "sourceValue": "3",
+          "sourceRow": 23,
+          "sourceColumn": "Bonus Skill 3",
+          "reason": "No case-insensitive exact Skill name exists."
+        }
+      ]
+    }
+  ],
+  "unresolvedReferences": [
+    {
+      "raceName": "Wild Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Non",
+      "sourceValue": null,
+      "sourceRow": 20,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Harbinger Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Harbinger Elf Breserker Rage",
+      "sourceValue": null,
+      "sourceRow": 22,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Technology",
+      "sourceValue": "3",
+      "sourceRow": 23,
+      "sourceColumn": "Bonus Skill 3",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Moonshade Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
+      "sourceValue": "5",
+      "sourceRow": 25,
+      "sourceColumn": "Bonus Skill 3",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Smallfolk",
+      "linkType": "bonus",
+      "sourceSkillName": "Crafting",
+      "sourceValue": "2",
+      "sourceRow": 30,
+      "sourceColumn": "Bonus Skill 5",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Centaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "5",
+      "sourceRow": 32,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "2",
+      "sourceRow": 33,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Feline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "3",
+      "sourceRow": 34,
+      "sourceColumn": "Bonus Skill 3",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "4",
+      "sourceRow": 35,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Crafting",
+      "sourceValue": "2",
+      "sourceRow": 35,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "4",
+      "sourceRow": 36,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "5",
+      "sourceRow": 37,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "2",
+      "sourceRow": 38,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Murine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "2",
+      "sourceRow": 39,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "5",
+      "sourceRow": 42,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "2",
+      "sourceRow": 42,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "5",
+      "sourceRow": 44,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "4",
+      "sourceRow": 44,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "3",
+      "sourceRow": 45,
+      "sourceColumn": "Bonus Skill 3",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "4",
+      "sourceRow": 46,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "4",
+      "sourceRow": 46,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "bonus",
+      "sourceSkillName": "Acrobatics",
+      "sourceValue": "4",
+      "sourceRow": 47,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "3",
+      "sourceRow": 48,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "bonus",
+      "sourceSkillName": "Arcana",
+      "sourceValue": "5",
+      "sourceRow": 50,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "bonus",
+      "sourceSkillName": "Academics",
+      "sourceValue": "4",
+      "sourceRow": 50,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "bonus",
+      "sourceSkillName": "Strategy",
+      "sourceValue": "3",
+      "sourceRow": 50,
+      "sourceColumn": "Bonus Skill 3",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "granted",
+      "sourceSkillName": "Hovdering",
+      "sourceValue": "3",
+      "sourceRow": 50,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "granted",
+      "sourceSkillName": "Access to all Spheres",
+      "sourceValue": "3",
+      "sourceRow": 50,
+      "sourceColumn": "Racial Special Abilitie 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "5",
+      "sourceRow": 51,
+      "sourceColumn": "Bonus Skill 1",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Strategy",
+      "sourceValue": "4",
+      "sourceRow": 51,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "4",
+      "sourceRow": 52,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Intimidation",
+      "sourceValue": "3",
+      "sourceRow": 52,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Athletics",
+      "sourceValue": "4",
+      "sourceRow": 54,
+      "sourceColumn": "Bonus Skill 2",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Silver Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Strategy",
+      "sourceValue": "3",
+      "sourceRow": 55,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    },
+    {
+      "raceName": "Grey Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Strategy",
+      "sourceValue": "3",
+      "sourceRow": 57,
+      "sourceColumn": "Bosus Skill 4",
+      "reason": "No case-insensitive exact Skill name exists."
+    }
+  ]
+}

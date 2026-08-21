@@ -11,6 +11,7 @@ const SKILL_CATALOG_MIGRATION: &str = include_str!("../migrations/0003_seed_skil
 const SPELL_CONSTRUCTION_MIGRATION: &str =
     include_str!("../migrations/0004_seed_spell_construction.sql");
 const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql");
+const RACE_CATALOG_MIGRATION: &str = include_str!("../migrations/0006_seed_race_catalog.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -45,6 +46,12 @@ pub fn run() {
             sql: RACES_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "seed_race_catalog",
+            sql: RACE_CATALOG_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -64,8 +71,8 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
-        SPELL_CONSTRUCTION_MIGRATION,
+        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION, SKILLS_MIGRATION,
+        SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -737,5 +744,164 @@ mod tests {
             skills_after_race_delete, 1,
             "deleting a Race must not delete Skills"
         );
+    }
+
+    #[test]
+    fn race_catalog_migration_seeds_normalized_races_without_inventing_skills() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("apply account migration");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("apply Skills migration");
+        connection
+            .execute(
+                "INSERT INTO users (username, password_hash, password_salt, password_iterations)
+                 VALUES ('ExistingOwner', 'hash', 'salt', 310000)",
+                [],
+            )
+            .expect("insert existing user");
+        let user_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO skills (name, classification) VALUES ('User Skill', 'standard')",
+                [],
+            )
+            .expect("insert user Skill before catalog migrations");
+        connection
+            .execute_batch(SKILL_CATALOG_MIGRATION)
+            .expect("seed Skill catalog");
+        connection
+            .execute_batch(SPELL_CONSTRUCTION_MIGRATION)
+            .expect("seed Spell Construction");
+        connection
+            .execute_batch(RACES_MIGRATION)
+            .expect("create Race tables");
+        connection
+            .execute(
+                "INSERT INTO races (name, legacy_description, created_by_user_id)
+                 VALUES ('Standard Human', 'User-authored duplicate name.', ?1)",
+                [user_id],
+            )
+            .expect("insert user Race before catalog seed");
+        let skill_count_before: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("count Skills before Race seed");
+
+        connection
+            .execute_batch(RACE_CATALOG_MIGRATION)
+            .expect("seed Race catalog");
+
+        let counts: (i64, i64, i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM races WHERE source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_attribute_caps cap JOIN races race ON race.id = cap.race_id WHERE race.source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_movement_modes movement JOIN races race ON race.id = movement.race_id WHERE race.source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_skill_links link JOIN races race ON race.id = link.race_id WHERE race.source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_skill_links link JOIN races race ON race.id = link.race_id WHERE race.source_system = 'serrian-tide-race-sheet' AND link.link_type = 'bonus'),
+                   (SELECT COUNT(*) FROM race_skill_links link JOIN races race ON race.id = link.race_id WHERE race.source_system = 'serrian-tide-race-sheet' AND link.link_type = 'granted')",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                    ))
+                },
+            )
+            .expect("count seeded Race aggregates");
+        assert_eq!(counts, (56, 336, 57, 249, 217, 32));
+
+        let standard_human_names: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM races WHERE name = 'Standard Human' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count duplicate display names");
+        let user_race_survived: String = connection
+            .query_row(
+                "SELECT legacy_description FROM races
+                 WHERE name = 'Standard Human' COLLATE NOCASE AND source_system IS NULL",
+                [],
+                |row| row.get(0),
+            )
+            .expect("reload user Race");
+        assert_eq!(standard_human_names, 2);
+        assert_eq!(user_race_survived, "User-authored duplicate name.");
+
+        let (land, swim): (f64, f64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT movement.base_value FROM race_movement_modes movement WHERE movement.race_id = race.id AND movement.movement_mode = 'Land' COLLATE NOCASE),
+                   (SELECT movement.base_value FROM race_movement_modes movement WHERE movement.race_id = race.id AND movement.movement_mode = 'Swim' COLLATE NOCASE)
+                 FROM races race
+                 WHERE race.source_system = 'serrian-tide-race-sheet'
+                   AND race.name = 'Mer-Folk' COLLATE NOCASE",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("reload Mer-Folk movement modes");
+        assert_eq!((land, swim), (2.0, 4.0));
+
+        let invalid_granted_links: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM race_skill_links link
+                 JOIN races race ON race.id = link.race_id
+                 JOIN skills skill ON skill.id = link.skill_id
+                 WHERE race.source_system = 'serrian-tide-race-sheet'
+                   AND link.link_type = 'granted'
+                   AND skill.classification <> 'special ability' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("validate granted classifications");
+        let skill_count_after: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("count Skills after Race seed");
+        assert_eq!(invalid_granted_links, 0);
+        assert_eq!(
+            skill_count_after, skill_count_before,
+            "the Race seed must never create Skills"
+        );
+
+        connection
+            .execute(
+                "UPDATE races SET cultural_mindset = 'Preserved user edit.'
+                 WHERE source_system = 'serrian-tide-race-sheet'
+                   AND name = 'Standard Human' COLLATE NOCASE",
+                [],
+            )
+            .expect("edit seeded Race");
+        connection
+            .execute_batch(RACE_CATALOG_MIGRATION)
+            .expect("reapply Race seed idempotently");
+        let counts_after_reapply: (i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT COUNT(*) FROM races WHERE source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_attribute_caps cap JOIN races race ON race.id = cap.race_id WHERE race.source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_movement_modes movement JOIN races race ON race.id = movement.race_id WHERE race.source_system = 'serrian-tide-race-sheet'),
+                   (SELECT COUNT(*) FROM race_skill_links link JOIN races race ON race.id = link.race_id WHERE race.source_system = 'serrian-tide-race-sheet')",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .expect("recount re-applied Race seed");
+        let preserved_edit: String = connection
+            .query_row(
+                "SELECT cultural_mindset FROM races
+                 WHERE source_system = 'serrian-tide-race-sheet'
+                   AND name = 'Standard Human' COLLATE NOCASE",
+                [],
+                |row| row.get(0),
+            )
+            .expect("reload preserved edit");
+        assert_eq!(counts_after_reapply, (56, 336, 57, 249));
+        assert_eq!(preserved_edit, "Preserved user edit.");
     }
 }
