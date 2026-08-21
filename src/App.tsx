@@ -4,9 +4,6 @@ import { AccessChoicePage } from "./pages/AccessChoicePage";
 import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
-import { EquipmentPage } from "./pages/EquipmentPage";
-import { InventoryPage } from "./pages/InventoryPage";
-import { CreaturesPage } from "./pages/CreaturesPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { RacesPage } from "./pages/RacesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -106,9 +103,6 @@ function App() {
             session={session}
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
-            onOpenEquipment={() => navigateAuthenticated("equipment")}
-            onOpenInventory={() => navigateAuthenticated("inventory")}
-            onOpenCreatures={() => navigateAuthenticated("creatures")}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
           />
@@ -124,30 +118,6 @@ function App() {
       case "races":
         return (
           <RacesPage
-            session={session}
-            onBack={() => navigateAuthenticated("heavens")}
-            onLogout={logout}
-          />
-        );
-      case "equipment":
-        return (
-          <EquipmentPage
-            session={session}
-            onBack={() => navigateAuthenticated("heavens")}
-            onLogout={logout}
-          />
-        );
-      case "inventory":
-        return (
-          <InventoryPage
-            session={session}
-            onBack={() => navigateAuthenticated("heavens")}
-            onLogout={logout}
-          />
-        );
-      case "creatures":
-        return (
-          <CreaturesPage
             session={session}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}
