@@ -11,7 +11,13 @@ const decisionsPath = path.join(projectDirectory, "data", "serrian-tide-item-imp
 const seedPath = path.join(projectDirectory, "data", "serrian-tide-item-seed.json");
 const reportPath = path.join(projectDirectory, "data", "serrian-tide-item-import-report.json");
 const migrationPath = path.join(projectDirectory, "src-tauri", "migrations", "0008_seed_item_catalog.sql");
-const createMigration = process.argv.slice(2).includes("--create-migration-8");
+const migrationRewriteRequested = process.argv.slice(2).includes("--create-migration-8");
+if (migrationRewriteRequested) {
+  throw new Error(
+    "Migration 0008 is already released and checksum-locked. Regenerate the canonical seed/report and add a later corrective migration instead.",
+  );
+}
+const createMigration = false;
 
 const expectedHeaders = {
   Items: [
@@ -299,6 +305,25 @@ const rowsByTab = Object.fromEntries(Object.keys(expectedHeaders).map((tab) => [
 const allRows = Object.values(rowsByTab).flat();
 const rowsBySourceKey = new Map(allRows.map((row) => [row.sourceKey, row]));
 const sourceSystem = decisions.sourceSystem;
+const catalogScopeOverrideRules = (decisions.catalogScopeOverrides ?? []).map((rule, index) => {
+  const category = text(rule.category);
+  const subtypes = [...new Set((rule.subtypes ?? []).map(text).filter(Boolean))];
+  const catalogScope = text(rule.catalogScope);
+  const reason = text(rule.reason);
+  if (!category || !subtypes.length || !catalogScope || !reason) {
+    throw new Error(`Catalog scope override ${index + 1} is incomplete.`);
+  }
+  return {
+    ...rule,
+    category,
+    subtypes,
+    catalogScope,
+    reason,
+    categoryKey: normalized(category),
+    subtypeKeys: new Set(subtypes.map(normalized)),
+    matchedSubtypeKeys: new Set(),
+  };
+});
 
 const duplicateWarnings = {};
 for (const [tab, rows] of Object.entries(rowsByTab)) {
@@ -406,6 +431,7 @@ const sourceRowsForBase = new Map(baseRows.map((row) => [row.sourceKey, []]));
 for (const row of allRows) sourceRowsForBase.get(baseSourceFor.get(row.sourceKey)).push(row);
 
 const records = [];
+const catalogScopeOverridesApplied = [];
 for (const [index, base] of baseRows.entries()) {
   const contributors = sourceRowsForBase.get(base.sourceKey);
   const baseValues = commonValues(base, correctedArmorValues.get(base.sourceKey));
@@ -419,6 +445,25 @@ for (const [index, base] of baseRows.entries()) {
     category = text(base.values[3]);
     subtype = text(base.values[4]);
     catalogScope = decisions.scopeByItemCategory[category] ?? "";
+    const matchingOverrides = catalogScopeOverrideRules.filter((rule) =>
+      rule.categoryKey === normalized(category) && rule.subtypeKeys.has(normalized(subtype)),
+    );
+    if (matchingOverrides.length > 1) {
+      throw new Error(`Multiple catalog scope overrides match ${base.name}.`);
+    }
+    if (matchingOverrides.length === 1) {
+      const override = matchingOverrides[0];
+      catalogScope = override.catalogScope;
+      override.matchedSubtypeKeys.add(normalized(subtype));
+      catalogScopeOverridesApplied.push({
+        rowNumber: base.rowNumber,
+        name: base.name,
+        category,
+        subtype,
+        catalogScope,
+        reason: override.reason,
+      });
+    }
   }
   const genreTags = [];
   const seenTags = new Set();
@@ -483,6 +528,14 @@ for (const [index, base] of baseRows.entries()) {
       contributors: contributors.map((row) => ({ tab: row.tab, rowNumber: row.rowNumber, semanticIdentity: row.semanticIdentity })),
     },
   });
+}
+
+for (const rule of catalogScopeOverrideRules) {
+  for (const subtype of rule.subtypes) {
+    if (!rule.matchedSubtypeKeys.has(normalized(subtype))) {
+      throw new Error(`Catalog scope override ${rule.category} / ${subtype} did not match the source.`);
+    }
+  }
 }
 
 const unknownCategories = rowsByTab.Items
@@ -559,6 +612,16 @@ const report = {
     mergedGeneralItemImprovisedWeapons: mergeReports.filter((merge) => merge.baseSource.tab === "Items"),
     ambiguousMergeCandidates,
     conflictingSharedValues,
+  },
+  catalogScopePolicy: {
+    categoryDefaults: decisions.scopeByItemCategory,
+    overrides: catalogScopeOverrideRules.map((rule) => ({
+      category: rule.category,
+      subtypes: rule.subtypes,
+      catalogScope: rule.catalogScope,
+      reason: rule.reason,
+    })),
+    appliedOverrides: catalogScopeOverridesApplied,
   },
   weaponRoleClassifications,
   validation: {

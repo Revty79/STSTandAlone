@@ -14,7 +14,15 @@ const seed = seedJson as unknown as {
     genreTagRows: number;
   };
   records: Array<{
-    item: { name: string; catalogScope: string; costCredits: number; weight: number; sourceExternalId: string };
+    item: {
+      name: string;
+      catalogScope: string;
+      category: string;
+      subtype: string;
+      costCredits: number;
+      weight: number;
+      sourceExternalId: string;
+    };
     genreTags: string[];
     weaponProfile: null | { weaponRole: string; damage: number; sourceExternalId: string };
     armorProfile: null | { soak: number; armorCategory: string; sourceExternalId: string };
@@ -22,6 +30,14 @@ const seed = seedJson as unknown as {
 };
 const report = reportJson as unknown as {
   sourceCounts: { items: number; weapons: number; armor: number; totalSourceRows: number };
+  catalogScopePolicy: {
+    appliedOverrides: Array<{
+      name: string;
+      category: string;
+      subtype: string;
+      catalogScope: string;
+    }>;
+  };
   reconciliation: {
     duplicatesWithinItems: unknown[];
     duplicatesWithinWeapons: unknown[];
@@ -101,6 +117,36 @@ describe("canonical Item seed", () => {
     expect(report.reconciliation.duplicatesWithinWeapons).toEqual([]);
     expect(report.reconciliation.duplicatesWithinArmor).toHaveLength(8);
     expect(seed.records.flatMap(({ genreTags }) => genreTags)).toHaveLength(1468);
+  });
+
+  it("places living purchase listings in Inventory without moving ordinary Tools", () => {
+    const livingInventoryItems = [
+      ["Horse", "Mount"],
+      ["Camel", "Mount"],
+      ["Dog (Trained)", "Animal"],
+      ["Cat (Pet)", "Animal"],
+      ["Falcon", "Animal"],
+      ["Exotic Pet (Small)", "Pet"],
+      ["Exotic Pet (Large)", "Pet"],
+    ] as const;
+    for (const [name, subtype] of livingInventoryItems) {
+      expect(named(name)).toHaveLength(1);
+      expect(named(name)[0].item).toMatchObject({
+        catalogScope: "inventory",
+        category: "Tool",
+        subtype,
+      });
+    }
+    expect(report.catalogScopePolicy.appliedOverrides.map(({ name }) => name)).toEqual(
+      livingInventoryItems.map(([name]) => name),
+    );
+
+    for (const name of [
+      "Crowbar", "Shovel", "Toolkit (Basic)", "Toolkit (Advanced)", "Flashlight",
+    ]) {
+      expect(named(name)).toHaveLength(1);
+      expect(named(name)[0].item.catalogScope).toBe("equipment");
+    }
   });
 
   it("contains no unresolved parsing or scope decisions", () => {

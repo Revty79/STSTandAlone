@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceSystem": "serrian-tide-item-sheet",
   "sourceSha256": "49444e3b1cc8d1f20dbebabdc0119db300e83c85527edbabbfdfec74bfc385da",
-  "decisionsSha256": "6962a096904745d0b0545b6494609edcecddb7729ab4d477b8d258c125f61d55",
+  "decisionsSha256": "a3557f963a6438089ef4f8a1d198be4093063bae1a9c5c8aa139a42c0b3e2a41",
   "sourceCounts": {
     "items": 425,
     "weapons": 206,
@@ -493,6 +493,84 @@
             "attachedTab": "Weapons"
           }
         ]
+      }
+    ]
+  },
+  "catalogScopePolicy": {
+    "categoryDefaults": {
+      "Tool": "equipment",
+      "Artifact": "equipment",
+      "Consumable": "inventory",
+      "Service": "inventory"
+    },
+    "overrides": [
+      {
+        "category": "Tool",
+        "subtypes": [
+          "Mount",
+          "Animal",
+          "Pet"
+        ],
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      }
+    ],
+    "appliedOverrides": [
+      {
+        "rowNumber": 156,
+        "name": "Horse",
+        "category": "Tool",
+        "subtype": "Mount",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 157,
+        "name": "Camel",
+        "category": "Tool",
+        "subtype": "Mount",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 158,
+        "name": "Dog (Trained)",
+        "category": "Tool",
+        "subtype": "Animal",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 159,
+        "name": "Cat (Pet)",
+        "category": "Tool",
+        "subtype": "Animal",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 160,
+        "name": "Falcon",
+        "category": "Tool",
+        "subtype": "Animal",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 243,
+        "name": "Exotic Pet (Small)",
+        "category": "Tool",
+        "subtype": "Pet",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+      },
+      {
+        "rowNumber": 244,
+        "name": "Exotic Pet (Large)",
+        "category": "Tool",
+        "subtype": "Pet",
+        "catalogScope": "inventory",
+        "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
       }
     ]
   },

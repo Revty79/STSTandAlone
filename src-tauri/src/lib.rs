@@ -15,6 +15,8 @@ const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql"
 const RACE_CATALOG_MIGRATION: &str = include_str!("../migrations/0006_seed_race_catalog.sql");
 const ITEMS_MIGRATION: &str = include_str!("../migrations/0007_create_item_catalog.sql");
 const ITEM_CATALOG_MIGRATION: &str = include_str!("../migrations/0008_seed_item_catalog.sql");
+const ITEM_CATALOG_SCOPE_CORRECTION_MIGRATION: &str =
+    include_str!("../migrations/0009_correct_living_item_catalog_scope.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -67,6 +69,12 @@ pub fn run() {
             sql: ITEM_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "correct_living_item_catalog_scope",
+            sql: ITEM_CATALOG_SCOPE_CORRECTION_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -87,9 +95,9 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        INITIAL_ACCOUNT_MIGRATION, ITEMS_MIGRATION, ITEM_CATALOG_MIGRATION, RACES_MIGRATION,
-        RACE_CATALOG_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
-        SPELL_CONSTRUCTION_MIGRATION,
+        INITIAL_ACCOUNT_MIGRATION, ITEMS_MIGRATION, ITEM_CATALOG_MIGRATION,
+        ITEM_CATALOG_SCOPE_CORRECTION_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION,
+        SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -956,10 +964,32 @@ mod tests {
             )
             .expect("insert user Item with canonical display name");
         let user_item_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO items (
+                   name, catalog_scope, cost_credits, category, subtype, weight,
+                   created_by_user_id
+                 ) VALUES ('Horse', 'equipment', 75, 'Tool', 'Mount', 450, NULL)",
+                [],
+            )
+            .expect("insert user-created living Item");
+        let user_horse_id = connection.last_insert_rowid();
 
         connection
             .execute_batch(ITEM_CATALOG_MIGRATION)
             .expect("seed canonical Item catalog");
+        connection
+            .execute(
+                "UPDATE items SET catalog_scope = 'equipment'
+                 WHERE source_system = 'serrian-tide-item-sheet'
+                   AND lower(category) = 'tool'
+                   AND lower(subtype) IN ('mount', 'animal', 'pet')",
+                [],
+            )
+            .expect("simulate an existing database seeded by the original migration 0008");
+        connection
+            .execute_batch(ITEM_CATALOG_SCOPE_CORRECTION_MIGRATION)
+            .expect("correct living canonical Item scopes");
 
         let counts: (i64, i64, i64, i64, i64, i64, i64, i64) = connection
             .query_row(
@@ -1038,6 +1068,42 @@ mod tests {
             )
             .expect("reload zero-damage Weapon");
         assert_eq!(zero_damage_smoke_bomb, 0.0);
+
+        let living_scope_counts: (i64, i64) = connection
+            .query_row(
+                "SELECT
+                   COUNT(*),
+                   SUM(CASE WHEN catalog_scope = 'inventory' COLLATE NOCASE THEN 1 ELSE 0 END)
+                 FROM items
+                 WHERE source_system = 'serrian-tide-item-sheet'
+                   AND lower(category) = 'tool'
+                   AND lower(subtype) IN ('mount', 'animal', 'pet')",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("count corrected living Item scopes");
+        assert_eq!(living_scope_counts, (7, 7));
+
+        let ordinary_equipment_tools: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM items
+                 WHERE source_system = 'serrian-tide-item-sheet'
+                   AND catalog_scope = 'equipment' COLLATE NOCASE
+                   AND name IN ('Crowbar', 'Shovel', 'Toolkit (Basic)', 'Toolkit (Advanced)', 'Flashlight')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count ordinary Tools still in Equipment");
+        assert_eq!(ordinary_equipment_tools, 5);
+
+        let user_horse_scope: String = connection
+            .query_row(
+                "SELECT catalog_scope FROM items WHERE id = ?1",
+                [user_horse_id],
+                |row| row.get(0),
+            )
+            .expect("reload unaffected user-created Horse Item");
+        assert_eq!(user_horse_scope, "equipment");
 
         let duplicate_source_identity = connection.execute(
             "INSERT INTO items (

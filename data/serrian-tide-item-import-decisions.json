@@ -7,6 +7,18 @@
     "Consumable": "inventory",
     "Service": "inventory"
   },
+  "catalogScopeOverrides": [
+    {
+      "category": "Tool",
+      "subtypes": [
+        "Mount",
+        "Animal",
+        "Pet"
+      ],
+      "catalogScope": "inventory",
+      "reason": "Purchasable living creatures belong in the Inventory catalog while remaining universal Items."
+    }
+  ],
   "weaponRolePolicy": {
     "defaultRole": "primary",
     "improvisedNames": [
