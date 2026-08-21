@@ -1,17 +1,3 @@
-export const RACE_SIZE_OPTIONS = [
-  "Smaller than Tiny",
-  "Tiny",
-  "Small",
-  "Medium Small",
-  "Medium",
-  "Average",
-  "Large",
-  "XLarge",
-  "XXLarge",
-  "Gargantuan",
-  "Larger than Gargantuan",
-] as const;
-
 export const STANDARD_RACE_ATTRIBUTES = [
   "STR",
   "DEX",

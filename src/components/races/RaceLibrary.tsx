@@ -3,11 +3,11 @@ import type {
   RaceLibraryPage,
   RaceSummary,
 } from "../../types/race";
+import { isSize, SIZE_OPTIONS } from "../../data/sizeOptions";
 
 type RaceLibraryProps = {
   page: RaceLibraryPage;
   filters: RaceLibraryFilters;
-  sizes: string[];
   selectedRaceId?: number;
   loading: boolean;
   onFiltersChange: (filters: RaceLibraryFilters) => void;
@@ -18,7 +18,6 @@ type RaceLibraryProps = {
 export function RaceLibrary({
   page,
   filters,
-  sizes,
   selectedRaceId,
   loading,
   onFiltersChange,
@@ -56,10 +55,13 @@ export function RaceLibrary({
           <span>Size</span>
           <select
             value={filters.size ?? ""}
-            onChange={(event) => changeFilter({ size: event.target.value || undefined })}
+            onChange={(event) => {
+              const size = event.target.value;
+              changeFilter({ size: isSize(size) ? size : undefined });
+            }}
           >
             <option value="">All sizes</option>
-            {sizes.map((size) => <option key={size} value={size}>{size}</option>)}
+            {SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
           </select>
         </label>
       </div>

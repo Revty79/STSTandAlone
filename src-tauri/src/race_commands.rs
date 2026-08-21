@@ -4,6 +4,7 @@ use std::path::Path;
 use tauri::{AppHandle, Manager};
 
 const DATABASE_FILENAME: &str = "serrian-tide.db";
+const SIZE_SCALE_JSON: &str = include_str!("../../src/data/sizeScale.json");
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -90,8 +91,9 @@ fn save_race_aggregate_at_path(
 
 fn save_race_aggregate_in_connection(
     connection: &mut Connection,
-    input: SaveRaceAggregateInput,
+    mut input: SaveRaceAggregateInput,
 ) -> Result<i64, String> {
+    input.core.size = normalize_size(&input.core.size)?;
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|error| format!("The Race save transaction could not begin: {error}"))?;
@@ -256,6 +258,29 @@ fn save_race_aggregate_in_connection(
         .commit()
         .map_err(|error| format!("The Race save transaction could not be committed: {error}"))?;
     Ok(race_id)
+}
+
+fn normalize_size(value: &str) -> Result<String, String> {
+    let size = value.trim();
+    if size.is_empty() {
+        return Ok(String::new());
+    }
+    let size_scale: serde_json::Map<String, serde_json::Value> =
+        serde_json::from_str(SIZE_SCALE_JSON)
+            .map_err(|error| format!("The canonical Size scale is invalid: {error}"))?;
+    if !size_scale.contains_key(size) {
+        let mut size_names = size_scale.iter().collect::<Vec<_>>();
+        size_names.sort_by_key(|(_, order)| order.as_u64().unwrap_or(u64::MAX));
+        return Err(format!(
+            "Size must be one of: {}.",
+            size_names
+                .iter()
+                .map(|(name, _)| name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        ));
+    }
+    Ok(size.to_string())
 }
 
 #[cfg(test)]
@@ -437,6 +462,20 @@ mod tests {
         let race_count: i64 = connection
             .query_row("SELECT COUNT(*) FROM races", [], |row| row.get(0))
             .expect("count Races after invalid granted link");
+        assert_eq!(race_count, 0);
+    }
+
+    #[test]
+    fn command_rejects_an_unsupported_size_without_writing() {
+        let (mut connection, bonus_skill_id, granted_skill_id) = setup();
+        let mut invalid = input("Invalid Size", bonus_skill_id, granted_skill_id);
+        invalid.core.size = "Average".to_string();
+        let error = save_race_aggregate_in_connection(&mut connection, invalid)
+            .expect_err("reject unsupported Size");
+        assert!(error.contains("Size must be one of"));
+        let race_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM races", [], |row| row.get(0))
+            .expect("count Races after invalid Size");
         assert_eq!(race_count, 0);
     }
 }

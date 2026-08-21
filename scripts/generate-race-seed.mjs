@@ -9,6 +9,7 @@ const projectDirectory = path.resolve(scriptDirectory, "..");
 const sourcePath = path.join(projectDirectory, "data", "serrian-tide-race-sheet.json");
 const skillCatalogPath = path.join(projectDirectory, "data", "serrian-tide-skill-catalog.tsv");
 const mappingPath = path.join(projectDirectory, "data", "serrian-tide-race-skill-mappings.json");
+const sizeScalePath = path.join(projectDirectory, "src", "data", "sizeScale.json");
 const seedPath = path.join(projectDirectory, "data", "serrian-tide-race-seed.json");
 const reportPath = path.join(projectDirectory, "data", "serrian-tide-race-import-report.json");
 const migrationPath = path.join(projectDirectory, "src-tauri", "migrations", "0006_seed_race_catalog.sql");
@@ -67,6 +68,14 @@ function skillExternalId(name) {
 
 function text(value) {
   return value === undefined || value === null ? "" : String(value).trim();
+}
+
+function canonicalSize(value, raceName, canonicalSizes) {
+  const size = text(value);
+  if (!canonicalSizes.has(size)) {
+    throw new Error(`${raceName} has unsupported Size ${JSON.stringify(size)}.`);
+  }
+  return size;
 }
 
 function number(value, label, nullable = false) {
@@ -431,12 +440,19 @@ DROP TABLE _serrian_tide_race_seed;
 `;
 }
 
-const [sourceText, skillCatalogText, mappingText] = await Promise.all([
+const [sourceText, skillCatalogText, mappingText, sizeScaleText] = await Promise.all([
   readFile(sourcePath, "utf8"),
   readFile(skillCatalogPath, "utf8"),
   readFile(mappingPath, "utf8"),
+  readFile(sizeScalePath, "utf8"),
 ]);
 const snapshot = JSON.parse(sourceText);
+const sizeScale = JSON.parse(sizeScaleText);
+const sizeEntries = Object.entries(sizeScale);
+if (!sizeEntries.length || sizeEntries.some(([size, order], index) => !size || order !== index)) {
+  throw new Error("The canonical Size scale must be a non-empty, zero-based ordered object.");
+}
+const canonicalSizes = new Set(sizeEntries.map(([size]) => size));
 assertHeaders(snapshot);
 const consolidated = rowsByName(snapshot.tabs["info in one spot"], "info in one spot");
 const definitions = rowsByName(snapshot.tabs["Racial Definitions"], "Racial Definitions");
@@ -522,7 +538,7 @@ for (const [key, source] of consolidated) {
       physicalCharacteristics: text(definition.values[2]),
       physicalDescription: text(definition.values[3]),
       ...ages,
-      size: text(attribute.values[2]),
+      size: canonicalSize(attribute.values[2], source.name, canonicalSizes),
       baseMagic: number(attribute.values[9], `${source.name} Base Magic`, true),
       racialQuirkName: text(definition.values[4]),
       quirkSuccessEffect: text(definition.values[5]),
@@ -547,6 +563,7 @@ for (const [key, source] of consolidated) {
 
 const sourceHash = hash(sourceText);
 const mappingHash = hash(mappingText);
+const sizeScaleHash = hash(sizeScaleText);
 const counts = {
   races: records.length,
   attributeCaps: records.reduce((sum, record) => sum + record.attributeCaps.length, 0),
@@ -586,7 +603,7 @@ if (JSON.stringify(reconciledSourceCounts) !== JSON.stringify({ bonus: 248, gran
   throw new Error(`Unexpected source Skill reference counts: ${JSON.stringify(reconciledSourceCounts)}.`);
 }
 
-const seed = { schemaVersion: 2, sourceSystem, sourceSha256: sourceHash, mappingSha256: mappingHash, counts, records };
+const seed = { schemaVersion: 2, sourceSystem, sourceSha256: sourceHash, mappingSha256: mappingHash, sizeScaleSha256: sizeScaleHash, counts, records };
 const groupedDiscrepancies = [...new Set(reconciliation.unresolvedReferences.map(({ sourceSkillName }) => sourceSkillName))]
   .sort((left, right) => left.localeCompare(right, "en-US"))
   .map((sourceSkillName) => ({
@@ -598,6 +615,7 @@ const report = {
   sourceSystem,
   sourceSha256: sourceHash,
   mappingSha256: mappingHash,
+  sizeScaleSha256: sizeScaleHash,
   policy: "Case-insensitive exact matches and explicit user-approved Race import mappings may link to existing canonical Skills. No Skills or global aliases are created.",
   sourceCounts: { races: 56, bonusReferences: 248, grantedReferences: 36 },
   importedCounts: counts,

@@ -12,6 +12,7 @@ import type {
   SaveRaceAggregate,
 } from "../../types/race";
 import { getDatabase } from "../database";
+import { isSize, type Size } from "../sizeOptions";
 
 type ExecuteResult = { rowsAffected: number; lastInsertId?: number };
 
@@ -97,15 +98,21 @@ type SkillCandidateRow = {
 };
 
 type CountRow = { count: number | string };
-type ValueRow = { value: string };
-
 export interface RaceRepository {
   listRaces(filters: RaceLibraryFilters): Promise<RaceLibraryPage>;
-  listSizes(): Promise<string[]>;
   listSkillCandidates(search: string, classification?: string): Promise<RaceSkillCandidate[]>;
   getRaceAggregate(id: number): Promise<RaceAggregate | null>;
   saveRaceAggregate(input: SaveRaceAggregate): Promise<RaceAggregate>;
   deleteRace(id: number): Promise<void>;
+}
+
+function mapStoredSize(value: string, raceName: string): Size | "" {
+  const size = value.trim();
+  if (!size) return "";
+  if (!isSize(size)) {
+    throw new Error(`${raceName} has unsupported Size ${JSON.stringify(value)}.`);
+  }
+  return size;
 }
 
 function mapRace(row: RaceRow): Race {
@@ -118,7 +125,7 @@ function mapRace(row: RaceRow): Race {
     ageRangeText: row.age_range_text,
     ageMin: row.age_min,
     ageMax: row.age_max,
-    size: row.size,
+    size: mapStoredSize(row.size, row.name),
     baseMagic: row.base_magic,
     racialQuirkName: row.racial_quirk_name,
     quirkSuccessEffect: row.quirk_success_effect,
@@ -140,7 +147,7 @@ function mapSummary(row: RaceSummaryRow): RaceSummary {
   return {
     id: row.id,
     name: row.name,
-    size: row.size,
+    size: mapStoredSize(row.size, row.name),
     ageRangeText: row.age_range_text,
     baseMagic: row.base_magic,
     updatedAt: row.updated_at,
@@ -158,6 +165,9 @@ export class TauriRaceRepository implements RaceRepository {
   ) {}
 
   async listRaces(filters: RaceLibraryFilters): Promise<RaceLibraryPage> {
+    if (filters.size && !isSize(filters.size)) {
+      throw new Error(`Unsupported Race Size filter ${JSON.stringify(filters.size)}.`);
+    }
     const database = await this.databaseProvider();
     const page = Math.max(1, Math.trunc(filters.page));
     const pageSize = Math.min(100, Math.max(1, Math.trunc(filters.pageSize)));
@@ -198,16 +208,6 @@ export class TauriRaceRepository implements RaceRepository {
       pageSize,
       pageCount: Math.max(1, Math.ceil(total / pageSize)),
     };
-  }
-
-  async listSizes(): Promise<string[]> {
-    const database = await this.databaseProvider();
-    const rows = await database.select<ValueRow[]>(
-      `SELECT DISTINCT size AS value FROM races
-       WHERE length(trim(size)) > 0
-       ORDER BY size COLLATE NOCASE LIMIT 250`,
-    );
-    return rows.map(({ value }) => value);
   }
 
   async listSkillCandidates(search: string, classification?: string): Promise<RaceSkillCandidate[]> {

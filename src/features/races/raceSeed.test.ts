@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import raceSeedJson from "../../../data/serrian-tide-race-seed.json";
 import raceReportJson from "../../../data/serrian-tide-race-import-report.json";
+import { isSize, type Size } from "../../data/sizeOptions";
 
 type RaceSeedRecord = {
   core: {
@@ -12,7 +13,7 @@ type RaceSeedRecord = {
     ageRangeText: string;
     ageMin: number | null;
     ageMax: number | null;
-    size: string;
+    size: Size;
     baseMagic: number | null;
     racialQuirkName: string;
     commonLanguagesKnown: string;
@@ -86,6 +87,10 @@ describe("canonical Race seed", () => {
       core.ageRangeText && core.size && core.racialQuirkName && core.commonLanguagesKnown &&
       core.culturalMindset,
     )).toBe(true);
+    expect(raceSeed.records.every(({ core }) => isSize(core.size))).toBe(true);
+    expect(new Set(raceSeed.records.map(({ core }) => core.size))).toEqual(
+      new Set(["Small", "Medium", "Large"]),
+    );
   });
 
   it("maps Charisma to CHR and preserves Mer-Folk movement as independent modes", () => {

@@ -3,6 +3,7 @@
   "sourceSystem": "serrian-tide-race-sheet",
   "sourceSha256": "cd23d0122b0330bc00811b8678a4234ebb1e8757b82007b7a63df8b5be1aa36f",
   "mappingSha256": "e8eabad0cc9a9c6ba8adca8c37b52f7ef5e7aed1d602e1aec3642dbd8943e906",
+  "sizeScaleSha256": "bd8859b1036f8aa556be9ac4690d77b68297a6a31da8e2c532487de4b625695f",
   "counts": {
     "races": 56,
     "attributeCaps": 336,

@@ -31,7 +31,6 @@ class MemoryRaceRepository implements RaceRepository {
       total: all.length, page, pageSize, pageCount: Math.max(1, Math.ceil(all.length / pageSize)),
     };
   }
-  async listSizes() { return [...new Set([...this.records.values()].map(({ race }) => race.size).filter(Boolean))]; }
   async listSkillCandidates(): Promise<RaceSkillCandidate[]> { return []; }
   async getRaceAggregate(id: number) { return this.records.has(id) ? clone(this.records.get(id)!) : null; }
   async saveRaceAggregate(input: SaveRaceAggregate) {
@@ -55,7 +54,7 @@ function draft(name = "Temporary Humanoid"): SaveRaceAggregate {
     core: {
       name, legacyDescription: " Lore ", physicalCharacteristics: " Humanoid ",
       physicalDescription: " Varied ", ageRangeText: " 15-90 ", ageMin: 15, ageMax: 90,
-      size: " Medium ", baseMagic: 2, racialQuirkName: " Adaptable ",
+      size: "Medium", baseMagic: 2, racialQuirkName: " Adaptable ",
       quirkSuccessEffect: " Succeeds ", quirkFailureEffect: " Falters ",
       commonLanguagesKnown: " Common ", commonArchetypes: " Generalist ",
       genreExamples: " Fantasy ", culturalMindset: " Persistent ", outlookOnMagic: " Curious ",
@@ -120,5 +119,8 @@ describe("RaceService", () => {
     const invalidGrant = draft();
     invalidGrant.skillLinks[2].skillClassification = "standard";
     await expect(service.saveRace(invalidGrant)).rejects.toThrow(/classified as Special Ability/i);
+    const invalidSize = draft();
+    (invalidSize.core as { size: string }).size = "Average";
+    await expect(service.saveRace(invalidSize)).rejects.toThrow(/Size must be one of/i);
   });
 });

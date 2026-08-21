@@ -53,7 +53,6 @@ export function newRaceDraft(userId: number): SaveRaceAggregate {
 export function RacesPage({ session, onBack, onLogout }: Props) {
   const [filters, setFilters] = useState<RaceLibraryFilters>({ page: 1, pageSize: 40 });
   const [library, setLibrary] = useState<RaceLibraryPage>(EMPTY_PAGE);
-  const [sizes, setSizes] = useState<string[]>([]);
   const [draft, setDraft] = useState<SaveRaceAggregate | null>(null);
   const [dirty, setDirty] = useState(false);
   const [loadingLibrary, setLoadingLibrary] = useState(true);
@@ -73,8 +72,6 @@ export function RacesPage({ session, onBack, onLogout }: Props) {
     const timeout = window.setTimeout(() => void loadLibrary(filters), 180);
     return () => window.clearTimeout(timeout);
   }, [filters, loadLibrary]);
-  useEffect(() => { raceService.listSizes().then(setSizes).catch(() => undefined); }, []);
-
   async function openRace(summary: RaceSummary) {
     setLoadingEditor(true); setFeedback(null);
     try {
@@ -104,7 +101,7 @@ export function RacesPage({ session, onBack, onLogout }: Props) {
       const saved = await raceService.saveRace(draft);
       setDraft(raceAggregateToDraft(saved)); setDirty(false);
       setFeedback({ kind: "success", message: `${saved.race.name} was saved.` });
-      await Promise.all([loadLibrary(filters), raceService.listSizes().then(setSizes)]);
+      await loadLibrary(filters);
     } catch (error: unknown) {
       setFeedback({ kind: "error", message: error instanceof RaceValidationError ? error.message : "The Race could not be saved. Existing data was left intact." });
     } finally { setSaving(false); }
@@ -118,7 +115,7 @@ export function RacesPage({ session, onBack, onLogout }: Props) {
       await raceService.deleteRace(draft.id);
       setDraft(null); setDirty(false);
       setFeedback({ kind: "success", message: `${name} was deleted.` });
-      await Promise.all([loadLibrary(filters), raceService.listSizes().then(setSizes)]);
+      await loadLibrary(filters);
     } catch { setFeedback({ kind: "error", message: "The Race could not be deleted." }); }
     finally { setSaving(false); }
   }
@@ -137,7 +134,7 @@ export function RacesPage({ session, onBack, onLogout }: Props) {
         <div className="skills-page__navigation"><button type="button" onClick={onBack}>Back to The Heavens</button><button type="button" onClick={onLogout}>Log Out</button></div>
       </header>
       <div className="skills-workspace races-workspace">
-        <RaceLibrary page={library} filters={filters} sizes={sizes} selectedRaceId={draft?.id} loading={loadingLibrary} onFiltersChange={setFilters} onSelect={selectRace} onNewRace={beginRace} />
+        <RaceLibrary page={library} filters={filters} selectedRaceId={draft?.id} loading={loadingLibrary} onFiltersChange={setFilters} onSelect={selectRace} onNewRace={beginRace} />
         {loadingEditor ? <section className="skill-editor skill-editor--empty"><p>LOADING RACE</p></section> : <RaceEditor draft={draft} saving={saving} dirty={dirty} feedback={feedback} onChange={(next) => { setDraft(next); setDirty(true); setFeedback(null); }} onSave={() => void saveRace()} onDelete={() => void deleteRace()} findSkills={findSkills} />}
       </div>
       {pendingChange && <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-race-title">

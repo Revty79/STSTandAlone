@@ -1,3 +1,5 @@
+import type { Size } from "../data/sizeOptions";
+
 export type Race = {
   id: number;
   name: string;
@@ -7,7 +9,7 @@ export type Race = {
   ageRangeText: string;
   ageMin: number | null;
   ageMax: number | null;
-  size: string;
+  size: Size | "";
   baseMagic: number | null;
   racialQuirkName: string;
   quirkSuccessEffect: string;
@@ -101,7 +103,7 @@ export type RaceSummary = Pick<
 
 export type RaceLibraryFilters = {
   search?: string;
-  size?: string;
+  size?: Size;
   page: number;
   pageSize: number;
 };

@@ -25,6 +25,21 @@ describe("TauriRaceRepository", () => {
     expect(calls[1]?.values).toEqual(["mer", "Medium", 40, 0]);
   });
 
+  it("rejects an unsupported runtime Size filter before querying SQLite", async () => {
+    const select = vi.fn();
+    const database: RaceDatabase = {
+      select,
+      async execute() { return { rowsAffected: 0 }; },
+    };
+    const repository = new TauriRaceRepository(async () => database);
+    await expect(repository.listRaces({
+      size: "Average",
+      page: 1,
+      pageSize: 40,
+    } as never)).rejects.toThrow(/Unsupported Race Size filter/i);
+    expect(select).not.toHaveBeenCalled();
+  });
+
   it("bounds the searchable Skill picker to current Skill identities", async () => {
     const calls: { query: string; values: unknown[] }[] = [];
     const database: RaceDatabase = {

@@ -1,5 +1,5 @@
 import type { RaceCoreDraft } from "../../types/race";
-import { RACE_SIZE_OPTIONS } from "../../data/raceOptions";
+import { isSize, SIZE_OPTIONS } from "../../data/sizeOptions";
 
 type Props = {
   core: RaceCoreDraft;
@@ -9,11 +9,10 @@ type Props = {
 export function RaceOverviewEditor({ core, onChange }: Props) {
   const update = (change: Partial<RaceCoreDraft>) => onChange({ ...core, ...change });
   const optionalNumber = (value: string) => value === "" ? null : Number(value);
-  const sizeOptions = RACE_SIZE_OPTIONS.includes(
-    core.size as (typeof RACE_SIZE_OPTIONS)[number],
-  ) || !core.size
-    ? RACE_SIZE_OPTIONS
-    : [core.size, ...RACE_SIZE_OPTIONS];
+  const updateSize = (value: string) => {
+    if (value === "") update({ size: "" });
+    else if (isSize(value)) update({ size: value });
+  };
 
   return (
     <div className="race-form">
@@ -53,9 +52,9 @@ export function RaceOverviewEditor({ core, onChange }: Props) {
         </label>
         <label>
           <span>Size</span>
-          <select value={core.size} onChange={(event) => update({ size: event.target.value })}>
+          <select value={core.size} onChange={(event) => updateSize(event.target.value)}>
             <option value="">Select a size</option>
-            {sizeOptions.map((size) => <option key={size} value={size}>{size}</option>)}
+            {SIZE_OPTIONS.map((size) => <option key={size} value={size}>{size}</option>)}
           </select>
         </label>
       </div>

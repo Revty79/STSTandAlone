@@ -10,6 +10,7 @@ import type {
   SaveRaceAggregate,
 } from "../types/race";
 import { GRANTED_RACE_SKILL_CLASSIFICATION } from "../data/raceOptions";
+import { isSize, SIZE_OPTIONS, type Size } from "../data/sizeOptions";
 
 export class RaceValidationError extends Error {
   constructor(message: string) {
@@ -28,6 +29,17 @@ function requireFinite(value: number, label: string): number {
     throw new RaceValidationError(`${label} must be a number.`);
   }
   return value;
+}
+
+function normalizeSize(value: string): Size | "" {
+  const size = value.trim();
+  if (!size) return "";
+  if (!isSize(size)) {
+    throw new RaceValidationError(
+      `Size must be one of: ${SIZE_OPTIONS.join(", ")}.`,
+    );
+  }
+  return size;
 }
 
 function normalize(input: SaveRaceAggregate): SaveRaceAggregate {
@@ -130,7 +142,7 @@ function normalize(input: SaveRaceAggregate): SaveRaceAggregate {
       physicalCharacteristics: text(input.core.physicalCharacteristics),
       physicalDescription: text(input.core.physicalDescription),
       ageRangeText: text(input.core.ageRangeText),
-      size: text(input.core.size),
+      size: normalizeSize(input.core.size),
       racialQuirkName: text(input.core.racialQuirkName),
       quirkSuccessEffect: text(input.core.quirkSuccessEffect),
       quirkFailureEffect: text(input.core.quirkFailureEffect),
@@ -153,10 +165,6 @@ export class RaceService {
 
   listRaces(filters: RaceLibraryFilters): Promise<RaceLibraryPage> {
     return this.repository.listRaces(filters);
-  }
-
-  listSizes(): Promise<string[]> {
-    return this.repository.listSizes();
   }
 
   listSkillCandidates(search: string, classification?: string): Promise<RaceSkillCandidate[]> {
