@@ -5,8 +5,6 @@ export type AuthenticatedDestination =
   | "heavens"
   | "skills"
   | "races"
-  | "equipment"
-  | "inventory"
   | "realms";
 
 export type AppScreen = PublicScreen | AuthenticatedDestination;

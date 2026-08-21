@@ -316,6 +316,12 @@
   gap: 15px;
 }
 
+.heavens-tools__grid--core .portal-action-card:nth-child(5) {
+  width: calc(50% - 7.5px);
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
 .heavens-tools__grid--core .portal-action-card:nth-child(2) {
   border-color: rgb(190 162 105 / 41%);
   background:
@@ -505,6 +511,11 @@
 
   .heavens-tools__grid {
     grid-template-columns: 1fr;
+  }
+
+  .heavens-tools__grid--core .portal-action-card:nth-child(5) {
+    width: 100%;
+    grid-column: auto;
   }
 
 }
