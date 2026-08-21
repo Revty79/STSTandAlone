@@ -23,9 +23,14 @@ export const HEAVENS_CORE_TOOLS: readonly PortalActionDefinition[] = [
     description: "Shape the inventory content available within Serrian Tide.",
   },
   {
-    id: "creatures-npcs",
-    title: "Creatures & NPCs",
-    description: "Create and manage creatures and non-player characters.",
+    id: "creatures",
+    title: "Creatures",
+    description: "Create and manage creatures within Serrian Tide.",
+  },
+  {
+    id: "npcs",
+    title: "NPCs",
+    description: "Create and manage non-player characters.",
   },
 ];
 

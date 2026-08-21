@@ -7,13 +7,22 @@ import {
 } from "./heavensDashboardTools";
 
 describe("Heavens dashboard tools", () => {
-  it("contains only the five approved core systems", () => {
+  it("keeps Creatures and NPCs as separate core systems", () => {
     expect(HEAVENS_CORE_TOOLS.map((tool) => tool.title)).toEqual([
       "Races",
       "Skills",
       "Equipment",
       "Inventory",
-      "Creatures & NPCs",
+      "Creatures",
+      "NPCs",
+    ]);
+    expect(HEAVENS_CORE_TOOLS.map((tool) => tool.id)).toEqual([
+      "races",
+      "skills",
+      "equipment",
+      "inventory",
+      "creatures",
+      "npcs",
     ]);
   });
 
