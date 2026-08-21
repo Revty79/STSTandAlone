@@ -11,6 +11,7 @@ function draft(): SaveItemAggregate {
       sourceSystem: null, sourceExternalId: null,
     },
     genreTags: [" Modern ", "modern", " Fantasy "],
+    aliases: [{ alias: " Field Implement ", notes: " Alternate ", sourceReference: " Source " }, { alias: "field implement", notes: "", sourceReference: "" }],
     weaponProfile: {
       weaponRole: " Improvised ", weaponCategory: " Tool ", handedness: " 2h ",
       damageType: " Bludgeoning ", rangeType: " Melee ", rangeText: " Reach ",
@@ -30,6 +31,7 @@ describe("Item rules", () => {
     const result = normalizeItem(draft());
     expect(result.core).toMatchObject({ name: "Field Tool", catalogSection: "Equipment", costCredits: 0, weight: null });
     expect(result.genreTags).toEqual(["Modern", "Fantasy"]);
+    expect(result.aliases).toEqual([{ alias: "Field Implement", notes: "Alternate", sourceReference: "Source" }]);
     expect(result.weaponProfile).toMatchObject({ weaponRole: "Improvised", damage: 0 });
     expect(result.armorProfile).toMatchObject({ soak: null, encumbrancePenalty: 0 });
   });

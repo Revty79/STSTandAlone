@@ -11,8 +11,17 @@ pub struct SaveItemAggregateInput {
     id: Option<i64>,
     core: ItemCoreInput,
     genre_tags: Vec<String>,
+    aliases: Vec<ItemAliasInput>,
     weapon_profile: Option<WeaponProfileInput>,
     armor_profile: Option<ArmorProfileInput>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ItemAliasInput {
+    alias: String,
+    notes: String,
+    source_reference: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -163,6 +172,18 @@ fn save_item_aggregate_in_connection(
     }
 
     transaction
+        .execute("DELETE FROM item_aliases WHERE item_id = ?1", [item_id])
+        .map_err(|error| format!("Existing Item aliases could not be replaced: {error}"))?;
+    for (sort_order, alias) in input.aliases.into_iter().enumerate() {
+        transaction
+            .execute(
+                "INSERT INTO item_aliases (item_id, alias, sort_order, notes, source_reference) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![item_id, alias.alias, sort_order as i64, alias.notes, alias.source_reference],
+            )
+            .map_err(|error| format!("An Item alias could not be saved: {error}"))?;
+    }
+
+    transaction
         .execute(
             "DELETE FROM item_weapon_profiles WHERE item_id = ?1",
             [item_id],
@@ -239,6 +260,7 @@ mod tests {
     const SKILLS: &str = include_str!("../migrations/0002_create_skills.sql");
     const CREATURES: &str = include_str!("../migrations/0007_create_creatures.sql");
     const ITEMS: &str = include_str!("../migrations/0008_create_item_catalog.sql");
+    const ITEM_ALIASES: &str = include_str!("../migrations/0011_create_item_aliases.sql");
 
     fn setup() -> Connection {
         let connection = Connection::open_in_memory().expect("open Item test database");
@@ -246,6 +268,7 @@ mod tests {
         connection.execute_batch(SKILLS).expect("skills");
         connection.execute_batch(CREATURES).expect("creatures");
         connection.execute_batch(ITEMS).expect("items");
+        connection.execute_batch(ITEM_ALIASES).expect("Item aliases");
         connection
     }
 
@@ -258,6 +281,7 @@ mod tests {
                 "sourceSystem": null, "sourceExternalId": null
             },
             "genreTags": ["Universal", "Post-Apoc"],
+            "aliases": [{ "alias": "Field Implement", "notes": "Alternate name", "sourceReference": "test" }],
             "weaponProfile": {
                 "weaponRole": "Improvised", "weaponCategory": "Club", "handedness": "1h",
                 "damageType": "Bludgeoning", "rangeType": "Melee", "rangeText": "Close",

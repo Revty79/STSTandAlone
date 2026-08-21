@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
   Item,
+  ItemAlias,
   ItemAggregate,
   ItemArmorProfile,
   ItemCatalogView,
@@ -35,6 +36,7 @@ type WeaponRow = { id: number; item_id: number; weapon_role: string; weapon_cate
 type ArmorRow = { id: number; item_id: number; area_covered: string; soak: number | null; armor_category: string; armor_type: string; encumbrance_penalty: number | null; armor_effect_description: string; armor_narrative_notes: string; source_system: string | null; source_external_id: string | null; created_at: string; updated_at: string };
 type CreatureLinkRow = { creature_id: number; creature_name: string; relationship: string; notes: string };
 type GenreRow = { genre_tag: string };
+type AliasRow = { id: number; item_id: number; alias: string; sort_order: number; notes: string; source_reference: string; created_at: string; updated_at: string };
 type CountRow = { count: number | string };
 type ValueRow = { value: string };
 
@@ -143,7 +145,7 @@ export class TauriItemRepository implements ItemRepository {
     const bind = (value: unknown) => { values.push(value); return `$${values.length}`; };
     if (filters.search?.trim()) {
       const token = bind(filters.search.trim());
-      conditions.push(`(instr(lower(i.name), lower(${token})) > 0 OR instr(lower(i.category), lower(${token})) > 0 OR instr(lower(i.subtype), lower(${token})) > 0)`);
+      conditions.push(`(instr(lower(i.name), lower(${token})) > 0 OR instr(lower(i.category), lower(${token})) > 0 OR instr(lower(i.subtype), lower(${token})) > 0 OR EXISTS (SELECT 1 FROM item_aliases search_alias WHERE search_alias.item_id = i.id AND instr(lower(search_alias.alias), lower(${token})) > 0))`);
     }
     const category = optionField(filters.view, "category");
     const subtype = optionField(filters.view, "subtype");
@@ -186,14 +188,16 @@ export class TauriItemRepository implements ItemRepository {
     const database = await this.databaseProvider();
     const items = await database.select<ItemRow[]>(`SELECT id, name, catalog_section, timeline_tag, cost_credits, category, subtype, weight, effect_description, narrative_variant_notes, created_by_user_id, source_system, source_external_id, created_at, updated_at FROM items WHERE id = $1 LIMIT 1`, [id]);
     if (!items[0]) return null;
-    const [genres, weapons, armor, creatureLinks] = await Promise.all([
+    const [genres, aliases, weapons, armor, creatureLinks] = await Promise.all([
       database.select<GenreRow[]>("SELECT genre_tag FROM item_genre_tags WHERE item_id = $1 ORDER BY sort_order, id", [id]),
+      database.select<AliasRow[]>("SELECT id, item_id, alias, sort_order, notes, source_reference, created_at, updated_at FROM item_aliases WHERE item_id = $1 ORDER BY sort_order, id", [id]),
       database.select<WeaponRow[]>("SELECT id, item_id, weapon_role, weapon_category, handedness, damage_type, range_type, range_text, damage, weapon_effect_description, weapon_narrative_notes, source_system, source_external_id, created_at, updated_at FROM item_weapon_profiles WHERE item_id = $1 LIMIT 1", [id]),
       database.select<ArmorRow[]>("SELECT id, item_id, area_covered, soak, armor_category, armor_type, encumbrance_penalty, armor_effect_description, armor_narrative_notes, source_system, source_external_id, created_at, updated_at FROM item_armor_profiles WHERE item_id = $1 LIMIT 1", [id]),
       database.select<CreatureLinkRow[]>(`SELECT creature.id AS creature_id, creature.name AS creature_name, link.relationship, link.notes FROM item_creature_links link JOIN creatures creature ON creature.id = link.creature_id WHERE link.item_id = $1 ORDER BY link.relationship, creature.name COLLATE NOCASE, creature.id`, [id]),
     ]);
     return {
       item: mapItem(items[0]), genreTags: genres.map(({ genre_tag }) => genre_tag),
+      aliases: aliases.map((row): ItemAlias => ({ id: row.id, itemId: row.item_id, alias: row.alias, sortOrder: row.sort_order, notes: row.notes, sourceReference: row.source_reference, createdAt: row.created_at, updatedAt: row.updated_at })),
       weaponProfile: weapons[0] ? mapWeapon(weapons[0]) : null,
       armorProfile: armor[0] ? mapArmor(armor[0]) : null,
       creatureLinks: creatureLinks.map((row): ItemCreatureLinkSummary => ({ creatureId: row.creature_id, creatureName: row.creature_name, relationship: row.relationship, notes: row.notes })),

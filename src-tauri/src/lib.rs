@@ -18,6 +18,8 @@ const CREATURES_MIGRATION: &str = include_str!("../migrations/0007_create_creatu
 const ITEMS_MIGRATION: &str = include_str!("../migrations/0008_create_item_catalog.sql");
 const CREATURE_SHELLS_MIGRATION: &str = include_str!("../migrations/0009_seed_creature_shells.sql");
 const ITEM_CATALOG_MIGRATION: &str = include_str!("../migrations/0010_seed_item_catalog.sql");
+const ITEM_ALIASES_MIGRATION: &str = include_str!("../migrations/0011_create_item_aliases.sql");
+const ITEM_CURATION_MIGRATION: &str = include_str!("../migrations/0012_curate_item_catalog.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -82,6 +84,18 @@ pub fn run() {
             sql: ITEM_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 11,
+            description: "create_item_aliases",
+            sql: ITEM_ALIASES_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 12,
+            description: "curate_item_catalog",
+            sql: ITEM_CURATION_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -104,8 +118,9 @@ pub fn run() {
 mod tests {
     use super::{
         CREATURES_MIGRATION, CREATURE_SHELLS_MIGRATION, INITIAL_ACCOUNT_MIGRATION, ITEMS_MIGRATION,
-        ITEM_CATALOG_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION, SKILLS_MIGRATION,
-        SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
+        ITEM_ALIASES_MIGRATION, ITEM_CATALOG_MIGRATION, ITEM_CURATION_MIGRATION,
+        RACES_MIGRATION, RACE_CATALOG_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+        SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -1049,5 +1064,65 @@ mod tests {
             .expect("reload preserved canonical Item edit");
         assert_eq!(counts_after_reapply, (36, 5274, 121));
         assert_eq!(preserved_edit, "Preserved canonical edit.");
+    }
+
+    #[test]
+    fn item_curation_upgrades_0010_preserves_user_content_and_is_idempotent() {
+        let connection = Connection::open_in_memory().expect("open isolated upgrade database");
+        for (label, migration) in [
+            ("0001 accounts", INITIAL_ACCOUNT_MIGRATION),
+            ("0002 Skills", SKILLS_MIGRATION),
+            ("0003 Skill catalog", SKILL_CATALOG_MIGRATION),
+            ("0004 Spell Construction", SPELL_CONSTRUCTION_MIGRATION),
+            ("0005 Races", RACES_MIGRATION),
+            ("0006 Race catalog", RACE_CATALOG_MIGRATION),
+            ("0007 Creatures", CREATURES_MIGRATION),
+            ("0008 Items", ITEMS_MIGRATION),
+            ("0009 Creature shells", CREATURE_SHELLS_MIGRATION),
+            ("0010 Item catalog", ITEM_CATALOG_MIGRATION),
+        ] {
+            connection.execute_batch(migration).unwrap_or_else(|error| panic!("apply {label}: {error}"));
+        }
+        connection.execute(
+            "INSERT INTO items(name,catalog_section,timeline_tag,cost_credits,category,subtype,weight,effect_description,narrative_variant_notes) VALUES ('User Test Blade','Equipment','Modern',77,'Weapon','Sword',4,'User effect','User notes')",
+            [],
+        ).expect("insert user Item");
+        let user_item_id = connection.last_insert_rowid();
+        connection.execute("INSERT INTO item_genre_tags(item_id,genre_tag,sort_order) VALUES (?1,'User Genre',0)", [user_item_id]).expect("insert user genre");
+        connection.execute("INSERT INTO item_weapon_profiles(item_id,weapon_role,weapon_category,handedness,damage_type,range_type,range_text,damage,weapon_effect_description,weapon_narrative_notes) VALUES (?1,'Primary','Sword','1h','Slashing','Melee','Close',9,'User weapon effect','')", [user_item_id]).expect("insert user profile");
+
+        connection.execute_batch(ITEM_ALIASES_MIGRATION).expect("apply Item aliases");
+        connection.execute_batch(ITEM_CURATION_MIGRATION).expect("apply Item curation");
+
+        let counts: (i64, i64, i64, i64, i64, i64, i64) = connection.query_row(
+            "SELECT
+               (SELECT COUNT(*) FROM items WHERE source_system='serrian-tide-canonical-catalog'),
+               (SELECT COUNT(*) FROM items WHERE source_system='serrian-tide-canonical-catalog' AND catalog_section='Equipment'),
+               (SELECT COUNT(*) FROM items WHERE source_system='serrian-tide-canonical-catalog' AND catalog_section='Inventory'),
+               (SELECT COUNT(*) FROM item_weapon_profiles profile JOIN items item ON item.id=profile.item_id WHERE item.source_system='serrian-tide-canonical-catalog'),
+               (SELECT COUNT(*) FROM item_armor_profiles profile JOIN items item ON item.id=profile.item_id WHERE item.source_system='serrian-tide-canonical-catalog'),
+               (SELECT COUNT(*) FROM item_aliases alias JOIN items item ON item.id=alias.item_id WHERE item.source_system='serrian-tide-canonical-catalog'),
+               (SELECT COUNT(*) FROM item_creature_links WHERE relationship='Purchase' COLLATE NOCASE)",
+            [],
+            |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?,row.get(4)?,row.get(5)?,row.get(6)?)),
+        ).expect("count curated catalog");
+        assert_eq!(counts, (5545, 2069, 3476, 420, 431, 2844, 112));
+
+        let preserved: (String, String, f64) = connection.query_row(
+            "SELECT item.narrative_variant_notes, genre.genre_tag, profile.damage FROM items item JOIN item_genre_tags genre ON genre.item_id=item.id JOIN item_weapon_profiles profile ON profile.item_id=item.id WHERE item.id=?1",
+            [user_item_id],
+            |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?)),
+        ).expect("reload user content");
+        assert_eq!(preserved, ("User notes".into(), "User Genre".into(), 9.0));
+
+        connection.execute_batch(ITEM_CURATION_MIGRATION).expect("reapply Item curation");
+        let after_reapply: (i64, i64, i64) = connection.query_row(
+            "SELECT (SELECT COUNT(*) FROM items WHERE source_system='serrian-tide-canonical-catalog'), (SELECT COUNT(*) FROM item_aliases alias JOIN items item ON item.id=alias.item_id WHERE item.source_system='serrian-tide-canonical-catalog'), (SELECT COUNT(*) FROM items WHERE id=?1)",
+            [user_item_id],
+            |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?)),
+        ).expect("count re-applied curation");
+        assert_eq!(after_reapply, (5545, 2844, 1));
+        let broken_foreign_keys: i64 = connection.query_row("SELECT COUNT(*) FROM pragma_foreign_key_check", [], |row| row.get(0)).expect("check foreign keys");
+        assert_eq!(broken_foreign_keys, 0);
     }
 }

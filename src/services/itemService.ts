@@ -34,6 +34,15 @@ export function normalizeItem(input: SaveItemAggregate): SaveItemAggregate {
     const tag = source.trim(); const key = tag.toLocaleLowerCase();
     if (tag && !seen.has(key)) { seen.add(key); genreTags.push(tag); }
   }
+  const aliases: SaveItemAggregate["aliases"] = [];
+  const seenAliases = new Set<string>();
+  for (const source of input.aliases ?? []) {
+    const alias = source.alias.trim(); const key = alias.toLocaleLowerCase();
+    if (alias && key !== name.toLocaleLowerCase() && !seenAliases.has(key)) {
+      seenAliases.add(key);
+      aliases.push({ alias, notes: source.notes.trim(), sourceReference: source.sourceReference.trim() });
+    }
+  }
   const weaponProfile = input.weaponProfile ? {
     ...input.weaponProfile,
     weaponRole: input.weaponProfile.weaponRole.trim(), weaponCategory: input.weaponProfile.weaponCategory.trim(),
@@ -64,7 +73,7 @@ export function normalizeItem(input: SaveItemAggregate): SaveItemAggregate {
       effectDescription: input.core.effectDescription.trim(), narrativeVariantNotes: input.core.narrativeVariantNotes.trim(),
       sourceSystem, sourceExternalId,
     },
-    genreTags, weaponProfile, armorProfile,
+    genreTags, aliases, weaponProfile, armorProfile,
   };
 }
 

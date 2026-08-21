@@ -75,9 +75,23 @@ export type ItemCreatureLinkSummary = {
   notes: string;
 };
 
+export type ItemAlias = {
+  id: number;
+  itemId: number;
+  alias: string;
+  sortOrder: number;
+  notes: string;
+  sourceReference: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ItemAliasDraft = Pick<ItemAlias, "alias" | "notes" | "sourceReference">;
+
 export type ItemAggregate = {
   item: Item;
   genreTags: string[];
+  aliases: ItemAlias[];
   weaponProfile: ItemWeaponProfile | null;
   armorProfile: ItemArmorProfile | null;
   creatureLinks: ItemCreatureLinkSummary[];
@@ -87,6 +101,7 @@ export type SaveItemAggregate = {
   id?: number;
   core: ItemCoreDraft;
   genreTags: string[];
+  aliases: ItemAliasDraft[];
   weaponProfile: ItemWeaponProfileDraft | null;
   armorProfile: ItemArmorProfileDraft | null;
 };

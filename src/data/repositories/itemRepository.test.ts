@@ -26,6 +26,7 @@ describe("TauriItemRepository library queries", () => {
     const page = await repository.listItems({ view: "weapons", search: "bow", page: 1, pageSize: 40 });
     expect(page).toMatchObject({ total: 1, pageSize: 40, items: [{ name: "Crowbar" }] });
     expect(calls[0]?.query).toMatch(/weapon_role <> 'Improvised'/i);
+    expect(calls[0]?.query).toMatch(/item_aliases[\s\S]*search_alias\.alias/i);
     expect(calls[1]?.query).toMatch(/limit \$2 offset \$3/i);
     expect(calls[1]?.values).toEqual(["bow", 40, 0]);
   });

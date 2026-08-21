@@ -16,11 +16,12 @@ export function itemAggregateToDraft(aggregate: ItemAggregate): SaveItemAggregat
   const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...core } = aggregate.item;
   const weaponProfile = aggregate.weaponProfile ? (({ id: _profileId, itemId: _itemId, createdAt: _profileCreated, updatedAt: _profileUpdated, ...profile }) => profile)(aggregate.weaponProfile) : null;
   const armorProfile = aggregate.armorProfile ? (({ id: _profileId, itemId: _itemId, createdAt: _profileCreated, updatedAt: _profileUpdated, ...profile }) => profile)(aggregate.armorProfile) : null;
-  return { id: aggregate.item.id, core, genreTags: aggregate.genreTags, weaponProfile, armorProfile };
+  const aliases = aggregate.aliases.map(({ alias, notes, sourceReference }) => ({ alias, notes, sourceReference }));
+  return { id: aggregate.item.id, core, genreTags: aggregate.genreTags, aliases, weaponProfile, armorProfile };
 }
 
 export function newItemDraft(userId: number, catalogSection: "Equipment" | "Inventory"): SaveItemAggregate {
-  return { core: { name: "", catalogSection, timelineTag: "", costCredits: null, category: "", subtype: "", weight: null, effectDescription: "", narrativeVariantNotes: "", createdByUserId: userId, sourceSystem: null, sourceExternalId: null }, genreTags: [], weaponProfile: null, armorProfile: null };
+  return { core: { name: "", catalogSection, timelineTag: "", costCredits: null, category: "", subtype: "", weight: null, effectDescription: "", narrativeVariantNotes: "", createdByUserId: userId, sourceSystem: null, sourceExternalId: null }, genreTags: [], aliases: [], weaponProfile: null, armorProfile: null };
 }
 
 export function ItemCatalogPage({ session, mode, onBack, onLogout }: Props) {
