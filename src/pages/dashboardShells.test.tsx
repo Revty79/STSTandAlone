@@ -22,6 +22,9 @@ describe("dashboard shells", () => {
         session={sessionWith([USER_ROLE.GOD, USER_ROLE.PLAYER])}
         onOpenRaces={vi.fn()}
         onOpenSkills={vi.fn()}
+        onOpenEquipment={vi.fn()}
+        onOpenInventory={vi.fn()}
+        onOpenCreatures={vi.fn()}
         onReturn={vi.fn()}
         onLogout={vi.fn()}
       />,

@@ -1,0 +1,2773 @@
+{
+  "schemaVersion": 1,
+  "sourceSystem": "serrian-tide-canonical-catalog",
+  "sourceSha256": "87a2d9c43272ec7fa78db0927d65277cab0aa2c7a1dcf1937ed50b3932e03ee1",
+  "decisionsSha256": "26319b0f2365254e5770dede9d1e8d63f99ff585d366cc5b32ed7c502edb1862",
+  "records": [
+    {
+      "key": "bat",
+      "creature": {
+        "name": "Bat",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:bat"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:828",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 828,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:223",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 223,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "camel",
+      "creature": {
+        "name": "Camel",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:camel"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Post-Apoc"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "structured-sheet:Items:157",
+          "sourceKey": "structured-sheet",
+          "sourceTitle": "inventories for the program",
+          "tab": "Items",
+          "rowNumber": 157,
+          "sourceCategory": "Tool",
+          "sourceSubtype": "Mount"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:672",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 672,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Mounts:32",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 32,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "cat",
+      "creature": {
+        "name": "Cat",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:cat"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror",
+        "Fantasy",
+        "Universal",
+        "Modern"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Pet"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:876",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 876,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:953",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 953,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:218",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 218,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:915",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 915,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:43",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 43,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "structured-sheet:Items:159",
+          "sourceKey": "structured-sheet",
+          "sourceTitle": "inventories for the program",
+          "tab": "Items",
+          "rowNumber": 159,
+          "sourceCategory": "Tool",
+          "sourceSubtype": "Animal"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:832",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 832,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:581",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 581,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:935",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 935,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:908",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 908,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:966",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 966,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:853",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 853,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:973",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 973,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:925",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 925,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:963",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 963,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:946",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 946,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "cattle",
+      "creature": {
+        "name": "Cattle",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:cattle"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Western"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:854",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 854,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Animals:1129",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1129,
+          "sourceGenre": "Western",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "chicken",
+      "creature": {
+        "name": "Chicken",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:chicken"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:855",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 855,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "crow",
+      "creature": {
+        "name": "Crow",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:crow"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:957",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 957,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:941",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 941,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:933",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 933,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "domestic-dog",
+      "creature": {
+        "name": "Domestic Dog",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:domestic-dog"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Universal",
+        "Horror",
+        "Apocalyptic",
+        "Modern",
+        "Military/War",
+        "Medieval Fantasy",
+        "Western"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:917",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 917,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "structured-sheet:Items:158",
+          "sourceKey": "structured-sheet",
+          "sourceTitle": "inventories for the program",
+          "tab": "Items",
+          "rowNumber": 158,
+          "sourceCategory": "Tool",
+          "sourceSubtype": "Animal"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:932",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 932,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:221",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 221,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Apocalyptic/Animals:399",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 399,
+          "sourceGenre": "Apocalyptic",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:580",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 580,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Military/War/Animals:2209",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2209,
+          "sourceGenre": "Military/War",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Medieval Fantasy/Animals:3115",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 3115,
+          "sourceGenre": "Medieval Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:849",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 849,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Animals:1123",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1123,
+          "sourceGenre": "Western",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:913",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 913,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Medieval Fantasy/Animals:3119",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 3119,
+          "sourceGenre": "Medieval Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:827",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 827,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:39",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 39,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:729",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 729,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:964",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 964,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:939",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 939,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:841",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 841,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:945",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 945,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:905",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 905,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:875",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 875,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:584",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 584,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:834",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 834,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:585",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 585,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:927",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 927,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:886",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 886,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Military/War/Animals:2212",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2212,
+          "sourceGenre": "Military/War",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:977",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 977,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:961",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 961,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:970",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 970,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:833",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 833,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:583",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 583,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:814",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 814,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "donkey",
+      "creature": {
+        "name": "Donkey",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:donkey"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:695",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 695,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Mounts:33",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 33,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:889",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 889,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "dove",
+      "creature": {
+        "name": "Dove",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:dove"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:742",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 742,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:914",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 914,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "eagle",
+      "creature": {
+        "name": "Eagle",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:eagle"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:890",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 890,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "elephant",
+      "creature": {
+        "name": "Elephant",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:elephant"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:699",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 699,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "falcon",
+      "creature": {
+        "name": "Falcon",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:falcon"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Universal",
+        "Military/War"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:969",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 969,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "structured-sheet:Items:160",
+          "sourceKey": "structured-sheet",
+          "sourceTitle": "inventories for the program",
+          "tab": "Items",
+          "rowNumber": 160,
+          "sourceCategory": "Tool",
+          "sourceSubtype": "Animal"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:705",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 705,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:972",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 972,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:40",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 40,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:885",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 885,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Military/War/Animals:2210",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2210,
+          "sourceGenre": "Military/War",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "ferret",
+      "creature": {
+        "name": "Ferret",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:ferret"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Steampunk"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:831",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 831,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:42",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 42,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:962",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 962,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Steampunk/Animals:764",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 764,
+          "sourceGenre": "Steampunk",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "fox",
+      "creature": {
+        "name": "Fox",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:fox"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:907",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 907,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:918",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 918,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "goat",
+      "creature": {
+        "name": "Goat",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:goat"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:665",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 665,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:715",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 715,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:975",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 975,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:45",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 45,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:926",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 926,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:934",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 934,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "hawk",
+      "creature": {
+        "name": "Hawk",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:hawk"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Apocalyptic",
+        "Military/War"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:931",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 931,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:978",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 978,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:41",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 41,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:960",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 960,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Apocalyptic/Animals:401",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 401,
+          "sourceGenre": "Apocalyptic",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:887",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 887,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Military/War/Animals:2213",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2213,
+          "sourceGenre": "Military/War",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "horse",
+      "creature": {
+        "name": "Horse",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:horse"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror",
+        "Fantasy",
+        "Universal",
+        "Military/War",
+        "Western",
+        "High Fantasy",
+        "Medieval Fantasy"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:666",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 666,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Mounts:209",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 209,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:675",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 675,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "structured-sheet:Items:156",
+          "sourceKey": "structured-sheet",
+          "sourceTitle": "inventories for the program",
+          "tab": "Items",
+          "rowNumber": 156,
+          "sourceCategory": "Tool",
+          "sourceSubtype": "Mount"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:722",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 722,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Mounts:30",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 30,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:728",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 728,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:888",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 888,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Military/War/Animals:2214",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2214,
+          "sourceGenre": "Military/War",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:756",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 756,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Mounts:1120",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1120,
+          "sourceGenre": "Western",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:772",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 772,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:773",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 773,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Mounts:1114",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1114,
+          "sourceGenre": "Western",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:968",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 968,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:810",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 810,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:821",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 821,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:High Fantasy/Mounts:2021",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2021,
+          "sourceGenre": "High Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:820",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 820,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Medieval Fantasy/Mounts:3105",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 3105,
+          "sourceGenre": "Medieval Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:851",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 851,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Animals:1126",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1126,
+          "sourceGenre": "Western",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "lizard",
+      "creature": {
+        "name": "Lizard",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:lizard"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Companion"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:930",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 930,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "monkey",
+      "creature": {
+        "name": "Monkey",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:monkey"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:910",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 910,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "mouse",
+      "creature": {
+        "name": "Mouse",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:mouse"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:906",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 906,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:951",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 951,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:874",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 874,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "mule",
+      "creature": {
+        "name": "Mule",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:mule"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Western",
+        "Apocalyptic",
+        "Medieval Fantasy"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:755",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 755,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Mounts:31",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 31,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Mounts:1115",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1115,
+          "sourceGenre": "Western",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:762",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 762,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:850",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 850,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Apocalyptic/Animals:402",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 402,
+          "sourceGenre": "Apocalyptic",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Medieval Fantasy/Mounts:3106",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 3106,
+          "sourceGenre": "Medieval Fantasy",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Animals:1125",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1125,
+          "sourceGenre": "Western",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Mounts:1119",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1119,
+          "sourceGenre": "Western",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "owl",
+      "creature": {
+        "name": "Owl",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:owl"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:971",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 971,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:954",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 954,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:44",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 44,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:222",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 222,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:936",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 936,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:903",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 903,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "ox",
+      "creature": {
+        "name": "Ox",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:ox"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Western"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:852",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 852,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:761",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 761,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "genre-document:Western/Mounts:1118",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 1118,
+          "sourceGenre": "Western",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "parrot",
+      "creature": {
+        "name": "Parrot",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:parrot"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:763",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 763,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:909",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 909,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:950",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 950,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "pig",
+      "creature": {
+        "name": "Pig",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:pig"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:929",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 929,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "pigeon",
+      "creature": {
+        "name": "Pigeon",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:pigeon"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Steampunk",
+        "Medieval Fantasy",
+        "Renaissance"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:974",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 974,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Steampunk/Animals:767",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 767,
+          "sourceGenre": "Steampunk",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:949",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 949,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:965",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 965,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Medieval Fantasy/Animals:3116",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 3116,
+          "sourceGenre": "Medieval Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Renaissance/Animals:4745",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 4745,
+          "sourceGenre": "Renaissance",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:870",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 870,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "rabbit",
+      "creature": {
+        "name": "Rabbit",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:rabbit"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Modern"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:835",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 835,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Modern/Animals:586",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 586,
+          "sourceGenre": "Modern",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "rat",
+      "creature": {
+        "name": "Rat",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:rat"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Pet",
+        "Companion"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:877",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 877,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:916",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 916,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:220",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 220,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:959",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 959,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:947",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 947,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "raven",
+      "creature": {
+        "name": "Raven",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:raven"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Fantasy",
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount",
+        "Companion"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:736",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 736,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:937",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 937,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Fantasy/Animals:46",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 46,
+          "sourceGenre": "Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:219",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 219,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:774",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 774,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:871",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 871,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "scorpion",
+      "creature": {
+        "name": "Scorpion",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:scorpion"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:830",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 830,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:225",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 225,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "sea-otter",
+      "creature": {
+        "name": "Sea Otter",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:sea-otter"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:912",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 912,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "sea-turtle",
+      "creature": {
+        "name": "Sea Turtle",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:sea-turtle"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Mounts:791",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 791,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    },
+    {
+      "key": "seagull",
+      "creature": {
+        "name": "Seagull",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:seagull"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:911",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 911,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "snake",
+      "creature": {
+        "name": "Snake",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:snake"
+      },
+      "altNames": [],
+      "genreTags": [
+        "Horror"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:829",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 829,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:Horror/Animals:224",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 224,
+          "sourceGenre": "Horror",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "spider",
+      "creature": {
+        "name": "Spider",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:spider"
+      },
+      "altNames": [],
+      "genreTags": [],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:958",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 958,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        }
+      ]
+    },
+    {
+      "key": "wolf",
+      "creature": {
+        "name": "Wolf",
+        "challengeRating": null,
+        "encounterScale": "",
+        "type": "Animal",
+        "role": "",
+        "size": "",
+        "descriptionShort": "",
+        "hpTotal": null,
+        "initiative": null,
+        "armorSoak": null,
+        "magicResonanceInteraction": "",
+        "behaviorTactics": "",
+        "habitat": "",
+        "diet": "",
+        "lootHarvest": "",
+        "storyHooks": "",
+        "notes": "",
+        "sourceSystem": "serrian-tide-canonical-catalog",
+        "sourceExternalId": "creature:wolf"
+      },
+      "altNames": [],
+      "genreTags": [
+        "High Fantasy"
+      ],
+      "attributes": [],
+      "movementModes": [],
+      "hpLocations": [],
+      "attacks": [],
+      "skillLinks": [],
+      "uses": [
+        "Mount",
+        "Companion"
+      ],
+      "variants": [],
+      "provenance": [
+        {
+          "sourceEntryId": "type-document:Animals:976",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 976,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Animals:878",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 878,
+          "sourceGenre": "",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "genre-document:High Fantasy/Animals:2029",
+          "sourceKey": "genre-document",
+          "sourceTitle": "Lists to be sorted...",
+          "paragraphNumber": 2029,
+          "sourceGenre": "High Fantasy",
+          "sourceCategory": "Animals"
+        },
+        {
+          "sourceEntryId": "type-document:Mounts:824",
+          "sourceKey": "type-document",
+          "sourceTitle": "items by type still some sorting and adding subtracting",
+          "paragraphNumber": 824,
+          "sourceGenre": "",
+          "sourceCategory": "Mounts"
+        }
+      ]
+    }
+  ]
+}

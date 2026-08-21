@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "capturedFromGoogleReadOnly": true,
+  "sourceSnapshotSha256": "87a2d9c43272ec7fa78db0927d65277cab0aa2c7a1dcf1937ed50b3932e03ee1",
+  "importDecisionsSha256": "26319b0f2365254e5770dede9d1e8d63f99ff585d366cc5b32ed7c502edb1862",
+  "sources": [
+    {
+      "sourceKey": "structured-sheet",
+      "title": "inventories for the program",
+      "googleFileId": "181T-0ihmKrAxe94DyECm4PeVchk2HNm7zYkpPBTaVYo",
+      "url": "https://docs.google.com/spreadsheets/d/181T-0ihmKrAxe94DyECm4PeVchk2HNm7zYkpPBTaVYo/edit",
+      "mimeType": "application/vnd.google-apps.spreadsheet",
+      "modifiedTime": "2025-10-26T20:40:22.991Z",
+      "tabs": [
+        {
+          "name": "Items",
+          "dataRows": 425,
+          "columns": 9
+        },
+        {
+          "name": "Weapons",
+          "dataRows": 206,
+          "columns": 13
+        },
+        {
+          "name": "Armor",
+          "dataRows": 189,
+          "columns": 12
+        }
+      ]
+    },
+    {
+      "sourceKey": "genre-document",
+      "title": "Lists to be sorted...",
+      "googleFileId": "1p81tU2yufIxotypl02odQO8txPheVrO682mqavj3bIc",
+      "url": "https://docs.google.com/document/d/1p81tU2yufIxotypl02odQO8txPheVrO682mqavj3bIc/edit",
+      "mimeType": "application/vnd.google-apps.document",
+      "modifiedTime": "2024-11-08T04:22:20.258Z",
+      "revisionId": "AIroW37BzWtc09hsbMpaAxXIWmYsnkHt9HK_71A_n7ipH0xx6VDlPVxntOABhRqhcDVGTOS9kLoPoNj4l0ya",
+      "sourceEntries": 4806
+    },
+    {
+      "sourceKey": "type-document",
+      "title": "items by type still some sorting and adding subtracting",
+      "googleFileId": "1P-VtegjRuu7AfWxSCs-wyIoFdWMkmlnwbe6LIqcHWdM",
+      "url": "https://docs.google.com/document/d/1P-VtegjRuu7AfWxSCs-wyIoFdWMkmlnwbe6LIqcHWdM/edit",
+      "mimeType": "application/vnd.google-apps.document",
+      "modifiedTime": "2025-03-27T16:11:09.537Z",
+      "revisionId": "AIroW34DyyjSv3YZq_epSThkRljuM2TV7mY0RcX2RjLnKpH-jVmHR_W-aT67VHaJnzUnhKax3GjMNI5Rgf-H",
+      "sourceEntries": 1155
+    }
+  ]
+}

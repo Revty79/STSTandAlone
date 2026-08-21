@@ -26,6 +26,9 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "heavens")).toBe(true);
     expect(canAccessDestination(session, "skills")).toBe(true);
     expect(canAccessDestination(session, "races")).toBe(true);
+    expect(canAccessDestination(session, "equipment")).toBe(true);
+    expect(canAccessDestination(session, "inventory")).toBe(true);
+    expect(canAccessDestination(session, "creatures")).toBe(true);
     expect(canAccessDestination(session, "realms")).toBe(true);
   });
 
@@ -37,6 +40,9 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "heavens")).toBe(false);
     expect(canAccessDestination(session, "skills")).toBe(false);
     expect(canAccessDestination(session, "races")).toBe(false);
+    expect(canAccessDestination(session, "equipment")).toBe(false);
+    expect(canAccessDestination(session, "inventory")).toBe(false);
+    expect(canAccessDestination(session, "creatures")).toBe(false);
     expect(canAccessDestination(session, "realms")).toBe(true);
   });
 
@@ -47,5 +53,8 @@ describe("role authorization", () => {
     expect(authorizeDestination(session, "heavens")).toBe("realms");
     expect(authorizeDestination(session, "skills")).toBe("realms");
     expect(authorizeDestination(session, "races")).toBe("realms");
+    expect(authorizeDestination(session, "equipment")).toBe("realms");
+    expect(authorizeDestination(session, "inventory")).toBe("realms");
+    expect(authorizeDestination(session, "creatures")).toBe("realms");
   });
 });
