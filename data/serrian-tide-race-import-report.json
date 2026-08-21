@@ -1,8 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceSystem": "serrian-tide-race-sheet",
   "sourceSha256": "cd23d0122b0330bc00811b8678a4234ebb1e8757b82007b7a63df8b5be1aa36f",
-  "policy": "Only case-insensitive exact matches to existing Skills are linked. No Skills or aliases are created.",
+  "mappingSha256": "e8eabad0cc9a9c6ba8adca8c37b52f7ef5e7aed1d602e1aec3642dbd8943e906",
+  "policy": "Case-insensitive exact matches and explicit user-approved Race import mappings may link to existing canonical Skills. No Skills or global aliases are created.",
   "sourceCounts": {
     "races": 56,
     "bonusReferences": 248,
@@ -12,403 +13,2507 @@
     "races": 56,
     "attributeCaps": 336,
     "movementModes": 57,
-    "bonusLinks": 217,
-    "grantedLinks": 32
+    "bonusLinks": 248,
+    "grantedLinks": 35
   },
-  "unresolvedReferenceCount": 35,
-  "unresolvedUniqueNameCount": 13,
-  "unresolvedByName": [
+  "exactMatchReferenceCount": 249,
+  "approvedMappedReferenceCount": 34,
+  "intentionallyIgnoredReferenceCount": 1,
+  "unresolvedReferenceCount": 0,
+  "unresolvedUniqueNameCount": 0,
+  "exactMatchReferences": [
     {
-      "sourceSkillName": "Academics",
-      "occurrences": [
-        {
-          "raceName": "Féarai Elves",
-          "linkType": "bonus",
-          "sourceSkillName": "Academics",
-          "sourceValue": "4",
-          "sourceRow": 50,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Standard Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "4",
+      "sourceRow": 2,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Access to all Spheres",
-      "occurrences": [
-        {
-          "raceName": "Féarai Elves",
-          "linkType": "granted",
-          "sourceSkillName": "Access to all Spheres",
-          "sourceValue": "3",
-          "sourceRow": 50,
-          "sourceColumn": "Racial Special Abilitie 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Standard Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "3",
+      "sourceRow": 2,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Acrobatics",
-      "occurrences": [
-        {
-          "raceName": "Shift-Folk (Feline)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "3",
-          "sourceRow": 34,
-          "sourceColumn": "Bonus Skill 3",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Avian)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "4",
-          "sourceRow": 36,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Musteline)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "2",
-          "sourceRow": 38,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Murine)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "2",
-          "sourceRow": 39,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Lagomorph)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "5",
-          "sourceRow": 42,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Marsupial)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "4",
-          "sourceRow": 44,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Primate)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "4",
-          "sourceRow": 46,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Anuran)",
-          "linkType": "bonus",
-          "sourceSkillName": "Acrobatics",
-          "sourceValue": "4",
-          "sourceRow": 47,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Standard Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "3",
+      "sourceRow": 2,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Arcana",
-      "occurrences": [
-        {
-          "raceName": "Féarai Elves",
-          "linkType": "bonus",
-          "sourceSkillName": "Arcana",
-          "sourceValue": "5",
-          "sourceRow": 50,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Standard Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "3",
+      "sourceRow": 2,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Athletics",
-      "occurrences": [
-        {
-          "raceName": "Centaur",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "5",
-          "sourceRow": 32,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Lupine)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "2",
-          "sourceRow": 33,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Ursine)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "4",
-          "sourceRow": 35,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Bovine)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "5",
-          "sourceRow": 37,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Lagomorph)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "2",
-          "sourceRow": 42,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Marsupial)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "5",
-          "sourceRow": 44,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Chelonian)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "3",
-          "sourceRow": 45,
-          "sourceColumn": "Bonus Skill 3",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Primate)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "4",
-          "sourceRow": 46,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Carapace)",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "3",
-          "sourceRow": 48,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Gold Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "5",
-          "sourceRow": 51,
-          "sourceColumn": "Bonus Skill 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Red Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "4",
-          "sourceRow": 52,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Blue Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Athletics",
-          "sourceValue": "4",
-          "sourceRow": 54,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Standard Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Research & Analysis",
+      "sourceValue": "2",
+      "sourceRow": 2,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Research & Analysis",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Crafting",
-      "occurrences": [
-        {
-          "raceName": "Smallfolk",
-          "linkType": "bonus",
-          "sourceSkillName": "Crafting",
-          "sourceValue": "2",
-          "sourceRow": 30,
-          "sourceColumn": "Bonus Skill 5",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Shift-Folk (Ursine)",
-          "linkType": "bonus",
-          "sourceSkillName": "Crafting",
-          "sourceValue": "2",
-          "sourceRow": 35,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Educated Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Research & Analysis",
+      "sourceValue": "5",
+      "sourceRow": 3,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Research & Analysis",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Harbinger Elf Breserker Rage",
-      "occurrences": [
-        {
-          "raceName": "Harbinger Elf",
-          "linkType": "granted",
-          "sourceSkillName": "Harbinger Elf Breserker Rage",
-          "sourceValue": null,
-          "sourceRow": 22,
-          "sourceColumn": "Racial Special Abilitie 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Educated Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Tactical Planning",
+      "sourceValue": "4",
+      "sourceRow": 3,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Hovdering",
-      "occurrences": [
-        {
-          "raceName": "Féarai Elves",
-          "linkType": "granted",
-          "sourceSkillName": "Hovdering",
-          "sourceValue": "3",
-          "sourceRow": 50,
-          "sourceColumn": "Racial Special Abilitie 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Educated Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Cryptography & Linguistics",
+      "sourceValue": "2",
+      "sourceRow": 3,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Cryptography & Linguistics",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Intimidation",
-      "occurrences": [
-        {
-          "raceName": "Red Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Intimidation",
-          "sourceValue": "3",
-          "sourceRow": 52,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Educated Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "2",
+      "sourceRow": 3,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Non",
-      "occurrences": [
-        {
-          "raceName": "Wild Elf",
-          "linkType": "granted",
-          "sourceSkillName": "Non",
-          "sourceValue": null,
-          "sourceRow": 20,
-          "sourceColumn": "Racial Special Abilitie 1",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Educated Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Medicine",
+      "sourceValue": "2",
+      "sourceRow": 3,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Medicine",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
-      "occurrences": [
-        {
-          "raceName": "Moonshade Elf",
-          "linkType": "bonus",
-          "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
-          "sourceValue": "5",
-          "sourceRow": 25,
-          "sourceColumn": "Bonus Skill 3",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Nomadic Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "5",
+      "sourceRow": 4,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Strategy",
-      "occurrences": [
-        {
-          "raceName": "Féarai Elves",
-          "linkType": "bonus",
-          "sourceSkillName": "Strategy",
-          "sourceValue": "3",
-          "sourceRow": 50,
-          "sourceColumn": "Bonus Skill 3",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Gold Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Strategy",
-          "sourceValue": "4",
-          "sourceRow": 51,
-          "sourceColumn": "Bonus Skill 2",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Silver Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Strategy",
-          "sourceValue": "3",
-          "sourceRow": 55,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        },
-        {
-          "raceName": "Grey Naga Orang",
-          "linkType": "bonus",
-          "sourceSkillName": "Strategy",
-          "sourceValue": "3",
-          "sourceRow": 57,
-          "sourceColumn": "Bosus Skill 4",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
+      "raceName": "Nomadic Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 4,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
     },
     {
-      "sourceSkillName": "Technology",
-      "occurrences": [
-        {
-          "raceName": "Night Elf",
-          "linkType": "bonus",
-          "sourceSkillName": "Technology",
-          "sourceValue": "3",
-          "sourceRow": 23,
-          "sourceColumn": "Bonus Skill 3",
-          "reason": "No case-insensitive exact Skill name exists."
-        }
-      ]
-    }
-  ],
-  "unresolvedReferences": [
+      "raceName": "Nomadic Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Networking",
+      "sourceValue": "3",
+      "sourceRow": 4,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Networking",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Nomadic Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Animal Handling",
+      "sourceValue": "2",
+      "sourceRow": 4,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Animal Handling",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Nomadic Human",
+      "linkType": "bonus",
+      "sourceSkillName": "Streetwise",
+      "sourceValue": "2",
+      "sourceRow": 4,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Streetwise",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hill Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "4",
+      "sourceRow": 5,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hill Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Load-Bearing",
+      "sourceValue": "4",
+      "sourceRow": 5,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hill Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Material Deformation",
+      "sourceValue": "3",
+      "sourceRow": 5,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Material Deformation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hill Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Metabolic Control",
+      "sourceValue": "2",
+      "sourceRow": 5,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Metabolic Control",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hill Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Environmental Survival",
+      "sourceValue": "2",
+      "sourceRow": 5,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Environmental Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mountain Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Rigging & Ropework",
+      "sourceValue": "5",
+      "sourceRow": 6,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Rigging & Ropework",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mountain Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "4",
+      "sourceRow": 6,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mountain Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Environmental Survival",
+      "sourceValue": "2",
+      "sourceRow": 6,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Environmental Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mountain Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Stability & Bracing",
+      "sourceValue": "2",
+      "sourceRow": 6,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Stability & Bracing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mountain Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "2",
+      "sourceRow": 6,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Deep Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Environmental Survival",
+      "sourceValue": "5",
+      "sourceRow": 7,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Environmental Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Deep Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "4",
+      "sourceRow": 7,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Deep Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Material Deformation",
+      "sourceValue": "3",
+      "sourceRow": 7,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Material Deformation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Deep Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "2",
+      "sourceRow": 7,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Deep Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Load-Bearing",
+      "sourceValue": "1",
+      "sourceRow": 7,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Forge Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "5",
+      "sourceRow": 8,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Forge Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Material Deformation",
+      "sourceValue": "4",
+      "sourceRow": 8,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Material Deformation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Forge Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Load-Bearing",
+      "sourceValue": "3",
+      "sourceRow": 8,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Forge Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Grip Mastery",
+      "sourceValue": "2",
+      "sourceRow": 8,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Grip Mastery",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Forge Dwarf",
+      "linkType": "bonus",
+      "sourceSkillName": "Chemistry",
+      "sourceValue": "1",
+      "sourceRow": 8,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Chemistry",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Fine Manipulation",
+      "sourceValue": "4",
+      "sourceRow": 9,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Fine Manipulation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Innovation",
+      "sourceValue": "3",
+      "sourceRow": 9,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Innovation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "3",
+      "sourceRow": 9,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "3",
+      "sourceRow": 9,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "2",
+      "sourceRow": 9,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Tinker Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "4",
+      "sourceRow": 10,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Tinker Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Innovation",
+      "sourceValue": "4",
+      "sourceRow": 10,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Innovation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Tinker Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Fine Manipulation",
+      "sourceValue": "3",
+      "sourceRow": 10,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Fine Manipulation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Tinker Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Systems Interface",
+      "sourceValue": "3",
+      "sourceRow": 10,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Systems Interface",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Tinker Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Research & Analysis",
+      "sourceValue": "1",
+      "sourceRow": 10,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Research & Analysis",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Trickwire Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Rigging & Ropework",
+      "sourceValue": "4",
+      "sourceRow": 11,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Rigging & Ropework",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Trickwire Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "4",
+      "sourceRow": 11,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Trickwire Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Fine Manipulation",
+      "sourceValue": "3",
+      "sourceRow": 11,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Fine Manipulation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Trickwire Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "3",
+      "sourceRow": 11,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Trickwire Gnome",
+      "linkType": "bonus",
+      "sourceSkillName": "Precision Ranged",
+      "sourceValue": "1",
+      "sourceRow": 11,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Precision Ranged",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "5",
+      "sourceRow": 12,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "5",
+      "sourceRow": 12,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Load-Bearing",
+      "sourceValue": "5",
+      "sourceRow": 12,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Half-Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "4",
+      "sourceRow": 13,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Half-Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "4",
+      "sourceRow": 13,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Half-Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "4",
+      "sourceRow": 13,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Half-Orc",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "3",
+      "sourceRow": 13,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "3",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "3",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Streetwise",
+      "sourceValue": "3",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Streetwise",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Fine Manipulation",
+      "sourceValue": "2",
+      "sourceRow": 14,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Fine Manipulation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "2",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "1",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 6",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Goblin",
+      "linkType": "bonus",
+      "sourceSkillName": "Systems Interface",
+      "sourceValue": "1",
+      "sourceRow": 14,
+      "sourceColumn": "Bonus Skill 7",
+      "targetSkillName": "Systems Interface",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hob-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Tactical Planning",
+      "sourceValue": "5",
+      "sourceRow": 15,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hob-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "4",
+      "sourceRow": 15,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hob-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "4",
+      "sourceRow": 15,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Hob-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "2",
+      "sourceRow": 15,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Kobold",
+      "linkType": "bonus",
+      "sourceSkillName": "Environmental Survival",
+      "sourceValue": "5",
+      "sourceRow": 16,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Environmental Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Kobold",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "5",
+      "sourceRow": 16,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Kobold",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "3",
+      "sourceRow": 16,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Kobold",
+      "linkType": "bonus",
+      "sourceSkillName": "Metabolic Control",
+      "sourceValue": "1",
+      "sourceRow": 16,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Metabolic Control",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Kobold",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "1",
+      "sourceRow": 16,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Troll-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Load-Bearing",
+      "sourceValue": "5",
+      "sourceRow": 17,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Troll-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "5",
+      "sourceRow": 17,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Troll-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Stability & Bracing",
+      "sourceValue": "3",
+      "sourceRow": 17,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Stability & Bracing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Troll-Kin",
+      "linkType": "bonus",
+      "sourceSkillName": "Environmental Survival",
+      "sourceValue": "2",
+      "sourceRow": 17,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Environmental Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Etiquette & Culture",
+      "sourceValue": "4",
+      "sourceRow": 18,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Etiquette & Culture",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Performance Arts",
+      "sourceValue": "4",
+      "sourceRow": 18,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Performance Arts",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "3",
+      "sourceRow": 18,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Spellcraft",
+      "sourceValue": "2",
+      "sourceRow": 18,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Spellcraft",
+      "targetSkillClassification": "magic access"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Channeling",
+      "sourceValue": "1",
+      "sourceRow": 18,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Channeling",
+      "targetSkillClassification": "magic stabalization"
+    },
+    {
+      "raceName": "High Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Meditation",
+      "sourceValue": "1",
+      "sourceRow": 18,
+      "sourceColumn": "Bonus Skill 6",
+      "targetSkillName": "Meditation",
+      "targetSkillClassification": "magic regeneration"
+    },
+    {
+      "raceName": "Gold Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Networking",
+      "sourceValue": "5",
+      "sourceRow": 19,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Networking",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gold Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "5",
+      "sourceRow": 19,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gold Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Tactical Planning",
+      "sourceValue": "5",
+      "sourceRow": 19,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard"
+    },
     {
       "raceName": "Wild Elf",
-      "linkType": "granted",
-      "sourceSkillName": "Non",
-      "sourceValue": null,
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "4",
       "sourceRow": 20,
-      "sourceColumn": "Racial Special Abilitie 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
     },
+    {
+      "raceName": "Wild Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Herbal Lore",
+      "sourceValue": "4",
+      "sourceRow": 20,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Herbal Lore",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Wild Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "3",
+      "sourceRow": 20,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Wild Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Animal Handling",
+      "sourceValue": "2",
+      "sourceRow": 20,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Animal Handling",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Wild Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "2",
+      "sourceRow": 20,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "3",
+      "sourceRow": 21,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Cryptography & Linguistics",
+      "sourceValue": "3",
+      "sourceRow": 21,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Cryptography & Linguistics",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "3",
+      "sourceRow": 21,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "3",
+      "sourceRow": 21,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Mental Fortitude",
+      "sourceValue": "3",
+      "sourceRow": 21,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Mental Fortitude",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Grey Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Spell Weaving",
+      "sourceValue": "5",
+      "sourceRow": 21,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Spell Weaving",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Harbinger Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Tactical Planning",
+      "sourceValue": "5",
+      "sourceRow": 22,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Harbinger Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "4",
+      "sourceRow": 22,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Harbinger Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "3",
+      "sourceRow": 22,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Harbinger Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "3",
+      "sourceRow": 22,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "5",
+      "sourceRow": 23,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "4",
+      "sourceRow": 23,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "2",
+      "sourceRow": 23,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Networking",
+      "sourceValue": "1",
+      "sourceRow": 23,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Networking",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Night Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Umbral Veil",
+      "sourceValue": "5",
+      "sourceRow": 23,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Umbral Veil",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "4",
+      "sourceRow": 24,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "4",
+      "sourceRow": 24,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "3",
+      "sourceRow": 24,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Herbal Lore",
+      "sourceValue": "2",
+      "sourceRow": 24,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Herbal Lore",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "2",
+      "sourceRow": 24,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dark Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Dark vision",
+      "sourceValue": "100",
+      "sourceRow": 24,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dark Vision",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Moonshade Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "5",
+      "sourceRow": 25,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Moonshade Elf",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "5",
+      "sourceRow": 25,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Moonshade Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Moonshadow Omen",
+      "sourceValue": null,
+      "sourceRow": 25,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Moonshadow Omen",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Satyr / Faun",
+      "linkType": "bonus",
+      "sourceSkillName": "Resonant Performance",
+      "sourceValue": "4",
+      "sourceRow": 26,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Resonant Performance",
+      "targetSkillClassification": "magic access"
+    },
+    {
+      "raceName": "Satyr / Faun",
+      "linkType": "bonus",
+      "sourceSkillName": "Harmonic Awareness",
+      "sourceValue": "3",
+      "sourceRow": 26,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Harmonic Awareness",
+      "targetSkillClassification": "magic stabalization"
+    },
+    {
+      "raceName": "Satyr / Faun",
+      "linkType": "bonus",
+      "sourceSkillName": "Resonance Attunement",
+      "sourceValue": "3",
+      "sourceRow": 26,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Resonance Attunement",
+      "targetSkillClassification": "magic regeneration"
+    },
+    {
+      "raceName": "Satyr / Faun",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "3",
+      "sourceRow": 26,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Satyr / Faun",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "2",
+      "sourceRow": 26,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Minotaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "5",
+      "sourceRow": 27,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Minotaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "4",
+      "sourceRow": 27,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Minotaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 27,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Minotaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Tactical Planning",
+      "sourceValue": "3",
+      "sourceRow": 27,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dryad-Blooded",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "5",
+      "sourceRow": 28,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dryad-Blooded",
+      "linkType": "bonus",
+      "sourceSkillName": "Herbal Lore",
+      "sourceValue": "5",
+      "sourceRow": 28,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Herbal Lore",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Dryad-Blooded",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "5",
+      "sourceRow": 28,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Changeling",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "5",
+      "sourceRow": 29,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Changeling",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "4",
+      "sourceRow": 29,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Changeling",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "4",
+      "sourceRow": 29,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Changeling",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "2",
+      "sourceRow": 29,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Changeling",
+      "linkType": "granted",
+      "sourceSkillName": "Glamour Shift",
+      "sourceValue": null,
+      "sourceRow": 29,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Glamour Shift",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Smallfolk",
+      "linkType": "bonus",
+      "sourceSkillName": "Animal Handling",
+      "sourceValue": "4",
+      "sourceRow": 30,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Animal Handling",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Smallfolk",
+      "linkType": "bonus",
+      "sourceSkillName": "Herbal Lore",
+      "sourceValue": "3",
+      "sourceRow": 30,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Herbal Lore",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Smallfolk",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 30,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Smallfolk",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "3",
+      "sourceRow": 30,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mer-Folk",
+      "linkType": "bonus",
+      "sourceSkillName": "Swimming",
+      "sourceValue": "5",
+      "sourceRow": 31,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Swimming",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mer-Folk",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "5",
+      "sourceRow": 31,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mer-Folk",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "3",
+      "sourceRow": 31,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mer-Folk",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "2",
+      "sourceRow": 31,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Mer-Folk",
+      "linkType": "granted",
+      "sourceSkillName": "Water Breathing",
+      "sourceValue": "100",
+      "sourceRow": 31,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Water Breathing",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Centaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "5",
+      "sourceRow": 32,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Centaur",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "5",
+      "sourceRow": 32,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "4",
+      "sourceRow": 33,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "4",
+      "sourceRow": 33,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Tracking",
+      "sourceValue": "4",
+      "sourceRow": 33,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Tracking",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "1",
+      "sourceRow": 33,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 33,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Feline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "5",
+      "sourceRow": 34,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Feline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "5",
+      "sourceRow": 34,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Feline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Climbing",
+      "sourceValue": "2",
+      "sourceRow": 34,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Climbing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Feline)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 34,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "4",
+      "sourceRow": 35,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 35,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Medicine",
+      "sourceValue": "2",
+      "sourceRow": 35,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Medicine",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 35,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "4",
+      "sourceRow": 36,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "3",
+      "sourceRow": 36,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "2",
+      "sourceRow": 36,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "2",
+      "sourceRow": 36,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Avian)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 36,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "5",
+      "sourceRow": 37,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Medicine",
+      "sourceValue": "3",
+      "sourceRow": 37,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Medicine",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "2",
+      "sourceRow": 37,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 37,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Swimming",
+      "sourceValue": "5",
+      "sourceRow": 38,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Swimming",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "4",
+      "sourceRow": 38,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "3",
+      "sourceRow": 38,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "1",
+      "sourceRow": 38,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Musteline)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 38,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Murine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "5",
+      "sourceRow": 39,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Murine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "5",
+      "sourceRow": 39,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Murine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "3",
+      "sourceRow": 39,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Murine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 39,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "5",
+      "sourceRow": 40,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "4",
+      "sourceRow": 40,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "3",
+      "sourceRow": 40,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "2",
+      "sourceRow": 40,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "1",
+      "sourceRow": 40,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Vulpine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 40,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Serpentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "5",
+      "sourceRow": 41,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Serpentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "5",
+      "sourceRow": 41,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Serpentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "5",
+      "sourceRow": 41,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Serpentine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 41,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "5",
+      "sourceRow": 42,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 42,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 42,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Piscine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Swimming",
+      "sourceValue": "5",
+      "sourceRow": 43,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Swimming",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Piscine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "4",
+      "sourceRow": 43,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Piscine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "4",
+      "sourceRow": 43,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Piscine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "2",
+      "sourceRow": 43,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Piscine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 43,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 44,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "2",
+      "sourceRow": 44,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "bonus",
+      "sourceSkillName": "Medicine",
+      "sourceValue": "1",
+      "sourceRow": 44,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Medicine",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 44,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "5",
+      "sourceRow": 45,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "5",
+      "sourceRow": 45,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "linkType": "bonus",
+      "sourceSkillName": "Medicine",
+      "sourceValue": "2",
+      "sourceRow": 45,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Medicine",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 45,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "3",
+      "sourceRow": 46,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "bonus",
+      "sourceSkillName": "Innovation",
+      "sourceValue": "2",
+      "sourceRow": 46,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Innovation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "bonus",
+      "sourceSkillName": "Climbing",
+      "sourceValue": "2",
+      "sourceRow": 46,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Climbing",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 46,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "bonus",
+      "sourceSkillName": "Swimming",
+      "sourceValue": "4",
+      "sourceRow": 47,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Swimming",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "3",
+      "sourceRow": 47,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "2",
+      "sourceRow": 47,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "2",
+      "sourceRow": 47,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Anuran)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 47,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "linkType": "bonus",
+      "sourceSkillName": "Endurance",
+      "sourceValue": "5",
+      "sourceRow": 48,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "4",
+      "sourceRow": 48,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "3",
+      "sourceRow": 48,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 48,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Shift-Folk (Rodentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "5",
+      "sourceRow": 49,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Rodentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "4",
+      "sourceRow": 49,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Rodentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Engineering",
+      "sourceValue": "3",
+      "sourceRow": 49,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Rodentine)",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "3",
+      "sourceRow": 49,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Shift-Folk (Rodentine)",
+      "linkType": "granted",
+      "sourceSkillName": "Shift Forms",
+      "sourceValue": "10",
+      "sourceRow": 49,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Shift Forms",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "2",
+      "sourceRow": 50,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "bonus",
+      "sourceSkillName": "Investigation",
+      "sourceValue": "1",
+      "sourceRow": 50,
+      "sourceColumn": "Bonus Skill 5",
+      "targetSkillName": "Investigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "granted",
+      "sourceSkillName": "Direct Casting",
+      "sourceValue": "3",
+      "sourceRow": 50,
+      "sourceColumn": "Racial Special Abilitie 3",
+      "targetSkillName": "Direct Casting",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Féarai Elves",
+      "linkType": "granted",
+      "sourceSkillName": "Purification/Corruption",
+      "sourceValue": "5",
+      "sourceRow": 50,
+      "sourceColumn": "Racial Special Abilitie 4",
+      "targetSkillName": "Purification/Corruption",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "3",
+      "sourceRow": 51,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Diplomacy",
+      "sourceValue": "3",
+      "sourceRow": 51,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Diplomacy",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon Fire",
+      "sourceValue": "5",
+      "sourceRow": 51,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Fire",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "5",
+      "sourceRow": 52,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Diplomacy",
+      "sourceValue": "3",
+      "sourceRow": 52,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Diplomacy",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon Fire",
+      "sourceValue": "5",
+      "sourceRow": 52,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Fire",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Black Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "5",
+      "sourceRow": 53,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Black Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Stealth",
+      "sourceValue": "5",
+      "sourceRow": 53,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Stealth",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Black Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Survival",
+      "sourceValue": "5",
+      "sourceRow": 53,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Survival",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Black Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon Acid",
+      "sourceValue": "5",
+      "sourceRow": 53,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Acid",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Navigation",
+      "sourceValue": "5",
+      "sourceRow": 54,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Navigation",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Perception",
+      "sourceValue": "3",
+      "sourceRow": 54,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Diplomacy",
+      "sourceValue": "3",
+      "sourceRow": 54,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Diplomacy",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon Spark",
+      "sourceValue": "5",
+      "sourceRow": 54,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Spark",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Silver Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Diplomacy",
+      "sourceValue": "5",
+      "sourceRow": 55,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Diplomacy",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Silver Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "4",
+      "sourceRow": 55,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Silver Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Leadership",
+      "sourceValue": "3",
+      "sourceRow": 55,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Leadership",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Silver Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon Frost",
+      "sourceValue": "5",
+      "sourceRow": 55,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Frost",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Brass Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Diplomacy",
+      "sourceValue": "5",
+      "sourceRow": 56,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Diplomacy",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Brass Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Persuasion",
+      "sourceValue": "4",
+      "sourceRow": 56,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Persuasion",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Brass Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Insight",
+      "sourceValue": "3",
+      "sourceRow": 56,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Insight",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Brass Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Deception",
+      "sourceValue": "3",
+      "sourceRow": 56,
+      "sourceColumn": "Bosus Skill 4",
+      "targetSkillName": "Deception",
+      "targetSkillClassification": "standard"
+    },
+    {
+      "raceName": "Brass Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Dragon sleep",
+      "sourceValue": "5",
+      "sourceRow": 56,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Dragon Sleep",
+      "targetSkillClassification": "special ability"
+    },
+    {
+      "raceName": "Grey Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Spellcraft",
+      "sourceValue": "5",
+      "sourceRow": 57,
+      "sourceColumn": "Bonus Skill 1",
+      "targetSkillName": "Spellcraft",
+      "targetSkillClassification": "magic access"
+    },
+    {
+      "raceName": "Grey Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Channeling",
+      "sourceValue": "4",
+      "sourceRow": 57,
+      "sourceColumn": "Bonus Skill 2",
+      "targetSkillName": "Channeling",
+      "targetSkillClassification": "magic stabalization"
+    },
+    {
+      "raceName": "Grey Naga Orang",
+      "linkType": "bonus",
+      "sourceSkillName": "Meditation",
+      "sourceValue": "3",
+      "sourceRow": 57,
+      "sourceColumn": "Bonus Skill 3",
+      "targetSkillName": "Meditation",
+      "targetSkillClassification": "magic regeneration"
+    },
+    {
+      "raceName": "Grey Naga Orang",
+      "linkType": "granted",
+      "sourceSkillName": "Elemental Dragon Breath",
+      "sourceValue": "5",
+      "sourceRow": 57,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "targetSkillName": "Elemental Dragon Breath",
+      "targetSkillClassification": "special ability"
+    }
+  ],
+  "approvedMappedReferences": [
     {
       "raceName": "Harbinger Elf",
       "linkType": "granted",
@@ -416,7 +2521,9 @@
       "sourceValue": null,
       "sourceRow": 22,
       "sourceColumn": "Racial Special Abilitie 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Harbinger Elf Berserker Rage",
+      "targetSkillClassification": "special ability",
+      "mappingScope": "general"
     },
     {
       "raceName": "Night Elf",
@@ -425,7 +2532,9 @@
       "sourceValue": "3",
       "sourceRow": 23,
       "sourceColumn": "Bonus Skill 3",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Systems Interface",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Moonshade Elf",
@@ -434,7 +2543,9 @@
       "sourceValue": "5",
       "sourceRow": 25,
       "sourceColumn": "Bonus Skill 3",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Perception",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Smallfolk",
@@ -443,7 +2554,9 @@
       "sourceValue": "2",
       "sourceRow": 30,
       "sourceColumn": "Bonus Skill 5",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Fine Manipulation",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Centaur",
@@ -452,7 +2565,9 @@
       "sourceValue": "5",
       "sourceRow": 32,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Lupine)",
@@ -461,7 +2576,9 @@
       "sourceValue": "2",
       "sourceRow": 33,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Endurance",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Feline)",
@@ -470,7 +2587,9 @@
       "sourceValue": "3",
       "sourceRow": 34,
       "sourceColumn": "Bonus Skill 3",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Ursine)",
@@ -479,7 +2598,9 @@
       "sourceValue": "4",
       "sourceRow": 35,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Ursine)",
@@ -488,7 +2609,9 @@
       "sourceValue": "2",
       "sourceRow": 35,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Engineering",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Avian)",
@@ -497,7 +2620,9 @@
       "sourceValue": "4",
       "sourceRow": 36,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Bovine)",
@@ -506,7 +2631,9 @@
       "sourceValue": "5",
       "sourceRow": 37,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Load-Bearing",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Musteline)",
@@ -515,7 +2642,9 @@
       "sourceValue": "2",
       "sourceRow": 38,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Murine)",
@@ -524,7 +2653,9 @@
       "sourceValue": "2",
       "sourceRow": 39,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Lagomorph)",
@@ -533,7 +2664,9 @@
       "sourceValue": "5",
       "sourceRow": 42,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Lagomorph)",
@@ -542,7 +2675,9 @@
       "sourceValue": "2",
       "sourceRow": 42,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Burst Power",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Marsupial)",
@@ -551,7 +2686,9 @@
       "sourceValue": "5",
       "sourceRow": 44,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Burst Power",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Marsupial)",
@@ -560,7 +2697,9 @@
       "sourceValue": "4",
       "sourceRow": 44,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Chelonian)",
@@ -569,7 +2708,9 @@
       "sourceValue": "3",
       "sourceRow": 45,
       "sourceColumn": "Bonus Skill 3",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Stability & Bracing",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Primate)",
@@ -578,7 +2719,9 @@
       "sourceValue": "4",
       "sourceRow": 46,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Grip Mastery",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Shift-Folk (Primate)",
@@ -587,7 +2730,9 @@
       "sourceValue": "4",
       "sourceRow": 46,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Anuran)",
@@ -596,7 +2741,9 @@
       "sourceValue": "4",
       "sourceRow": 47,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Shift-Folk (Carapace)",
@@ -605,7 +2752,9 @@
       "sourceValue": "3",
       "sourceRow": 48,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Stability & Bracing",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Féarai Elves",
@@ -614,7 +2763,9 @@
       "sourceValue": "5",
       "sourceRow": 50,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Spellcraft",
+      "targetSkillClassification": "magic access",
+      "mappingScope": "general"
     },
     {
       "raceName": "Féarai Elves",
@@ -623,7 +2774,9 @@
       "sourceValue": "4",
       "sourceRow": 50,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Research & Analysis",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Féarai Elves",
@@ -632,7 +2785,9 @@
       "sourceValue": "3",
       "sourceRow": 50,
       "sourceColumn": "Bonus Skill 3",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Féarai Elves",
@@ -641,7 +2796,9 @@
       "sourceValue": "3",
       "sourceRow": 50,
       "sourceColumn": "Racial Special Abilitie 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Hovering",
+      "targetSkillClassification": "special ability",
+      "mappingScope": "general"
     },
     {
       "raceName": "Féarai Elves",
@@ -650,7 +2807,9 @@
       "sourceValue": "3",
       "sourceRow": 50,
       "sourceColumn": "Racial Special Abilitie 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Full Sphere Access",
+      "targetSkillClassification": "special ability",
+      "mappingScope": "general"
     },
     {
       "raceName": "Gold Naga Orang",
@@ -659,7 +2818,9 @@
       "sourceValue": "5",
       "sourceRow": 51,
       "sourceColumn": "Bonus Skill 1",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Gold Naga Orang",
@@ -668,7 +2829,9 @@
       "sourceValue": "4",
       "sourceRow": 51,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Red Naga Orang",
@@ -677,7 +2840,9 @@
       "sourceValue": "4",
       "sourceRow": 52,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Red Naga Orang",
@@ -686,7 +2851,9 @@
       "sourceValue": "3",
       "sourceRow": 52,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Intimidating Presence",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Blue Naga Orang",
@@ -695,7 +2862,9 @@
       "sourceValue": "4",
       "sourceRow": 54,
       "sourceColumn": "Bonus Skill 2",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Agile Movement",
+      "targetSkillClassification": "standard",
+      "mappingScope": "race-specific"
     },
     {
       "raceName": "Silver Naga Orang",
@@ -704,7 +2873,9 @@
       "sourceValue": "3",
       "sourceRow": 55,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     },
     {
       "raceName": "Grey Naga Orang",
@@ -713,7 +2884,23 @@
       "sourceValue": "3",
       "sourceRow": 57,
       "sourceColumn": "Bosus Skill 4",
-      "reason": "No case-insensitive exact Skill name exists."
+      "targetSkillName": "Tactical Planning",
+      "targetSkillClassification": "standard",
+      "mappingScope": "general"
     }
-  ]
+  ],
+  "intentionallyIgnoredReferences": [
+    {
+      "raceName": "Wild Elf",
+      "linkType": "granted",
+      "sourceSkillName": "Non",
+      "sourceValue": null,
+      "sourceRow": 20,
+      "sourceColumn": "Racial Special Abilitie 1",
+      "mappingScope": "general",
+      "reason": "The Wild Elf source cell means None and is not a granted ability."
+    }
+  ],
+  "unresolvedByName": [],
+  "unresolvedReferences": []
 }

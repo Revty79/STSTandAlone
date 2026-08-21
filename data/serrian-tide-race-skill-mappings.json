@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "description": "User-approved conversions from Race spreadsheet terminology to existing canonical Skills. These decisions are scoped to the Race importer and never create or rename Skills.",
+  "generalMappings": [
+    {
+      "sourceSkillName": "Academics",
+      "targetSkillName": "Research & Analysis"
+    },
+    {
+      "sourceSkillName": "Arcana",
+      "targetSkillName": "Spellcraft"
+    },
+    {
+      "sourceSkillName": "Acrobatics",
+      "targetSkillName": "Agile Movement"
+    },
+    {
+      "sourceSkillName": "Strategy",
+      "targetSkillName": "Tactical Planning"
+    },
+    {
+      "sourceSkillName": "Technology",
+      "targetSkillName": "Systems Interface"
+    },
+    {
+      "sourceSkillName": "Intimidation",
+      "targetSkillName": "Intimidating Presence"
+    },
+    {
+      "sourceSkillName": "Access to all Spheres",
+      "targetSkillName": "Full Sphere Access"
+    },
+    {
+      "sourceSkillName": "Hovdering",
+      "targetSkillName": "Hovering"
+    },
+    {
+      "sourceSkillName": "Harbinger Elf Breserker Rage",
+      "targetSkillName": "Harbinger Elf Berserker Rage"
+    },
+    {
+      "sourceSkillName": "Non",
+      "action": "ignore",
+      "reason": "The Wild Elf source cell means None and is not a granted ability."
+    }
+  ],
+  "raceSpecificMappings": [
+    {
+      "raceName": "Moonshade Elf",
+      "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
+      "targetSkillName": "Perception"
+    },
+    {
+      "raceName": "Smallfolk",
+      "sourceSkillName": "Crafting",
+      "targetSkillName": "Fine Manipulation"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "sourceSkillName": "Crafting",
+      "targetSkillName": "Engineering"
+    },
+    {
+      "raceName": "Centaur",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Endurance"
+    },
+    {
+      "raceName": "Shift-Folk (Lupine)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Endurance"
+    },
+    {
+      "raceName": "Shift-Folk (Ursine)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Load-Bearing"
+    },
+    {
+      "raceName": "Shift-Folk (Bovine)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Load-Bearing"
+    },
+    {
+      "raceName": "Shift-Folk (Lagomorph)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Burst Power"
+    },
+    {
+      "raceName": "Shift-Folk (Marsupial)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Burst Power"
+    },
+    {
+      "raceName": "Shift-Folk (Chelonian)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Stability & Bracing"
+    },
+    {
+      "raceName": "Shift-Folk (Primate)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Grip Mastery"
+    },
+    {
+      "raceName": "Shift-Folk (Carapace)",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Stability & Bracing"
+    },
+    {
+      "raceName": "Gold Naga Orang",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Agile Movement"
+    },
+    {
+      "raceName": "Red Naga Orang",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Agile Movement"
+    },
+    {
+      "raceName": "Blue Naga Orang",
+      "sourceSkillName": "Athletics",
+      "targetSkillName": "Agile Movement"
+    }
+  ]
+}

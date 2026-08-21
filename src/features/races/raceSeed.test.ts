@@ -25,6 +25,8 @@ type RaceSeedRecord = {
     skillClassification: string;
     linkType: string;
     value: number | null;
+    sourceSkillName: string;
+    resolution: "exact-match" | "approved-mapping";
   }>;
 };
 
@@ -41,8 +43,23 @@ const raceSeed = raceSeedJson as unknown as {
 };
 const raceReport = raceReportJson as unknown as {
   policy: string;
+  exactMatchReferenceCount: number;
+  approvedMappedReferenceCount: number;
+  intentionallyIgnoredReferenceCount: number;
   unresolvedReferenceCount: number;
   unresolvedUniqueNameCount: number;
+  approvedMappedReferences: Array<{
+    raceName: string;
+    linkType: string;
+    sourceSkillName: string;
+    targetSkillName: string;
+  }>;
+  intentionallyIgnoredReferences: Array<{
+    raceName: string;
+    linkType: string;
+    sourceSkillName: string;
+    reason: string;
+  }>;
   unresolvedReferences: Array<{
     raceName: string;
     linkType: string;
@@ -58,8 +75,8 @@ describe("canonical Race seed", () => {
       races: 56,
       attributeCaps: 336,
       movementModes: 57,
-      bonusLinks: 217,
-      grantedLinks: 32,
+      bonusLinks: 248,
+      grantedLinks: 35,
     });
     expect(raceSeed.records).toHaveLength(56);
     expect(new Set(raceSeed.records.map(({ core }) => core.name.toLocaleLowerCase())).size).toBe(56);
@@ -92,22 +109,75 @@ describe("canonical Race seed", () => {
     ]);
   });
 
-  it("imports only exact existing Skill matches and grants only Special Abilities", () => {
+  it("imports exact and approved mapped Skills while granting only Special Abilities", () => {
     const links = raceSeed.records.flatMap(({ skillLinks }) => skillLinks);
-    expect(links.filter(({ linkType }) => linkType === "bonus")).toHaveLength(217);
+    expect(links.filter(({ linkType }) => linkType === "bonus")).toHaveLength(248);
     const granted = links.filter(({ linkType }) => linkType === "granted");
-    expect(granted).toHaveLength(32);
+    expect(granted).toHaveLength(35);
     expect(granted.every(({ skillClassification }) =>
       skillClassification.toLocaleLowerCase() === "special ability",
     )).toBe(true);
 
-    const importedNames = new Set(links.map(({ skillName }) => skillName.toLocaleLowerCase()));
-    for (const discrepancy of raceReport.unresolvedReferences) {
-      expect(importedNames.has(discrepancy.sourceSkillName.toLocaleLowerCase())).toBe(false);
-      expect(discrepancy.reason).toContain("exact Skill name");
-    }
-    expect(raceReport.policy).toContain("No Skills or aliases are created");
-    expect(raceReport.unresolvedReferenceCount).toBe(35);
-    expect(raceReport.unresolvedUniqueNameCount).toBe(13);
+    expect(raceReport.policy).toContain("No Skills or global aliases are created");
+    expect(raceReport.exactMatchReferenceCount).toBe(249);
+    expect(raceReport.approvedMappedReferenceCount).toBe(34);
+    expect(raceReport.intentionallyIgnoredReferenceCount).toBe(1);
+    expect(raceReport.unresolvedReferenceCount).toBe(0);
+    expect(raceReport.unresolvedUniqueNameCount).toBe(0);
+    expect(raceReport.unresolvedReferences).toEqual([]);
+  });
+
+  it("applies the approved canonical Race-Skill conversions", () => {
+    const linksFor = (raceName: string) =>
+      raceSeed.records.find(({ core }) => core.name === raceName)?.skillLinks ?? [];
+    const expectLinks = (
+      raceName: string,
+      expected: Array<{ skillName: string; linkType: string; value?: number | null }>,
+    ) => {
+      const links = linksFor(raceName);
+      for (const expectedLink of expected) {
+        expect(links).toContainEqual(expect.objectContaining(expectedLink));
+      }
+    };
+
+    expectLinks("Féarai Elves", [
+      { skillName: "Spellcraft", linkType: "bonus", value: 5 },
+      { skillName: "Research & Analysis", linkType: "bonus", value: 4 },
+      { skillName: "Tactical Planning", linkType: "bonus", value: 3 },
+      { skillName: "Hovering", linkType: "granted", value: 3 },
+      { skillName: "Full Sphere Access", linkType: "granted", value: 3 },
+    ]);
+    expectLinks("Harbinger Elf", [
+      { skillName: "Harbinger Elf Berserker Rage", linkType: "granted" },
+    ]);
+    expectLinks("Moonshade Elf", [
+      { skillName: "Perception", linkType: "bonus", value: 5 },
+    ]);
+    expectLinks("Shift-Folk (Lagomorph)", [
+      { skillName: "Agile Movement", linkType: "bonus", value: 5 },
+      { skillName: "Burst Power", linkType: "bonus", value: 2 },
+    ]);
+    expectLinks("Shift-Folk (Marsupial)", [
+      { skillName: "Agile Movement", linkType: "bonus", value: 4 },
+      { skillName: "Burst Power", linkType: "bonus", value: 5 },
+    ]);
+    expectLinks("Shift-Folk (Primate)", [
+      { skillName: "Agile Movement", linkType: "bonus", value: 4 },
+      { skillName: "Grip Mastery", linkType: "bonus", value: 4 },
+    ]);
+    expectLinks("Mer-Folk", [
+      { skillName: "Water Breathing", linkType: "granted" },
+    ]);
+
+    expect(linksFor("Wild Elf").some(({ skillName, sourceSkillName }) =>
+      skillName.toLocaleLowerCase() === "non" || sourceSkillName.toLocaleLowerCase() === "non",
+    )).toBe(false);
+    expect(raceReport.intentionallyIgnoredReferences).toEqual([
+      expect.objectContaining({
+        raceName: "Wild Elf",
+        linkType: "granted",
+        sourceSkillName: "Non",
+      }),
+    ]);
   });
 });

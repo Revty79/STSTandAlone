@@ -788,6 +788,14 @@ mod tests {
         let skill_count_before: i64 = connection
             .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
             .expect("count Skills before Race seed");
+        let canonical_skill_count_before: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skills WHERE source_system = 'serrian-tide-core'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count canonical Skills before Race seed");
+        assert_eq!(canonical_skill_count_before, 1137);
 
         connection
             .execute_batch(RACE_CATALOG_MIGRATION)
@@ -815,7 +823,7 @@ mod tests {
                 },
             )
             .expect("count seeded Race aggregates");
-        assert_eq!(counts, (56, 336, 57, 249, 217, 32));
+        assert_eq!(counts, (56, 336, 57, 283, 248, 35));
 
         let standard_human_names: i64 = connection
             .query_row(
@@ -901,7 +909,7 @@ mod tests {
                 |row| row.get(0),
             )
             .expect("reload preserved edit");
-        assert_eq!(counts_after_reapply, (56, 336, 57, 249));
+        assert_eq!(counts_after_reapply, (56, 336, 57, 283));
         assert_eq!(preserved_edit, "Preserved user edit.");
     }
 }

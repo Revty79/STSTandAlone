@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceSystem": "serrian-tide-race-sheet",
   "sourceSha256": "cd23d0122b0330bc00811b8678a4234ebb1e8757b82007b7a63df8b5be1aa36f",
+  "mappingSha256": "e8eabad0cc9a9c6ba8adca8c37b52f7ef5e7aed1d602e1aec3642dbd8943e906",
   "counts": {
     "races": 56,
     "attributeCaps": 336,
     "movementModes": 57,
-    "bonusLinks": 217,
-    "grantedLinks": 32
+    "bonusLinks": 248,
+    "grantedLinks": 35
   },
   "records": [
     {
@@ -79,6 +80,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -87,6 +90,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -95,6 +100,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -103,6 +110,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -111,6 +120,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Research & Analysis",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -190,6 +201,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Research & Analysis",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -198,6 +211,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Tactical Planning",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -206,6 +221,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Cryptography & Linguistics",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -214,6 +231,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -222,6 +241,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Medicine",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -301,6 +322,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -309,6 +332,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -317,6 +342,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Networking",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -325,6 +352,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Animal Handling",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -333,6 +362,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Streetwise",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -412,6 +443,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -420,6 +453,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Load-Bearing",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -428,6 +463,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Material Deformation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -436,6 +473,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Metabolic Control",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -444,6 +483,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Environmental Survival",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -523,6 +564,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Rigging & Ropework",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -531,6 +574,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -539,6 +584,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Environmental Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -547,6 +594,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Stability & Bracing",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -555,6 +604,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -634,6 +685,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Environmental Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -642,6 +695,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -650,6 +705,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Material Deformation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -658,6 +715,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -666,6 +725,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Load-Bearing",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -745,6 +806,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -753,6 +816,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Material Deformation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -761,6 +826,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Load-Bearing",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -769,6 +836,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Grip Mastery",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -777,6 +846,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Chemistry",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -856,6 +927,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Fine Manipulation",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -864,6 +937,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Innovation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -872,6 +947,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -880,6 +957,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -888,6 +967,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -967,6 +1048,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -975,6 +1058,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Innovation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -983,6 +1068,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Fine Manipulation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -991,6 +1078,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Systems Interface",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -999,6 +1088,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Research & Analysis",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -1078,6 +1169,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Rigging & Ropework",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1086,6 +1179,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1094,6 +1189,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Fine Manipulation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1102,6 +1199,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -1110,6 +1209,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Precision Ranged",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -1189,6 +1290,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1197,6 +1300,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1205,6 +1310,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Load-Bearing",
+          "resolution": "exact-match",
           "sortOrder": 2
         }
       ],
@@ -1284,6 +1391,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1292,6 +1401,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1300,6 +1411,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1308,6 +1421,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 3
         }
       ],
@@ -1387,6 +1502,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1395,6 +1512,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1403,6 +1522,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Streetwise",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1411,6 +1532,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Fine Manipulation",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -1419,6 +1542,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -1427,6 +1552,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 5
         },
         {
@@ -1435,6 +1562,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Systems Interface",
+          "resolution": "exact-match",
           "sortOrder": 6
         }
       ],
@@ -1514,6 +1643,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Tactical Planning",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1522,6 +1653,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1530,6 +1663,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1538,6 +1673,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 3
         }
       ],
@@ -1617,6 +1754,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Environmental Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1625,6 +1764,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1633,6 +1774,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1641,6 +1784,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Metabolic Control",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -1649,6 +1794,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -1728,6 +1875,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Load-Bearing",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1736,6 +1885,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1744,6 +1895,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Stability & Bracing",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1752,6 +1905,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Environmental Survival",
+          "resolution": "exact-match",
           "sortOrder": 3
         }
       ],
@@ -1831,6 +1986,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Etiquette & Culture",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1839,6 +1996,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Performance Arts",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1847,6 +2006,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -1855,6 +2016,8 @@
           "skillClassification": "magic access",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Spellcraft",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -1863,6 +2026,8 @@
           "skillClassification": "magic stabalization",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Channeling",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -1871,6 +2036,8 @@
           "skillClassification": "magic regeneration",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Meditation",
+          "resolution": "exact-match",
           "sortOrder": 5
         }
       ],
@@ -1950,6 +2117,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Networking",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -1958,6 +2127,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -1966,6 +2137,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Tactical Planning",
+          "resolution": "exact-match",
           "sortOrder": 2
         }
       ],
@@ -2045,6 +2218,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2053,6 +2228,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Herbal Lore",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2061,6 +2238,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2069,6 +2248,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Animal Handling",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -2077,6 +2258,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -2156,6 +2339,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2164,6 +2349,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Cryptography & Linguistics",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2172,6 +2359,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2180,6 +2369,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -2188,6 +2379,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Mental Fortitude",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -2196,6 +2389,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Spell Weaving",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -2275,6 +2470,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Tactical Planning",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2283,6 +2480,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2291,6 +2490,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2299,7 +2500,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
+        },
+        {
+          "skillExternalId": "skill-0f5025540a184a6627ce2fbdd3957bf796c3879a9bfee0eb11920550773e0cf4",
+          "skillName": "Harbinger Elf Berserker Rage",
+          "skillClassification": "special ability",
+          "linkType": "granted",
+          "value": null,
+          "sourceSkillName": "Harbinger Elf Breserker Rage",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
         }
       ],
       "source": {
@@ -2378,6 +2591,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2386,7 +2601,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 1
+        },
+        {
+          "skillExternalId": "skill-98b020582a7ed7113e1c0000a3b25870984a2d7e7f5f7b4a6af3b05d132d2ec2",
+          "skillName": "Systems Interface",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Technology",
+          "resolution": "approved-mapping",
+          "sortOrder": 2
         },
         {
           "skillExternalId": "skill-f335963305b48079a7992623c1321163b5111dd1db00e985d7c69a2b57e72cbe",
@@ -2394,6 +2621,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -2402,6 +2631,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Networking",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -2410,6 +2641,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Umbral Veil",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -2489,6 +2722,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2497,6 +2732,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2505,6 +2742,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2513,6 +2752,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Herbal Lore",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -2521,6 +2762,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -2529,6 +2772,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 100,
+          "sourceSkillName": "Dark vision",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -2608,6 +2853,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2616,7 +2863,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 1
+        },
+        {
+          "skillExternalId": "skill-9327b46b590a1441bb4a7272b4982906f3983000365e69057b14e0c7baa5ffb7",
+          "skillName": "Perception",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Perception (or Persuasion; choose one at character creation)",
+          "resolution": "approved-mapping",
+          "sortOrder": 2
         },
         {
           "skillExternalId": "skill-f93e3c3c647a320eb0f12e2b8183234688ff363e8aa86585f746f04171cb4bc7",
@@ -2624,6 +2883,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": null,
+          "sourceSkillName": "Moonshadow Omen",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -2703,6 +2964,8 @@
           "skillClassification": "magic access",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Resonant Performance",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2711,6 +2974,8 @@
           "skillClassification": "magic stabalization",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Harmonic Awareness",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2719,6 +2984,8 @@
           "skillClassification": "magic regeneration",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Resonance Attunement",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2727,6 +2994,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -2735,6 +3004,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 4
         }
       ],
@@ -2814,6 +3085,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2822,6 +3095,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2830,6 +3105,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -2838,6 +3115,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Tactical Planning",
+          "resolution": "exact-match",
           "sortOrder": 3
         }
       ],
@@ -2917,6 +3196,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -2925,6 +3206,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Herbal Lore",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -2933,6 +3216,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 2
         }
       ],
@@ -3012,6 +3297,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3020,6 +3307,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3028,6 +3317,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -3036,6 +3327,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -3044,6 +3337,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": null,
+          "sourceSkillName": "Glamour Shift",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3123,6 +3418,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Animal Handling",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3131,6 +3428,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Herbal Lore",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3139,6 +3438,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -3147,7 +3448,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
+        },
+        {
+          "skillExternalId": "skill-afdff41f0cf5d3e1d42034f71c38a05a77f8bda728d5e863e1d0708f8d2ff6be",
+          "skillName": "Fine Manipulation",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Crafting",
+          "resolution": "approved-mapping",
+          "sortOrder": 4
         }
       ],
       "source": {
@@ -3232,6 +3545,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Swimming",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3240,6 +3555,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3248,6 +3565,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -3256,6 +3575,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -3264,6 +3585,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 100,
+          "sourceSkillName": "Water Breathing",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3338,11 +3661,23 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-be95e048ff6aaae6e320c1d39091bddbed6979b4739ef8eda3bc3b401daf622b",
+          "skillName": "Endurance",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
           "skillExternalId": "skill-d70d5a7909ed5910fbc67667c7464f0b53fd935653afb327e53067bb7ca578ca",
           "skillName": "Navigation",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3351,6 +3686,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         }
       ],
@@ -3430,6 +3767,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3438,6 +3777,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3446,7 +3787,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Tracking",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-be95e048ff6aaae6e320c1d39091bddbed6979b4739ef8eda3bc3b401daf622b",
+          "skillName": "Endurance",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-e43ba08557cbb4f19ed7684fe3cdbf5426fa2c145b8baced5e4fcec410c4e46c",
@@ -3454,6 +3807,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -3462,6 +3817,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3541,6 +3898,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3549,7 +3908,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 1
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 2
         },
         {
           "skillExternalId": "skill-df7da510a6fe1ab64a57e49687b9b1d239e647850ecb7ba49b542df06a591d11",
@@ -3557,6 +3928,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Climbing",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -3565,6 +3938,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3639,11 +4014,23 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-ae53fbb31ca36bdcab70bec9d53c1c796bda1acd53fcc519c240b7c096610aec",
+          "skillName": "Load-Bearing",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
           "skillExternalId": "skill-be95e048ff6aaae6e320c1d39091bddbed6979b4739ef8eda3bc3b401daf622b",
           "skillName": "Endurance",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3652,7 +4039,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-8c85b6639e62e10b8330a8b883004b43c119053d7d62b512a98c77eb069627a7",
+          "skillName": "Engineering",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Crafting",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-a82ce870f999b01b17b9135b72d1f4b6d31217aec9cbee69d5bfc9659018ca06",
@@ -3660,6 +4059,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Medicine",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -3668,6 +4069,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3747,7 +4150,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
         },
         {
           "skillExternalId": "skill-d70d5a7909ed5910fbc67667c7464f0b53fd935653afb327e53067bb7ca578ca",
@@ -3755,6 +4170,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -3763,6 +4180,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -3771,6 +4190,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -3779,6 +4200,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3853,11 +4276,23 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-ae53fbb31ca36bdcab70bec9d53c1c796bda1acd53fcc519c240b7c096610aec",
+          "skillName": "Load-Bearing",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
           "skillExternalId": "skill-be95e048ff6aaae6e320c1d39091bddbed6979b4739ef8eda3bc3b401daf622b",
           "skillName": "Endurance",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3866,6 +4301,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Medicine",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -3874,6 +4311,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -3882,6 +4321,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -3961,6 +4402,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Swimming",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -3969,6 +4412,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -3977,7 +4422,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-9327b46b590a1441bb4a7272b4982906f3983000365e69057b14e0c7baa5ffb7",
@@ -3985,6 +4442,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -3993,6 +4452,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4072,6 +4533,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -4080,6 +4543,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -4088,7 +4553,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-a7698191b8ae60ede2a68b9580b544869bc857c7c16b1e289e8147dd7d7e6023",
@@ -4096,6 +4573,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4175,6 +4654,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -4183,6 +4664,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -4191,6 +4674,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4199,6 +4684,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4207,6 +4694,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -4215,6 +4704,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4294,6 +4785,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -4302,6 +4795,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -4310,6 +4805,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4318,6 +4815,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4392,11 +4891,23 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
           "skillExternalId": "skill-9327b46b590a1441bb4a7272b4982906f3983000365e69057b14e0c7baa5ffb7",
           "skillName": "Perception",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -4405,7 +4916,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-0b25251c15ecee784110d34e0aea5ca150c64aa97002f3c6d8946a7a3fdd2cf7",
+          "skillName": "Burst Power",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 2,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-a7698191b8ae60ede2a68b9580b544869bc857c7c16b1e289e8147dd7d7e6023",
@@ -4413,6 +4936,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4492,6 +5017,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Swimming",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -4500,6 +5027,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -4508,6 +5037,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4516,6 +5047,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4524,6 +5057,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4598,11 +5133,33 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-0b25251c15ecee784110d34e0aea5ca150c64aa97002f3c6d8946a7a3fdd2cf7",
+          "skillName": "Burst Power",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
+        },
+        {
           "skillExternalId": "skill-4032ee4038775060258f8e68061309aed9bfdea5b574f24324ab7f065202d052",
           "skillName": "Survival",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4611,6 +5168,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4619,6 +5178,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Medicine",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -4627,6 +5188,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4706,6 +5269,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -4714,7 +5279,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 1
+        },
+        {
+          "skillExternalId": "skill-a6945c534343dc4235a38c62c827a7e77593e2ab82385a24774c0bd1f6ae4f86",
+          "skillName": "Stability & Bracing",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 2
         },
         {
           "skillExternalId": "skill-a82ce870f999b01b17b9135b72d1f4b6d31217aec9cbee69d5bfc9659018ca06",
@@ -4722,6 +5299,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Medicine",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4730,6 +5309,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4804,11 +5385,33 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-7a7bf62e33180cd3a403e69081a320b6ad95cab8a8f17aac8b7926c147428201",
+          "skillName": "Grip Mastery",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
+        },
+        {
           "skillExternalId": "skill-8c85b6639e62e10b8330a8b883004b43c119053d7d62b512a98c77eb069627a7",
           "skillName": "Engineering",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4817,6 +5420,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Innovation",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4825,6 +5430,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Climbing",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -4833,6 +5440,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -4912,7 +5521,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Swimming",
+          "resolution": "exact-match",
           "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Acrobatics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
         },
         {
           "skillExternalId": "skill-4032ee4038775060258f8e68061309aed9bfdea5b574f24324ab7f065202d052",
@@ -4920,6 +5541,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -4928,6 +5551,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -4936,6 +5561,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 4
         },
         {
@@ -4944,6 +5571,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5023,6 +5652,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Endurance",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5031,6 +5662,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5039,7 +5672,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-a6945c534343dc4235a38c62c827a7e77593e2ab82385a24774c0bd1f6ae4f86",
+          "skillName": "Stability & Bracing",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-a7698191b8ae60ede2a68b9580b544869bc857c7c16b1e289e8147dd7d7e6023",
@@ -5047,6 +5692,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5126,6 +5773,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5134,6 +5783,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5142,6 +5793,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Engineering",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5150,6 +5803,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -5158,6 +5813,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 10,
+          "sourceSkillName": "Shift Forms",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5232,11 +5889,43 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-1702eb2b18067d7f1613d064ed4a8dd4f06f9a76ea254031d8e53fed926967bb",
+          "skillName": "Spellcraft",
+          "skillClassification": "magic access",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Arcana",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-1c93d5cee66779e7a16c67f1bf8e3b9fdb991d00e5ef9ee56a514ebcdbf8d9be",
+          "skillName": "Research & Analysis",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Academics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
+        },
+        {
+          "skillExternalId": "skill-edc64a34c2bf282845a5b043a728017e130228cec9c6445a5daf507b52431e69",
+          "skillName": "Tactical Planning",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Strategy",
+          "resolution": "approved-mapping",
+          "sortOrder": 2
+        },
+        {
           "skillExternalId": "skill-e43ba08557cbb4f19ed7684fe3cdbf5426fa2c145b8baced5e4fcec410c4e46c",
           "skillName": "Insight",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 2,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -5245,7 +5934,29 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 1,
+          "sourceSkillName": "Investigation",
+          "resolution": "exact-match",
           "sortOrder": 4
+        },
+        {
+          "skillExternalId": "skill-267118ff075c612d8283bb7e442abe0f5059952837958bafb7b0671ebbef3c7b",
+          "skillName": "Hovering",
+          "skillClassification": "special ability",
+          "linkType": "granted",
+          "value": 3,
+          "sourceSkillName": "Hovdering",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-b8de62960a577598b3d4b3d55155cbc1d2ce85cf5f82e3242a2c32746ee6a710",
+          "skillName": "Full Sphere Access",
+          "skillClassification": "special ability",
+          "linkType": "granted",
+          "value": 3,
+          "sourceSkillName": "Access to all Spheres",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
         },
         {
           "skillExternalId": "skill-e28654ff78b2203165d000fe9ffa936c5e5c2cd633e8bf814ab61aefbbc54dcd",
@@ -5253,6 +5964,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 3,
+          "sourceSkillName": "Direct Casting",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5261,6 +5974,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Purification/Corruption",
+          "resolution": "exact-match",
           "sortOrder": 3
         }
       ],
@@ -5335,11 +6050,33 @@
       ],
       "skillLinks": [
         {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 5,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-edc64a34c2bf282845a5b043a728017e130228cec9c6445a5daf507b52431e69",
+          "skillName": "Tactical Planning",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Strategy",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
+        },
+        {
           "skillExternalId": "skill-9e720e53885580b1e0c5866c98e04988f0b0d071037fb54621a5180ba29e72e7",
           "skillName": "Leadership",
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5348,6 +6085,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Diplomacy",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -5356,6 +6095,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon Fire",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5435,7 +6176,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
         },
         {
           "skillExternalId": "skill-c1cb74e23f5ffd0793b66266c01ba4e9f189466fb2027bc9faf5d32ee9c36ea4",
@@ -5443,7 +6196,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Diplomacy",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-a2aafcd43617e5c03f47a06e889ac6635f517942d808cd91619f4b41a95337f8",
+          "skillName": "Intimidating Presence",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Intimidation",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-661081977d5904d181a409cc57f0234fcdb1b6179a70fe0fc254790d74a2cdb5",
@@ -5451,6 +6216,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon Fire",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5530,6 +6297,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5538,6 +6307,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Stealth",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5546,6 +6317,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Survival",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5554,6 +6327,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon Acid",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5633,7 +6408,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Navigation",
+          "resolution": "exact-match",
           "sortOrder": 0
+        },
+        {
+          "skillExternalId": "skill-8b22705b4ecfcec6dc7fbd3f4b92559594adee7658b6025f769b5265a716dcd2",
+          "skillName": "Agile Movement",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 4,
+          "sourceSkillName": "Athletics",
+          "resolution": "approved-mapping",
+          "sortOrder": 1
         },
         {
           "skillExternalId": "skill-9327b46b590a1441bb4a7272b4982906f3983000365e69057b14e0c7baa5ffb7",
@@ -5641,6 +6428,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Perception",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5649,6 +6438,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Diplomacy",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -5657,6 +6448,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon Spark",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5736,6 +6529,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Diplomacy",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5744,6 +6539,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5752,7 +6549,19 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Leadership",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-edc64a34c2bf282845a5b043a728017e130228cec9c6445a5daf507b52431e69",
+          "skillName": "Tactical Planning",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Strategy",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-0ffc46b6ca107aa322e62a8f6b96117e96c63278ec174e3e1bff1dc66eea3981",
@@ -5760,6 +6569,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon Frost",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5839,6 +6650,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Diplomacy",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5847,6 +6660,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Persuasion",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5855,6 +6670,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Insight",
+          "resolution": "exact-match",
           "sortOrder": 2
         },
         {
@@ -5863,6 +6680,8 @@
           "skillClassification": "standard",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Deception",
+          "resolution": "exact-match",
           "sortOrder": 3
         },
         {
@@ -5871,6 +6690,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Dragon sleep",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],
@@ -5950,6 +6771,8 @@
           "skillClassification": "magic access",
           "linkType": "bonus",
           "value": 5,
+          "sourceSkillName": "Spellcraft",
+          "resolution": "exact-match",
           "sortOrder": 0
         },
         {
@@ -5958,6 +6781,8 @@
           "skillClassification": "magic stabalization",
           "linkType": "bonus",
           "value": 4,
+          "sourceSkillName": "Channeling",
+          "resolution": "exact-match",
           "sortOrder": 1
         },
         {
@@ -5966,7 +6791,19 @@
           "skillClassification": "magic regeneration",
           "linkType": "bonus",
           "value": 3,
+          "sourceSkillName": "Meditation",
+          "resolution": "exact-match",
           "sortOrder": 2
+        },
+        {
+          "skillExternalId": "skill-edc64a34c2bf282845a5b043a728017e130228cec9c6445a5daf507b52431e69",
+          "skillName": "Tactical Planning",
+          "skillClassification": "standard",
+          "linkType": "bonus",
+          "value": 3,
+          "sourceSkillName": "Strategy",
+          "resolution": "approved-mapping",
+          "sortOrder": 3
         },
         {
           "skillExternalId": "skill-017881543b6002105c21838d4b82c1414895025f9f92cf52ca31a5aab3e4425c",
@@ -5974,6 +6811,8 @@
           "skillClassification": "special ability",
           "linkType": "granted",
           "value": 5,
+          "sourceSkillName": "Elemental Dragon Breath",
+          "resolution": "exact-match",
           "sortOrder": 0
         }
       ],

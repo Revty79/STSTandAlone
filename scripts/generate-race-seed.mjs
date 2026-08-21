@@ -8,6 +8,7 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
 const sourcePath = path.join(projectDirectory, "data", "serrian-tide-race-sheet.json");
 const skillCatalogPath = path.join(projectDirectory, "data", "serrian-tide-skill-catalog.tsv");
+const mappingPath = path.join(projectDirectory, "data", "serrian-tide-race-skill-mappings.json");
 const seedPath = path.join(projectDirectory, "data", "serrian-tide-race-seed.json");
 const reportPath = path.join(projectDirectory, "data", "serrian-tide-race-import-report.json");
 const migrationPath = path.join(projectDirectory, "src-tauri", "migrations", "0006_seed_race_catalog.sql");
@@ -141,41 +142,134 @@ function parseSkillCatalog(source) {
   return byName;
 }
 
-function reconcileSkillLink({ raceName, sourceName, sourceValue, linkType, sourceColumn, rowNumber }, skillsByName, discrepancies) {
+function normalizedName(value) {
+  return text(value).toLocaleLowerCase("en-US");
+}
+
+function parseMappings(source) {
+  const config = JSON.parse(source);
+  if (config.schemaVersion !== 1) {
+    throw new Error(`Unsupported Race-Skill mapping schema ${JSON.stringify(config.schemaVersion)}.`);
+  }
+
+  const general = new Map();
+  const raceSpecific = new Map();
+  const mappingIds = new Set();
+  const addMapping = (entry, scope) => {
+    const sourceSkillName = text(entry.sourceSkillName);
+    const raceName = text(entry.raceName);
+    const targetSkillName = text(entry.targetSkillName);
+    const action = text(entry.action) || "map";
+    if (!sourceSkillName) throw new Error(`${scope} Race-Skill mapping has no sourceSkillName.`);
+    if (scope === "race-specific" && !raceName) {
+      throw new Error(`Race-specific mapping for ${sourceSkillName} has no raceName.`);
+    }
+    if (action !== "map" && action !== "ignore") {
+      throw new Error(`${scope} mapping for ${sourceSkillName} has unsupported action ${JSON.stringify(action)}.`);
+    }
+    if (action === "map" && !targetSkillName) {
+      throw new Error(`${scope} mapping for ${sourceSkillName} has no targetSkillName.`);
+    }
+    if (action === "ignore" && targetSkillName) {
+      throw new Error(`${scope} ignored mapping for ${sourceSkillName} must not have a targetSkillName.`);
+    }
+
+    const key = scope === "race-specific"
+      ? `${normalizedName(raceName)}\u001f${normalizedName(sourceSkillName)}`
+      : normalizedName(sourceSkillName);
+    const destination = scope === "race-specific" ? raceSpecific : general;
+    if (destination.has(key)) {
+      throw new Error(`Duplicate ${scope} mapping for ${raceName ? `${raceName} / ` : ""}${sourceSkillName}.`);
+    }
+    const id = `${scope}:${key}`;
+    mappingIds.add(id);
+    destination.set(key, {
+      id,
+      scope,
+      raceName: raceName || null,
+      sourceSkillName,
+      targetSkillName: targetSkillName || null,
+      action,
+      reason: text(entry.reason) || null,
+    });
+  };
+
+  for (const entry of config.generalMappings ?? []) addMapping(entry, "general");
+  for (const entry of config.raceSpecificMappings ?? []) addMapping(entry, "race-specific");
+  return { config, general, raceSpecific, mappingIds };
+}
+
+function findMapping(raceName, sourceSkillName, mappings) {
+  const raceSpecificKey = `${normalizedName(raceName)}\u001f${normalizedName(sourceSkillName)}`;
+  return mappings.raceSpecific.get(raceSpecificKey) ?? mappings.general.get(normalizedName(sourceSkillName)) ?? null;
+}
+
+function reconcileSkillLink(reference, skillsByName, mappings, reconciliation, usedMappingIds) {
+  const { raceName, sourceName, sourceValue, linkType, sourceColumn, rowNumber } = reference;
   const name = text(sourceName);
   if (emptyReferences.test(name)) return null;
-  const matches = skillsByName.get(name.toLocaleLowerCase("en-US")) ?? [];
+  const sourceReference = {
+    raceName,
+    linkType,
+    sourceSkillName: name,
+    sourceValue: text(sourceValue) || null,
+    sourceRow: rowNumber,
+    sourceColumn,
+  };
+  const mapping = findMapping(raceName, name, mappings);
+  if (mapping) usedMappingIds.add(mapping.id);
+  if (mapping?.action === "ignore") {
+    reconciliation.intentionallyIgnoredReferences.push({
+      ...sourceReference,
+      mappingScope: mapping.scope,
+      reason: mapping.reason ?? "Explicitly approved as no Skill link.",
+    });
+    return null;
+  }
+
+  const targetName = mapping?.targetSkillName ?? name;
+  const matches = skillsByName.get(normalizedName(targetName)) ?? [];
   if (matches.length !== 1) {
-    discrepancies.push({
-      raceName,
-      linkType,
-      sourceSkillName: name,
-      sourceValue: text(sourceValue) || null,
-      sourceRow: rowNumber,
-      sourceColumn,
-      reason: matches.length === 0 ? "No case-insensitive exact Skill name exists." : "More than one case-insensitive exact Skill name exists.",
+    reconciliation.unresolvedReferences.push({
+      ...sourceReference,
+      targetSkillName: mapping ? targetName : null,
+      reason: mapping
+        ? (matches.length === 0
+          ? "Approved mapping target does not exist as a case-insensitive exact Skill name."
+          : "Approved mapping target matches more than one case-insensitive exact Skill name.")
+        : (matches.length === 0
+          ? "No approved mapping or case-insensitive exact Skill name exists."
+          : "More than one case-insensitive exact Skill name exists."),
     });
     return null;
   }
   const match = matches[0];
   if (linkType === "granted" && match.classification.toLocaleLowerCase("en-US") !== "special ability") {
-    discrepancies.push({
-      raceName,
-      linkType,
-      sourceSkillName: name,
-      sourceValue: text(sourceValue) || null,
-      sourceRow: rowNumber,
-      sourceColumn,
-      reason: `Exact Skill is classified as ${match.classification}, not special ability.`,
+    reconciliation.unresolvedReferences.push({
+      ...sourceReference,
+      targetSkillName: match.name,
+      reason: `Resolved Skill is classified as ${match.classification}, not special ability.`,
     });
     return null;
   }
+
+  const resolvedReference = {
+    ...sourceReference,
+    targetSkillName: match.name,
+    targetSkillClassification: match.classification,
+    ...(mapping ? { mappingScope: mapping.scope } : {}),
+  };
+  if (mapping) reconciliation.approvedMappedReferences.push(resolvedReference);
+  else reconciliation.exactMatchReferences.push(resolvedReference);
+
   return {
     skillExternalId: match.sourceExternalId,
     skillName: match.name,
     skillClassification: match.classification,
     linkType,
     value: text(sourceValue) ? number(sourceValue, `${raceName} ${name} value`) : null,
+    sourceSkillName: name,
+    resolution: mapping ? "approved-mapping" : "exact-match",
   };
 }
 
@@ -189,7 +283,7 @@ function sqlRows(rows, fields) {
   return rows.map((row) => `  (${fields.map((field) => sqlValue(row[field])).join(", ")})`).join(",\n");
 }
 
-function serializeMigration(seed, sourceHash) {
+function serializeMigration(seed, sourceHash, mappingHash) {
   const races = seed.records.map((record) => ({ ordinal: record.ordinal, ...record.core }));
   const caps = seed.records.flatMap((record) => record.attributeCaps.map((cap, index) => ({
     ordinal: record.ordinal * 100 + index,
@@ -208,8 +302,8 @@ function serializeMigration(seed, sourceHash) {
   })));
   return `-- Generated by scripts/generate-race-seed.mjs.
 -- Google Sheet snapshot SHA-256: ${sourceHash}
--- Unmatched Skill references are intentionally excluded and retained in
--- data/serrian-tide-race-import-report.json for an explicit user decision.
+-- Approved Race-Skill mapping SHA-256: ${mappingHash}
+-- Reconciliation details are retained in data/serrian-tide-race-import-report.json.
 
 PRAGMA foreign_keys = ON;
 
@@ -337,9 +431,10 @@ DROP TABLE _serrian_tide_race_seed;
 `;
 }
 
-const [sourceText, skillCatalogText] = await Promise.all([
+const [sourceText, skillCatalogText, mappingText] = await Promise.all([
   readFile(sourcePath, "utf8"),
   readFile(skillCatalogPath, "utf8"),
+  readFile(mappingPath, "utf8"),
 ]);
 const snapshot = JSON.parse(sourceText);
 assertHeaders(snapshot);
@@ -348,6 +443,7 @@ const definitions = rowsByName(snapshot.tabs["Racial Definitions"], "Racial Defi
 const attributes = rowsByName(snapshot.tabs["Racial Attributes"], "Racial Attributes");
 const bonuses = rowsByName(snapshot.tabs["Racial Bonus Skills"], "Racial Bonus Skills");
 const skillsByName = parseSkillCatalog(skillCatalogText);
+const mappings = parseMappings(mappingText);
 
 if (consolidated.size !== 56) throw new Error(`Expected 56 Races; found ${consolidated.size}.`);
 for (const [key, source] of consolidated) {
@@ -367,7 +463,13 @@ for (const [key, source] of consolidated) {
   });
 }
 
-const discrepancies = [];
+const reconciliation = {
+  exactMatchReferences: [],
+  approvedMappedReferences: [],
+  intentionallyIgnoredReferences: [],
+  unresolvedReferences: [],
+};
+const usedMappingIds = new Set();
 const records = [];
 let ordinal = 0;
 for (const [key, source] of consolidated) {
@@ -391,7 +493,7 @@ for (const [key, source] of consolidated) {
       linkType: "bonus",
       sourceColumn: expectedHeaders["Racial Bonus Skills"][column],
       rowNumber: bonus.rowNumber,
-    }, skillsByName, discrepancies);
+    }, skillsByName, mappings, reconciliation, usedMappingIds);
     if (link) skillLinks.push({ ...link, sortOrder });
   }
   for (const [sortOrder, column] of grantedColumns.entries()) {
@@ -402,7 +504,7 @@ for (const [key, source] of consolidated) {
       linkType: "granted",
       sourceColumn: expectedHeaders["Racial Bonus Skills"][column],
       rowNumber: bonus.rowNumber,
-    }, skillsByName, discrepancies);
+    }, skillsByName, mappings, reconciliation, usedMappingIds);
     if (link) skillLinks.push({ ...link, sortOrder });
   }
   const duplicateLinks = new Set();
@@ -444,6 +546,7 @@ for (const [key, source] of consolidated) {
 }
 
 const sourceHash = hash(sourceText);
+const mappingHash = hash(mappingText);
 const counts = {
   races: records.length,
   attributeCaps: records.reduce((sum, record) => sum + record.attributeCaps.length, 0),
@@ -451,31 +554,65 @@ const counts = {
   bonusLinks: records.reduce((sum, record) => sum + record.skillLinks.filter(({ linkType }) => linkType === "bonus").length, 0),
   grantedLinks: records.reduce((sum, record) => sum + record.skillLinks.filter(({ linkType }) => linkType === "granted").length, 0),
 };
-if (JSON.stringify(counts) !== JSON.stringify({ races: 56, attributeCaps: 336, movementModes: 57, bonusLinks: 217, grantedLinks: 32 })) {
-  throw new Error(`Unexpected safe import counts: ${JSON.stringify(counts)}.`);
+if (JSON.stringify(counts) !== JSON.stringify({ races: 56, attributeCaps: 336, movementModes: 57, bonusLinks: 248, grantedLinks: 35 })) {
+  throw new Error(`Unexpected canonical import counts: ${JSON.stringify(counts)}.`);
 }
-if (discrepancies.length !== 35) throw new Error(`Expected 35 unresolved Skill references; found ${discrepancies.length}.`);
+if (reconciliation.exactMatchReferences.length !== 249) {
+  throw new Error(`Expected 249 exact Skill references; found ${reconciliation.exactMatchReferences.length}.`);
+}
+if (reconciliation.approvedMappedReferences.length !== 34) {
+  throw new Error(`Expected 34 approved mapped Skill references; found ${reconciliation.approvedMappedReferences.length}.`);
+}
+if (reconciliation.intentionallyIgnoredReferences.length !== 1) {
+  throw new Error(`Expected 1 intentionally ignored Skill reference; found ${reconciliation.intentionallyIgnoredReferences.length}.`);
+}
+if (reconciliation.unresolvedReferences.length !== 0) {
+  throw new Error(`Expected 0 unresolved Skill references; found ${reconciliation.unresolvedReferences.length}.`);
+}
+const unusedMappingIds = [...mappings.mappingIds].filter((id) => !usedMappingIds.has(id));
+if (unusedMappingIds.length > 0) {
+  throw new Error(`Approved Race-Skill mappings were not used: ${unusedMappingIds.join(", ")}.`);
+}
+const reconciledSourceCounts = [
+  ...reconciliation.exactMatchReferences,
+  ...reconciliation.approvedMappedReferences,
+  ...reconciliation.intentionallyIgnoredReferences,
+  ...reconciliation.unresolvedReferences,
+].reduce((result, reference) => ({
+  ...result,
+  [reference.linkType]: result[reference.linkType] + 1,
+}), { bonus: 0, granted: 0 });
+if (JSON.stringify(reconciledSourceCounts) !== JSON.stringify({ bonus: 248, granted: 36 })) {
+  throw new Error(`Unexpected source Skill reference counts: ${JSON.stringify(reconciledSourceCounts)}.`);
+}
 
-const seed = { schemaVersion: 1, sourceSystem, sourceSha256: sourceHash, counts, records };
-const groupedDiscrepancies = [...new Set(discrepancies.map(({ sourceSkillName }) => sourceSkillName))]
+const seed = { schemaVersion: 2, sourceSystem, sourceSha256: sourceHash, mappingSha256: mappingHash, counts, records };
+const groupedDiscrepancies = [...new Set(reconciliation.unresolvedReferences.map(({ sourceSkillName }) => sourceSkillName))]
   .sort((left, right) => left.localeCompare(right, "en-US"))
   .map((sourceSkillName) => ({
     sourceSkillName,
-    occurrences: discrepancies.filter((item) => item.sourceSkillName === sourceSkillName),
+    occurrences: reconciliation.unresolvedReferences.filter((item) => item.sourceSkillName === sourceSkillName),
   }));
 const report = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   sourceSystem,
   sourceSha256: sourceHash,
-  policy: "Only case-insensitive exact matches to existing Skills are linked. No Skills or aliases are created.",
+  mappingSha256: mappingHash,
+  policy: "Case-insensitive exact matches and explicit user-approved Race import mappings may link to existing canonical Skills. No Skills or global aliases are created.",
   sourceCounts: { races: 56, bonusReferences: 248, grantedReferences: 36 },
   importedCounts: counts,
-  unresolvedReferenceCount: discrepancies.length,
+  exactMatchReferenceCount: reconciliation.exactMatchReferences.length,
+  approvedMappedReferenceCount: reconciliation.approvedMappedReferences.length,
+  intentionallyIgnoredReferenceCount: reconciliation.intentionallyIgnoredReferences.length,
+  unresolvedReferenceCount: reconciliation.unresolvedReferences.length,
   unresolvedUniqueNameCount: groupedDiscrepancies.length,
+  exactMatchReferences: reconciliation.exactMatchReferences,
+  approvedMappedReferences: reconciliation.approvedMappedReferences,
+  intentionallyIgnoredReferences: reconciliation.intentionallyIgnoredReferences,
   unresolvedByName: groupedDiscrepancies,
-  unresolvedReferences: discrepancies,
+  unresolvedReferences: reconciliation.unresolvedReferences,
 };
-const migration = serializeMigration(seed, sourceHash);
+const migration = serializeMigration(seed, sourceHash, mappingHash);
 
 await Promise.all([
   mkdir(path.dirname(seedPath), { recursive: true }),
@@ -488,5 +625,5 @@ await Promise.all([
 ]);
 
 process.stdout.write(
-  `Prepared ${counts.races} Races, ${counts.attributeCaps} caps, ${counts.movementModes} movement modes, ${counts.bonusLinks} bonus links, and ${counts.grantedLinks} granted links. ${discrepancies.length} unmatched references remain in the report.${createMigration ? " Migration 0006 was created." : " Migration 0006 was not rewritten."}\n`,
+  `Prepared ${counts.races} Races, ${counts.attributeCaps} caps, ${counts.movementModes} movement modes, ${counts.bonusLinks} bonus links, and ${counts.grantedLinks} granted links. ${reconciliation.approvedMappedReferences.length} approved mappings and ${reconciliation.intentionallyIgnoredReferences.length} explicit ignore leave ${reconciliation.unresolvedReferences.length} unresolved references.${createMigration ? " Migration 0006 was created." : " Migration 0006 was not rewritten."}\n`,
 );
