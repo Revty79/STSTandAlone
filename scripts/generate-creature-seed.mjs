@@ -6,9 +6,11 @@ import { fileURLToPath } from "node:url";
 
 const projectDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const snapshotPath = path.join(projectDirectory, "data", "serrian-tide-creature-sheet.json");
+const supplementPath = path.join(projectDirectory, "data", "serrian-tide-creature-supplements.json");
 const seedPath = path.join(projectDirectory, "data", "serrian-tide-creature-seed.json");
 const reportPath = path.join(projectDirectory, "data", "serrian-tide-creature-import-report.json");
 const migrationPath = path.join(projectDirectory, "src-tauri", "migrations", "0008_seed_creature_catalog.sql");
+const supplementMigrationPath = path.join(projectDirectory, "src-tauri", "migrations", "0010_seed_cat_and_falcon.sql");
 const sizeScalePath = path.join(projectDirectory, "src", "data", "sizeScale.json");
 const skillCatalogPath = path.join(projectDirectory, "data", "serrian-tide-skill-catalog.tsv");
 const refreshSource = process.argv.includes("--refresh-source");
@@ -17,6 +19,36 @@ const createInitialMigration = process.argv.includes("--create-initial-migration
 const spreadsheetId = "1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug";
 const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 const sourceSystem = "serrian-tide-creature-canon";
+const supplementSourceSystem = "serrian-tide-locally-approved-creature-additions";
+const creatureAttributeNames = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
+const creatureMovementModes = new Set(["Burrow", "Climb", "Crawl", "Flight", "Land", "Rooted", "Swim"]);
+const anatomyProfiles = {
+  quadruped: {
+    pools: [["HEAD", "Head", 10], ["NECK", "Neck", 10], ["LFORE", "Left Foreleg", 10], ["RFORE", "Right Foreleg", 10], ["LHIND", "Left Hindleg", 15], ["RHIND", "Right Hindleg", 15], ["TORSO", "Torso", 30]],
+    hits: [
+      [0, "Head", "Head, skull, muzzle", "HEAD", "", ""], [1, "Neck", "Neck", "NECK", "", ""],
+      [2, "Left Foreleg", "Left front leg", "LFORE", "", ""], [3, "Right Foreleg", "Right front leg", "RFORE", "", ""],
+      [4, "Left Hindleg", "Left rear leg", "LHIND", "", ""], [5, "Right Hindleg", "Right rear leg", "RHIND", "", ""],
+      [6, "Torso", "Torso", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [7, "Chest", "Torso — chest", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [8, "Abdomen", "Torso — abdomen", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [9, "Hindquarters", "Torso — hindquarters", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+    ],
+  },
+  bird: {
+    pools: [["HEAD", "Head", 10], ["NECK", "Neck", 10], ["LWING", "Left Wing", 12], ["RWING", "Right Wing", 12], ["LLEG", "Left Leg", 10], ["RLEG", "Right Leg", 10], ["TORSO", "Torso", 30], ["TAIL", "Tail", 6]],
+    hits: [
+      [0, "Head", "Head and beak", "HEAD", "", ""], [1, "Neck", "Neck", "NECK", "", ""],
+      [2, "Left Wing", "Left wing", "LWING", "Disabling this location prevents normal Flight.", ""],
+      [3, "Right Wing", "Right wing", "RWING", "Disabling this location prevents normal Flight.", ""],
+      [4, "Left Leg", "Left leg and foot", "LLEG", "", ""], [5, "Right Leg", "Right leg and foot", "RLEG", "", ""],
+      [6, "Torso", "Chest and body", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [7, "Chest", "Torso — chest", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [8, "Abdomen", "Torso — abdomen", "TORSO", "", "PROPOSED FOR REVIEW — shared HP pool."],
+      [9, "Tail", "Tail feathers and tail base", "TAIL", "", ""],
+    ],
+  },
+};
 const tabDefinitions = [
   ["Creatures", 0, ["Creature ID", "Canonical Name", "Family", "Creature Type", "Size", "Challenge Rating", "Kill XP", "Description", "Typical Behavior", "Habitat / Ecology", "Notes"]],
   ["Challenge Rating Reference", 2000000002, ["CR", "Threat Band", "Attack Target % Guidance", "Damage Guidance", "Initiative Guidance", "Soak Guidance", "HP Toughness Guidance", "Kill XP", "Current Creature Example", "Example Notes"]],
@@ -148,6 +180,135 @@ function unique(rows_, field, label) {
   return values;
 }
 
+function catalogCounts(creatures, challengeReference) {
+  return {
+    creatures: creatures.length,
+    challengeRatings: challengeReference.length,
+    attributes: creatures.reduce((sum, item) => sum + item.attributes.length, 0),
+    movement: creatures.reduce((sum, item) => sum + item.movement.length, 0),
+    hpPools: creatures.reduce((sum, item) => sum + item.hpPools.length, 0),
+    hitLocations: creatures.reduce((sum, item) => sum + item.hitLocations.length, 0),
+    attacks: creatures.reduce((sum, item) => sum + item.attacks.length, 0),
+    skillLinks: creatures.reduce((sum, item) => sum + item.skillLinks.length, 0),
+    abilities: creatures.reduce((sum, item) => sum + item.abilities.length, 0),
+    defenses: creatures.reduce((sum, item) => sum + item.defenses.length, 0),
+    uses: creatures.reduce((sum, item) => sum + item.uses.length, 0),
+    variants: creatures.reduce((sum, item) => sum + item.variants.length, 0),
+    provenance: creatures.filter((item) => item.provenance).length,
+  };
+}
+
+function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
+  if (supplement.schemaVersion !== 1 || supplement.sourceSystem !== supplementSourceSystem || !Array.isArray(supplement.records)) {
+    throw new Error("The local Creature supplement does not match the supported schema.");
+  }
+  const canonicalIds = new Set(seed.creatures.map((record) => record.core.canonicalId.toLocaleLowerCase("en-US")));
+  const canonicalNames = new Set(seed.creatures.map((record) => record.core.canonicalName.toLocaleLowerCase("en-US")));
+  const hpPoolIds = new Set(seed.creatures.flatMap((record) => record.hpPools).map((row) => row.canonicalId.toLocaleLowerCase("en-US")));
+  const attackIds = new Set(seed.creatures.flatMap((record) => record.attacks).map((row) => row.canonicalId.toLocaleLowerCase("en-US")));
+  const counters = {
+    attributes: seed.counts.attributes,
+    movement: seed.counts.movement,
+    hpPools: seed.counts.hpPools,
+    hitLocations: seed.counts.hitLocations,
+    attacks: seed.counts.attacks,
+    uses: seed.counts.uses,
+  };
+  const nextOrder = (key) => counters[key]++;
+
+  const supplementalRecords = supplement.records.map((definition, recordIndex) => {
+    const core = definition.core ?? {};
+    const canonicalId = text(core.canonicalId);
+    const canonicalName = text(core.canonicalName);
+    if (!canonicalId || canonicalIds.has(canonicalId.toLocaleLowerCase("en-US"))) throw new Error(`Creature supplement repeats or omits canonical ID ${JSON.stringify(canonicalId)}.`);
+    if (!canonicalName || canonicalNames.has(canonicalName.toLocaleLowerCase("en-US"))) throw new Error(`Creature supplement repeats or omits canonical name ${JSON.stringify(canonicalName)}.`);
+    canonicalIds.add(canonicalId.toLocaleLowerCase("en-US"));
+    canonicalNames.add(canonicalName.toLocaleLowerCase("en-US"));
+    if (!canonicalSizes.has(core.size)) throw new Error(`${canonicalId} uses non-canonical Size ${JSON.stringify(core.size)}.`);
+    const challengeRating = number(core.challengeRating, `${canonicalId} Challenge Rating`, { integer: true, optional: false });
+    const killXp = number(core.killXp, `${canonicalId} Kill XP`, { integer: true, optional: false });
+    if (challengeRating < 1 || challengeRating > 50) throw new Error(`${canonicalId} Challenge Rating must be 1 through 50.`);
+    if (killXp < 0) throw new Error(`${canonicalId} Kill XP cannot be negative.`);
+
+    const attributeKeys = Object.keys(definition.attributes ?? {});
+    if (attributeKeys.length !== creatureAttributeNames.length || creatureAttributeNames.some((key) => !attributeKeys.includes(key))) {
+      throw new Error(`${canonicalId} must define exactly the six canonical Attributes.`);
+    }
+    const attributes = creatureAttributeNames.map((attributeKey) => ({
+      variantCanonicalId: null,
+      attributeKey,
+      value: number(definition.attributes[attributeKey], `${canonicalId} ${attributeKey}`, { optional: false }),
+      notes: attributeKey === "Strength" ? "PROPOSED FOR REVIEW — base/pre-Size Attribute value." : "",
+      sortOrder: nextOrder("attributes"),
+    }));
+
+    const movement = (definition.movement ?? []).map((row) => {
+      if (!creatureMovementModes.has(row.movementMode)) throw new Error(`${canonicalId} uses unsupported movement mode ${JSON.stringify(row.movementMode)}.`);
+      return {
+        variantCanonicalId: null,
+        movementMode: row.movementMode,
+        movementValue: number(row.movementValue, `${canonicalId} ${row.movementMode} Movement`, { optional: false }),
+        initiative: number(row.initiative, `${canonicalId} ${row.movementMode} Initiative`, { optional: false }),
+        requirements: text(row.requirements), notes: text(row.notes), sortOrder: nextOrder("movement"),
+      };
+    });
+    if (!movement.length) throw new Error(`${canonicalId} must define at least one movement mode.`);
+
+    const profile = anatomyProfiles[definition.anatomyProfile];
+    if (!profile) throw new Error(`${canonicalId} uses unsupported anatomy profile ${JSON.stringify(definition.anatomyProfile)}.`);
+    const idStem = canonicalId.replace(/^CR-/u, "");
+    const hpPools = profile.pools.map(([suffix, poolName, hpPercentage]) => {
+      const poolId = `HP-${idStem}-${suffix}`;
+      if (hpPoolIds.has(poolId.toLocaleLowerCase("en-US"))) throw new Error(`Creature supplement repeats HP Pool ID ${JSON.stringify(poolId)}.`);
+      hpPoolIds.add(poolId.toLocaleLowerCase("en-US"));
+      return { canonicalId: poolId, variantCanonicalId: null, poolName, hpPercentage, notes: "", sortOrder: nextOrder("hpPools") };
+    });
+    if (hpPools.reduce((sum, row) => sum + row.hpPercentage, 0) !== 100) throw new Error(`${canonicalId} HP Pools must total 100%.`);
+    const hitLocations = profile.hits.map(([hitLocationNumber, locationName, bodyPartsIncluded, poolSuffix, locationEffect, notes]) => ({
+      variantCanonicalId: null, hitLocationNumber, locationName, bodyPartsIncluded,
+      hpPoolCanonicalId: `HP-${idStem}-${poolSuffix}`, naturalArmor: 0, soak: 0,
+      locationEffect, notes, sortOrder: nextOrder("hitLocations"),
+    }));
+    if (hitLocations.length !== 10 || hitLocations.some((row, index) => row.hitLocationNumber !== index)) {
+      throw new Error(`${canonicalId} anatomy profile must map each result from 0 through 9 exactly once.`);
+    }
+
+    const attacks = (definition.attacks ?? []).map((row) => {
+      const attackId = text(row.canonicalId);
+      if (!attackId || attackIds.has(attackId.toLocaleLowerCase("en-US"))) throw new Error(`Creature supplement repeats or omits Attack ID ${JSON.stringify(attackId)}.`);
+      attackIds.add(attackId.toLocaleLowerCase("en-US"));
+      return {
+        canonicalId: attackId, variantCanonicalId: null, attackName: text(row.attackName),
+        attackPercentage: number(row.attackPercentage, `${attackId} Attack %`, { optional: false }), damage: optionalText(row.damage),
+        damageType: text(row.damageType), rangeReach: text(row.rangeReach), requiredAnatomy: text(row.requiredAnatomy),
+        requirements: text(row.requirements), usesRecharge: text(row.usesRecharge), specialEffect: text(row.specialEffect),
+        notes: text(row.notes), sortOrder: nextOrder("attacks"),
+      };
+    });
+    const uses = (definition.uses ?? []).map((row) => {
+      const sortOrder = nextOrder("uses");
+      const useName = text(row.useName);
+      if (!useName) throw new Error(`${canonicalId} has a blank Creature Use.`);
+      return {
+        seedIdentity: `use-${hash(`${canonicalId}\u0000\u0000${sortOrder}`)}`,
+        variantCanonicalId: null, useName, notes: text(row.notes), sortOrder,
+      };
+    });
+
+    return {
+      sortOrder: seed.creatures.length + recordIndex,
+      core: {
+        canonicalId, canonicalName, family: text(core.family), creatureType: text(core.creatureType), size: core.size,
+        challengeRating, killXp, description: text(core.description), typicalBehavior: text(core.typicalBehavior),
+        habitatEcology: text(core.habitatEcology), notes: text(core.notes),
+      },
+      attributes, movement, hpPools, hitLocations, attacks, skillLinks: [], abilities: [], defenses: [], uses, variants: [], provenance: null,
+    };
+  });
+  const creatures = [...seed.creatures, ...supplementalRecords];
+  return { seed: { ...seed, creatures, counts: catalogCounts(creatures, seed.challengeReference) }, supplementalRecords };
+}
+
 function parseSkillCatalog(source) {
   const names = new Map();
   const lines = source.replace(/^\uFEFF/u, "").replace(/\r\n?/gu, "\n").trimEnd().split("\n");
@@ -225,7 +386,7 @@ function buildSeed(snapshot, canonicalSizes, skills) {
     return grouped;
   };
   const grouped = Object.fromEntries(childTabs.map((name) => [name, group(name)]));
-  const attributeNames = new Set(["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"]);
+  const attributeNames = new Set(creatureAttributeNames);
 
   const creatures = source.Creatures.map((coreRow, creatureSortOrder) => {
     const canonicalId = text(coreRow["Creature ID"]);
@@ -314,21 +475,7 @@ function buildSeed(snapshot, canonicalSizes, skills) {
     };
   });
 
-  const counts = {
-    creatures: creatures.length,
-    challengeRatings: challengeReference.length,
-    attributes: creatures.reduce((sum, item) => sum + item.attributes.length, 0),
-    movement: creatures.reduce((sum, item) => sum + item.movement.length, 0),
-    hpPools: creatures.reduce((sum, item) => sum + item.hpPools.length, 0),
-    hitLocations: creatures.reduce((sum, item) => sum + item.hitLocations.length, 0),
-    attacks: creatures.reduce((sum, item) => sum + item.attacks.length, 0),
-    skillLinks: creatures.reduce((sum, item) => sum + item.skillLinks.length, 0),
-    abilities: creatures.reduce((sum, item) => sum + item.abilities.length, 0),
-    defenses: creatures.reduce((sum, item) => sum + item.defenses.length, 0),
-    uses: creatures.reduce((sum, item) => sum + item.uses.length, 0),
-    variants: creatures.reduce((sum, item) => sum + item.variants.length, 0),
-    provenance: creatures.filter((item) => item.provenance).length,
-  };
+  const counts = catalogCounts(creatures, challengeReference);
   return { schemaVersion: 1, sourceSystem, spreadsheetId, spreadsheetUrl, counts, challengeReference, creatures };
 }
 
@@ -350,12 +497,12 @@ function variantId(canonicalId) {
   return canonicalId === null ? "NULL" : `(SELECT id FROM creature_variants WHERE canonical_id = ${sql(canonicalId)} COLLATE NOCASE)`;
 }
 
-function serializeMigration(seed, sourceSha256, sizeScaleSha256) {
+function serializeMigration(seed, sourceSha256, sizeScaleSha256, { sourceLabel = "Creature workbook snapshot", warning = "Do not hand-edit; refresh the repository snapshot deliberately, review the report, and regenerate." } = {}) {
   const statements = [
     "-- Generated by scripts/generate-creature-seed.mjs.",
-    `-- Creature workbook snapshot SHA-256: ${sourceSha256}`,
+    `-- ${sourceLabel} SHA-256: ${sourceSha256}`,
     `-- Shared Size scale SHA-256: ${sizeScaleSha256}`,
-    "-- Do not hand-edit; refresh the repository snapshot deliberately, review the report, and regenerate.",
+    `-- ${warning}`,
     "",
     "PRAGMA foreign_keys = ON;",
     "",
@@ -392,12 +539,14 @@ function serializeMigration(seed, sourceSha256, sizeScaleSha256) {
     for (const row of record.defenses) statements.push(`INSERT OR IGNORE INTO creature_defenses (seed_identity, creature_id, variant_id, defense_type, against, value, notes, sort_order) VALUES (${sql(row.seedIdentity)}, ${cid}, ${variantId(row.variantCanonicalId)}, ${sql(row.defenseType)}, ${sql(row.against)}, ${sql(row.value)}, ${sql(row.notes)}, ${row.sortOrder});`);
     for (const row of record.uses) statements.push(`INSERT OR IGNORE INTO creature_uses (seed_identity, creature_id, variant_id, use_name, notes, sort_order) VALUES (${sql(row.seedIdentity)}, ${cid}, ${variantId(row.variantCanonicalId)}, ${sql(row.useName)}, ${sql(row.notes)}, ${row.sortOrder});`);
     const row = record.provenance;
-    statements.push(`INSERT OR IGNORE INTO creature_ip_provenance (creature_id, canonical_name, basis_category, source_tradition, copyright_ip_note, review_status) VALUES (${cid}, ${sql(row.canonicalName)}, ${sql(row.basisCategory)}, ${sql(row.sourceTradition)}, ${sql(row.copyrightIpNote)}, ${sql(row.reviewStatus)});`);
+    if (row) statements.push(`INSERT OR IGNORE INTO creature_ip_provenance (creature_id, canonical_name, basis_category, source_tradition, copyright_ip_note, review_status) VALUES (${cid}, ${sql(row.canonicalName)}, ${sql(row.basisCategory)}, ${sql(row.sourceTradition)}, ${sql(row.copyrightIpNote)}, ${sql(row.reviewStatus)});`);
   }
   return `${statements.join("\n")}\n`;
 }
 
-const [sizeScaleText, skillCatalogText] = await Promise.all([readFile(sizeScalePath, "utf8"), readFile(skillCatalogPath, "utf8")]);
+const [sizeScaleText, skillCatalogText, supplementText] = await Promise.all([
+  readFile(sizeScalePath, "utf8"), readFile(skillCatalogPath, "utf8"), readFile(supplementPath, "utf8"),
+]);
 const sizeScale = JSON.parse(sizeScaleText);
 const orderedSizes = Object.entries(sizeScale).sort((left, right) => left[1] - right[1]);
 if (orderedSizes.some(([, order], index) => order !== index)) throw new Error("The shared Size scale must be consecutively ordered from zero.");
@@ -405,18 +554,25 @@ const canonicalSizes = new Set(orderedSizes.map(([name]) => name));
 const snapshot = refreshSource ? await fetchSnapshot() : JSON.parse(await readFile(snapshotPath, "utf8"));
 const snapshotText = `${JSON.stringify(snapshot, null, 2)}\n`;
 const sourceSha256 = hash(snapshotText);
+const supplement = JSON.parse(supplementText);
+const supplementSha256 = hash(`${JSON.stringify(supplement, null, 2)}\n`);
 const sizeScaleSha256 = hash(sizeScaleText);
-const seed = buildSeed(snapshot, canonicalSizes, parseSkillCatalog(skillCatalogText));
+const baseSeed = buildSeed(snapshot, canonicalSizes, parseSkillCatalog(skillCatalogText));
+const { seed, supplementalRecords } = appendSupplementalCreatures(baseSeed, supplement, canonicalSizes);
 seed.sourceSha256 = sourceSha256;
+seed.supplementSha256 = supplementSha256;
 seed.sizeScaleSha256 = sizeScaleSha256;
 
-const everyRecord = seed.creatures.flatMap((record) => [record.core, ...record.attributes, ...record.movement, ...record.hpPools, ...record.hitLocations, ...record.attacks, ...record.skillLinks, ...record.abilities, ...record.defenses, ...record.uses, ...record.variants, record.provenance]);
+const everyRecord = seed.creatures.flatMap((record) => [record.core, ...record.attributes, ...record.movement, ...record.hpPools, ...record.hitLocations, ...record.attacks, ...record.skillLinks, ...record.abilities, ...record.defenses, ...record.uses, ...record.variants, record.provenance]).filter(Boolean);
 const report = {
   schemaVersion: 1,
   sourceSystem,
   spreadsheetId,
   spreadsheetUrl,
+  supplementSourceSystem,
+  supplementFile: "data/serrian-tide-creature-supplements.json",
   sourceSha256,
+  supplementSha256,
   sizeScaleSha256,
   counts: seed.counts,
   validation: {
@@ -441,6 +597,15 @@ await Promise.all([
   ...(refreshSource ? [writeFile(snapshotPath, snapshotText, "utf8")] : []),
   writeFile(seedPath, `${JSON.stringify(seed, null, 2)}\n`, "utf8"),
   writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8"),
+  writeFile(supplementMigrationPath, serializeMigration(
+    { challengeReference: [], creatures: supplementalRecords },
+    supplementSha256,
+    sizeScaleSha256,
+    {
+      sourceLabel: "Approved Creature supplement",
+      warning: "Do not hand-edit; update data/serrian-tide-creature-supplements.json and regenerate.",
+    },
+  ), "utf8"),
   ...(createInitialMigration
     ? [writeFile(migrationPath, serializeMigration(seed, sourceSha256, sizeScaleSha256), "utf8")]
     : []),

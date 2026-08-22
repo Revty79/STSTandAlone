@@ -4,17 +4,17 @@
   "spreadsheetId": "1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug",
   "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug/edit",
   "counts": {
-    "creatures": 85,
+    "creatures": 87,
     "challengeRatings": 50,
-    "attributes": 510,
-    "movement": 124,
-    "hpPools": 528,
-    "hitLocations": 800,
-    "attacks": 158,
+    "attributes": 522,
+    "movement": 128,
+    "hpPools": 543,
+    "hitLocations": 820,
+    "attacks": 162,
     "skillLinks": 0,
     "abilities": 45,
     "defenses": 23,
-    "uses": 27,
+    "uses": 29,
     "variants": 3,
     "provenance": 85
   },
@@ -25807,8 +25807,629 @@
         "copyrightIpNote": "Original/generic Serrian Tide creature archetype. Keep name, description, artwork, and mechanics independently authored.",
         "reviewStatus": "Conservative draft"
       }
+    },
+    {
+      "sortOrder": 85,
+      "core": {
+        "canonicalId": "CR-CAT",
+        "canonicalName": "Cat",
+        "family": "Feline",
+        "creatureType": "Animal",
+        "size": "Tiny",
+        "challengeRating": 2,
+        "killXp": 1,
+        "description": "Small domesticated feline valued as a companion and vermin hunter, with quick reflexes and excellent balance.",
+        "typicalBehavior": "Alert, independent, and curious; stalks small prey from concealment and avoids prolonged fights with larger threats.",
+        "habitatEcology": "Settlements, farms, ships, ruins, and feral colonies wherever food and shelter are available.",
+        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide animal conventions."
+      },
+      "attributes": [
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Strength",
+          "value": 15,
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size Attribute value.",
+          "sortOrder": 510
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Dexterity",
+          "value": 45,
+          "notes": "",
+          "sortOrder": 511
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Constitution",
+          "value": 20,
+          "notes": "",
+          "sortOrder": 512
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Intelligence",
+          "value": 10,
+          "notes": "",
+          "sortOrder": 513
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Wisdom",
+          "value": 40,
+          "notes": "",
+          "sortOrder": 514
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Charisma",
+          "value": 20,
+          "notes": "",
+          "sortOrder": 515
+        }
+      ],
+      "movement": [
+        {
+          "variantCanonicalId": null,
+          "movementMode": "Land",
+          "movementValue": 5,
+          "initiative": 50,
+          "requirements": "",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement.",
+          "sortOrder": 124
+        },
+        {
+          "variantCanonicalId": null,
+          "movementMode": "Climb",
+          "movementValue": 4,
+          "initiative": 40,
+          "requirements": "Suitable surface",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement.",
+          "sortOrder": 125
+        }
+      ],
+      "hpPools": [
+        {
+          "canonicalId": "HP-CAT-HEAD",
+          "variantCanonicalId": null,
+          "poolName": "Head",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 528
+        },
+        {
+          "canonicalId": "HP-CAT-NECK",
+          "variantCanonicalId": null,
+          "poolName": "Neck",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 529
+        },
+        {
+          "canonicalId": "HP-CAT-LFORE",
+          "variantCanonicalId": null,
+          "poolName": "Left Foreleg",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 530
+        },
+        {
+          "canonicalId": "HP-CAT-RFORE",
+          "variantCanonicalId": null,
+          "poolName": "Right Foreleg",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 531
+        },
+        {
+          "canonicalId": "HP-CAT-LHIND",
+          "variantCanonicalId": null,
+          "poolName": "Left Hindleg",
+          "hpPercentage": 15,
+          "notes": "",
+          "sortOrder": 532
+        },
+        {
+          "canonicalId": "HP-CAT-RHIND",
+          "variantCanonicalId": null,
+          "poolName": "Right Hindleg",
+          "hpPercentage": 15,
+          "notes": "",
+          "sortOrder": 533
+        },
+        {
+          "canonicalId": "HP-CAT-TORSO",
+          "variantCanonicalId": null,
+          "poolName": "Torso",
+          "hpPercentage": 30,
+          "notes": "",
+          "sortOrder": 534
+        }
+      ],
+      "hitLocations": [
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 0,
+          "locationName": "Head",
+          "bodyPartsIncluded": "Head, skull, muzzle",
+          "hpPoolCanonicalId": "HP-CAT-HEAD",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 800
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 1,
+          "locationName": "Neck",
+          "bodyPartsIncluded": "Neck",
+          "hpPoolCanonicalId": "HP-CAT-NECK",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 801
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 2,
+          "locationName": "Left Foreleg",
+          "bodyPartsIncluded": "Left front leg",
+          "hpPoolCanonicalId": "HP-CAT-LFORE",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 802
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 3,
+          "locationName": "Right Foreleg",
+          "bodyPartsIncluded": "Right front leg",
+          "hpPoolCanonicalId": "HP-CAT-RFORE",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 803
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 4,
+          "locationName": "Left Hindleg",
+          "bodyPartsIncluded": "Left rear leg",
+          "hpPoolCanonicalId": "HP-CAT-LHIND",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 804
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 5,
+          "locationName": "Right Hindleg",
+          "bodyPartsIncluded": "Right rear leg",
+          "hpPoolCanonicalId": "HP-CAT-RHIND",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 805
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 6,
+          "locationName": "Torso",
+          "bodyPartsIncluded": "Torso",
+          "hpPoolCanonicalId": "HP-CAT-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 806
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 7,
+          "locationName": "Chest",
+          "bodyPartsIncluded": "Torso — chest",
+          "hpPoolCanonicalId": "HP-CAT-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 807
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 8,
+          "locationName": "Abdomen",
+          "bodyPartsIncluded": "Torso — abdomen",
+          "hpPoolCanonicalId": "HP-CAT-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 808
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 9,
+          "locationName": "Hindquarters",
+          "bodyPartsIncluded": "Torso — hindquarters",
+          "hpPoolCanonicalId": "HP-CAT-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 809
+        }
+      ],
+      "attacks": [
+        {
+          "canonicalId": "ATK-CAT-BITE",
+          "variantCanonicalId": null,
+          "attackName": "Bite",
+          "attackPercentage": 90,
+          "damage": "1",
+          "damageType": "Piercing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Head / jaws",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance.",
+          "sortOrder": 158
+        },
+        {
+          "canonicalId": "ATK-CAT-CLAW",
+          "variantCanonicalId": null,
+          "attackName": "Claw",
+          "attackPercentage": 92,
+          "damage": "1",
+          "damageType": "Slashing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Forelimbs",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance.",
+          "sortOrder": 159
+        }
+      ],
+      "skillLinks": [],
+      "abilities": [],
+      "defenses": [],
+      "uses": [
+        {
+          "seedIdentity": "use-62079323eeee118bb223f13d4b8605fff2ff1d187703598f373c073913a714ce",
+          "variantCanonicalId": null,
+          "useName": "Companion",
+          "notes": "This characteristic does not make the Creature automatically purchasable.",
+          "sortOrder": 27
+        }
+      ],
+      "variants": [],
+      "provenance": null
+    },
+    {
+      "sortOrder": 86,
+      "core": {
+        "canonicalId": "CR-FALCON",
+        "canonicalName": "Falcon",
+        "family": "Raptor",
+        "creatureType": "Animal",
+        "size": "Small",
+        "challengeRating": 4,
+        "killXp": 1,
+        "description": "Swift bird of prey with keen distance vision, hooked talons, and exceptional speed in open flight.",
+        "typicalBehavior": "Hunts from altitude or a high perch, committing to rapid diving strikes before climbing away from danger.",
+        "habitatEcology": "Cliffs, grasslands, coasts, open woodland, farmland, and tall structures that provide nesting and hunting vantage points.",
+        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide raptor conventions."
+      },
+      "attributes": [
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Strength",
+          "value": 25,
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size Attribute value.",
+          "sortOrder": 516
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Dexterity",
+          "value": 45,
+          "notes": "",
+          "sortOrder": 517
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Constitution",
+          "value": 25,
+          "notes": "",
+          "sortOrder": 518
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Intelligence",
+          "value": 10,
+          "notes": "",
+          "sortOrder": 519
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Wisdom",
+          "value": 35,
+          "notes": "",
+          "sortOrder": 520
+        },
+        {
+          "variantCanonicalId": null,
+          "attributeKey": "Charisma",
+          "value": 10,
+          "notes": "",
+          "sortOrder": 521
+        }
+      ],
+      "movement": [
+        {
+          "variantCanonicalId": null,
+          "movementMode": "Land",
+          "movementValue": 2,
+          "initiative": 20,
+          "requirements": "",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement.",
+          "sortOrder": 126
+        },
+        {
+          "variantCanonicalId": null,
+          "movementMode": "Flight",
+          "movementValue": 9,
+          "initiative": 90,
+          "requirements": "Functional wings",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement.",
+          "sortOrder": 127
+        }
+      ],
+      "hpPools": [
+        {
+          "canonicalId": "HP-FALCON-HEAD",
+          "variantCanonicalId": null,
+          "poolName": "Head",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 535
+        },
+        {
+          "canonicalId": "HP-FALCON-NECK",
+          "variantCanonicalId": null,
+          "poolName": "Neck",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 536
+        },
+        {
+          "canonicalId": "HP-FALCON-LWING",
+          "variantCanonicalId": null,
+          "poolName": "Left Wing",
+          "hpPercentage": 12,
+          "notes": "",
+          "sortOrder": 537
+        },
+        {
+          "canonicalId": "HP-FALCON-RWING",
+          "variantCanonicalId": null,
+          "poolName": "Right Wing",
+          "hpPercentage": 12,
+          "notes": "",
+          "sortOrder": 538
+        },
+        {
+          "canonicalId": "HP-FALCON-LLEG",
+          "variantCanonicalId": null,
+          "poolName": "Left Leg",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 539
+        },
+        {
+          "canonicalId": "HP-FALCON-RLEG",
+          "variantCanonicalId": null,
+          "poolName": "Right Leg",
+          "hpPercentage": 10,
+          "notes": "",
+          "sortOrder": 540
+        },
+        {
+          "canonicalId": "HP-FALCON-TORSO",
+          "variantCanonicalId": null,
+          "poolName": "Torso",
+          "hpPercentage": 30,
+          "notes": "",
+          "sortOrder": 541
+        },
+        {
+          "canonicalId": "HP-FALCON-TAIL",
+          "variantCanonicalId": null,
+          "poolName": "Tail",
+          "hpPercentage": 6,
+          "notes": "",
+          "sortOrder": 542
+        }
+      ],
+      "hitLocations": [
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 0,
+          "locationName": "Head",
+          "bodyPartsIncluded": "Head and beak",
+          "hpPoolCanonicalId": "HP-FALCON-HEAD",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 810
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 1,
+          "locationName": "Neck",
+          "bodyPartsIncluded": "Neck",
+          "hpPoolCanonicalId": "HP-FALCON-NECK",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 811
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 2,
+          "locationName": "Left Wing",
+          "bodyPartsIncluded": "Left wing",
+          "hpPoolCanonicalId": "HP-FALCON-LWING",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "Disabling this location prevents normal Flight.",
+          "notes": "",
+          "sortOrder": 812
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 3,
+          "locationName": "Right Wing",
+          "bodyPartsIncluded": "Right wing",
+          "hpPoolCanonicalId": "HP-FALCON-RWING",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "Disabling this location prevents normal Flight.",
+          "notes": "",
+          "sortOrder": 813
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 4,
+          "locationName": "Left Leg",
+          "bodyPartsIncluded": "Left leg and foot",
+          "hpPoolCanonicalId": "HP-FALCON-LLEG",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 814
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 5,
+          "locationName": "Right Leg",
+          "bodyPartsIncluded": "Right leg and foot",
+          "hpPoolCanonicalId": "HP-FALCON-RLEG",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 815
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 6,
+          "locationName": "Torso",
+          "bodyPartsIncluded": "Chest and body",
+          "hpPoolCanonicalId": "HP-FALCON-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 816
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 7,
+          "locationName": "Chest",
+          "bodyPartsIncluded": "Torso — chest",
+          "hpPoolCanonicalId": "HP-FALCON-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 817
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 8,
+          "locationName": "Abdomen",
+          "bodyPartsIncluded": "Torso — abdomen",
+          "hpPoolCanonicalId": "HP-FALCON-TORSO",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "PROPOSED FOR REVIEW — shared HP pool.",
+          "sortOrder": 818
+        },
+        {
+          "variantCanonicalId": null,
+          "hitLocationNumber": 9,
+          "locationName": "Tail",
+          "bodyPartsIncluded": "Tail feathers and tail base",
+          "hpPoolCanonicalId": "HP-FALCON-TAIL",
+          "naturalArmor": 0,
+          "soak": 0,
+          "locationEffect": "",
+          "notes": "",
+          "sortOrder": 819
+        }
+      ],
+      "attacks": [
+        {
+          "canonicalId": "ATK-FALCON-TALONS",
+          "variantCanonicalId": null,
+          "attackName": "Talons",
+          "attackPercentage": 85,
+          "damage": "2",
+          "damageType": "Slashing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Feet / talons",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance.",
+          "sortOrder": 160
+        },
+        {
+          "canonicalId": "ATK-FALCON-BEAK",
+          "variantCanonicalId": null,
+          "attackName": "Beak",
+          "attackPercentage": 93,
+          "damage": "1",
+          "damageType": "Piercing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Head / beak",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance.",
+          "sortOrder": 161
+        }
+      ],
+      "skillLinks": [],
+      "abilities": [],
+      "defenses": [],
+      "uses": [
+        {
+          "seedIdentity": "use-6d89527bdff866d1bbc79502276f7e2fca23f38aa1f016be1cf31209e0d49572",
+          "variantCanonicalId": null,
+          "useName": "Companion",
+          "notes": "This characteristic does not make the Creature automatically purchasable.",
+          "sortOrder": 28
+        }
+      ],
+      "variants": [],
+      "provenance": null
     }
   ],
   "sourceSha256": "35641213fd4a884a937b9a144c1d82f86000b00751c3ba5b44950b89409e3043",
+  "supplementSha256": "7af01c82110a4dfda3d10d3618e40c37ed4bc319c0184507f82adcf5cf018f5e",
   "sizeScaleSha256": "bd8859b1036f8aa556be9ac4690d77b68297a6a31da8e2c532487de4b625695f"
 }

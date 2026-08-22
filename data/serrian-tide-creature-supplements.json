@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "sourceSystem": "serrian-tide-locally-approved-creature-additions",
+  "records": [
+    {
+      "core": {
+        "canonicalId": "CR-CAT",
+        "canonicalName": "Cat",
+        "family": "Feline",
+        "creatureType": "Animal",
+        "size": "Tiny",
+        "challengeRating": 2,
+        "killXp": 1,
+        "description": "Small domesticated feline valued as a companion and vermin hunter, with quick reflexes and excellent balance.",
+        "typicalBehavior": "Alert, independent, and curious; stalks small prey from concealment and avoids prolonged fights with larger threats.",
+        "habitatEcology": "Settlements, farms, ships, ruins, and feral colonies wherever food and shelter are available.",
+        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide animal conventions."
+      },
+      "attributes": {
+        "Strength": 15,
+        "Dexterity": 45,
+        "Constitution": 20,
+        "Intelligence": 10,
+        "Wisdom": 40,
+        "Charisma": 20
+      },
+      "movement": [
+        {
+          "movementMode": "Land",
+          "movementValue": 5,
+          "initiative": 50,
+          "requirements": "",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+        },
+        {
+          "movementMode": "Climb",
+          "movementValue": 4,
+          "initiative": 40,
+          "requirements": "Suitable surface",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+        }
+      ],
+      "anatomyProfile": "quadruped",
+      "attacks": [
+        {
+          "canonicalId": "ATK-CAT-BITE",
+          "attackName": "Bite",
+          "attackPercentage": 90,
+          "damage": "1",
+          "damageType": "Piercing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Head / jaws",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+        },
+        {
+          "canonicalId": "ATK-CAT-CLAW",
+          "attackName": "Claw",
+          "attackPercentage": 92,
+          "damage": "1",
+          "damageType": "Slashing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Forelimbs",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+        }
+      ],
+      "uses": [
+        {
+          "useName": "Companion",
+          "notes": "This characteristic does not make the Creature automatically purchasable."
+        }
+      ]
+    },
+    {
+      "core": {
+        "canonicalId": "CR-FALCON",
+        "canonicalName": "Falcon",
+        "family": "Raptor",
+        "creatureType": "Animal",
+        "size": "Small",
+        "challengeRating": 4,
+        "killXp": 1,
+        "description": "Swift bird of prey with keen distance vision, hooked talons, and exceptional speed in open flight.",
+        "typicalBehavior": "Hunts from altitude or a high perch, committing to rapid diving strikes before climbing away from danger.",
+        "habitatEcology": "Cliffs, grasslands, coasts, open woodland, farmland, and tall structures that provide nesting and hunting vantage points.",
+        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide raptor conventions."
+      },
+      "attributes": {
+        "Strength": 25,
+        "Dexterity": 45,
+        "Constitution": 25,
+        "Intelligence": 10,
+        "Wisdom": 35,
+        "Charisma": 10
+      },
+      "movement": [
+        {
+          "movementMode": "Land",
+          "movementValue": 2,
+          "initiative": 20,
+          "requirements": "",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+        },
+        {
+          "movementMode": "Flight",
+          "movementValue": 9,
+          "initiative": 90,
+          "requirements": "Functional wings",
+          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+        }
+      ],
+      "anatomyProfile": "bird",
+      "attacks": [
+        {
+          "canonicalId": "ATK-FALCON-TALONS",
+          "attackName": "Talons",
+          "attackPercentage": 85,
+          "damage": "2",
+          "damageType": "Slashing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Feet / talons",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+        },
+        {
+          "canonicalId": "ATK-FALCON-BEAK",
+          "attackName": "Beak",
+          "attackPercentage": 93,
+          "damage": "1",
+          "damageType": "Piercing",
+          "rangeReach": "Short",
+          "requiredAnatomy": "Head / beak",
+          "requirements": "",
+          "usesRecharge": "",
+          "specialEffect": "",
+          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+        }
+      ],
+      "uses": [
+        {
+          "useName": "Companion",
+          "notes": "This characteristic does not make the Creature automatically purchasable."
+        }
+      ]
+    }
+  ]
+}
