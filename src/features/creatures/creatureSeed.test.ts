@@ -21,7 +21,7 @@ const seed = seedJson as unknown as {
     provenance: { canonicalName: string } | null;
   }>;
 };
-const report = reportJson as unknown as { validation: Record<string, number>; nullZeroAudit: Record<string, { null?: number; zero?: number }>; proposedForReviewRecordCount: number };
+const report = reportJson as unknown as { validation: Record<string, number>; nullZeroAudit: Record<string, { null?: number; zero?: number }>; reviewMarkerCount: number };
 
 describe("canonical Creature seed", () => {
   it("preserves the complete normalized starter catalog and CR reference", () => {
@@ -44,15 +44,15 @@ describe("canonical Creature seed", () => {
     expect(horse?.hitLocations.every((row) => row.hitLocationNumber >= 0 && row.hitLocationNumber <= 9)).toBe(true);
   });
 
-  it("preserves blank numbers separately from explicit zero and keeps review notes", () => {
+  it("preserves blank numbers separately from explicit zero and removes review-marker notes", () => {
     expect(report.nullZeroAudit.naturalArmor).toEqual({ null: 30, zero: 520 });
     expect(report.nullZeroAudit.soak).toEqual({ null: 30, zero: 610 });
     expect(report.nullZeroAudit.movementValue).toEqual({ null: 0, zero: 1 });
     expect(report.nullZeroAudit.attackDamage).toEqual({ null: 13 });
-    expect(report.proposedForReviewRecordCount).toBeGreaterThan(0);
+    expect(report.reviewMarkerCount).toBe(0);
     const airNeedleEquivalent = seed.creatures.flatMap((row) => row.attacks).find((row) => row.damage === null);
     expect(airNeedleEquivalent?.damage).toBeNull();
-    expect(seed.creatures.some((row) => row.core.notes.includes("PROPOSED FOR REVIEW"))).toBe(true);
+    expect(JSON.stringify(seed)).not.toMatch(/proposed for review/i);
   });
 
   it("uses blank Variant IDs as base data and nullable override inheritance", () => {

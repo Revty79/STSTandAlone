@@ -14,7 +14,7 @@
         "description": "Small domesticated feline valued as a companion and vermin hunter, with quick reflexes and excellent balance.",
         "typicalBehavior": "Alert, independent, and curious; stalks small prey from concealment and avoids prolonged fights with larger threats.",
         "habitatEcology": "Settlements, farms, ships, ruins, and feral colonies wherever food and shelter are available.",
-        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide animal conventions."
+        "notes": ""
       },
       "attributes": {
         "Strength": 15,
@@ -30,14 +30,14 @@
           "movementValue": 5,
           "initiative": 50,
           "requirements": "",
-          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+          "notes": ""
         },
         {
           "movementMode": "Climb",
           "movementValue": 4,
           "initiative": 40,
           "requirements": "Suitable surface",
-          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+          "notes": ""
         }
       ],
       "anatomyProfile": "quadruped",
@@ -53,7 +53,7 @@
           "requirements": "",
           "usesRecharge": "",
           "specialEffect": "",
-          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+          "notes": ""
         },
         {
           "canonicalId": "ATK-CAT-CLAW",
@@ -66,7 +66,7 @@
           "requirements": "",
           "usesRecharge": "",
           "specialEffect": "",
-          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+          "notes": ""
         }
       ],
       "uses": [
@@ -88,7 +88,7 @@
         "description": "Swift bird of prey with keen distance vision, hooked talons, and exceptional speed in open flight.",
         "typicalBehavior": "Hunts from altitude or a high perch, committing to rapid diving strikes before climbing away from danger.",
         "habitatEcology": "Cliffs, grasslands, coasts, open woodland, farmland, and tall structures that provide nesting and hunting vantage points.",
-        "notes": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide raptor conventions."
+        "notes": ""
       },
       "attributes": {
         "Strength": 25,
@@ -104,14 +104,14 @@
           "movementValue": 2,
           "initiative": 20,
           "requirements": "",
-          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+          "notes": ""
         },
         {
           "movementMode": "Flight",
           "movementValue": 9,
           "initiative": 90,
           "requirements": "Functional wings",
-          "notes": "PROPOSED FOR REVIEW — base/pre-Size movement."
+          "notes": ""
         }
       ],
       "anatomyProfile": "bird",
@@ -127,7 +127,7 @@
           "requirements": "",
           "usesRecharge": "",
           "specialEffect": "",
-          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+          "notes": ""
         },
         {
           "canonicalId": "ATK-FALCON-BEAK",
@@ -140,7 +140,7 @@
           "requirements": "",
           "usesRecharge": "",
           "specialEffect": "",
-          "notes": "PROPOSED FOR REVIEW — calibrated from current CR guidance."
+          "notes": ""
         }
       ],
       "uses": [

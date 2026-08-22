@@ -15,11 +15,13 @@ const sizeScalePath = path.join(projectDirectory, "src", "data", "sizeScale.json
 const skillCatalogPath = path.join(projectDirectory, "data", "serrian-tide-skill-catalog.tsv");
 const refreshSource = process.argv.includes("--refresh-source");
 const createInitialMigration = process.argv.includes("--create-initial-migration");
+const createSupplementMigration = process.argv.includes("--create-supplement-migration");
 
 const spreadsheetId = "1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug";
 const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 const sourceSystem = "serrian-tide-creature-canon";
 const supplementSourceSystem = "serrian-tide-locally-approved-creature-additions";
+const initialSupplementSha256 = "7af01c82110a4dfda3d10d3618e40c37ed4bc319c0184507f82adcf5cf018f5e";
 const creatureAttributeNames = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
 const creatureMovementModes = new Set(["Burrow", "Climb", "Crawl", "Flight", "Land", "Rooted", "Swim"]);
 const anatomyProfiles = {
@@ -156,6 +158,11 @@ function optionalText(value) {
   return result === "" ? null : result;
 }
 
+function creatureNotes(value) {
+  const result = text(value);
+  return /proposed for review/iu.test(result) ? "" : result;
+}
+
 function number(value, label, { integer = false, optional = true } = {}) {
   if (value === null || value === undefined || value === "") {
     if (optional) return null;
@@ -198,7 +205,7 @@ function catalogCounts(creatures, challengeReference) {
   };
 }
 
-function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
+function appendSupplementalCreatures(seed, supplement, canonicalSizes, { preserveHistoricalReviewNotes = false } = {}) {
   if (supplement.schemaVersion !== 1 || supplement.sourceSystem !== supplementSourceSystem || !Array.isArray(supplement.records)) {
     throw new Error("The local Creature supplement does not match the supported schema.");
   }
@@ -215,6 +222,13 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
     uses: seed.counts.uses,
   };
   const nextOrder = (key) => counters[key]++;
+  const supplementalNote = (value, historicalValue = "") => preserveHistoricalReviewNotes
+    ? (text(value) || historicalValue)
+    : creatureNotes(value);
+  const historicalCoreNotes = {
+    "CR-CAT": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide animal conventions.",
+    "CR-FALCON": "PROPOSED FOR REVIEW — locally authored Creature catalog addition using established Serrian Tide raptor conventions.",
+  };
 
   const supplementalRecords = supplement.records.map((definition, recordIndex) => {
     const core = definition.core ?? {};
@@ -238,7 +252,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
       variantCanonicalId: null,
       attributeKey,
       value: number(definition.attributes[attributeKey], `${canonicalId} ${attributeKey}`, { optional: false }),
-      notes: attributeKey === "Strength" ? "PROPOSED FOR REVIEW — base/pre-Size Attribute value." : "",
+      notes: supplementalNote("", attributeKey === "Strength" ? "PROPOSED FOR REVIEW — base/pre-Size Attribute value." : ""),
       sortOrder: nextOrder("attributes"),
     }));
 
@@ -249,7 +263,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
         movementMode: row.movementMode,
         movementValue: number(row.movementValue, `${canonicalId} ${row.movementMode} Movement`, { optional: false }),
         initiative: number(row.initiative, `${canonicalId} ${row.movementMode} Initiative`, { optional: false }),
-        requirements: text(row.requirements), notes: text(row.notes), sortOrder: nextOrder("movement"),
+        requirements: text(row.requirements), notes: supplementalNote(row.notes, "PROPOSED FOR REVIEW — base/pre-Size movement."), sortOrder: nextOrder("movement"),
       };
     });
     if (!movement.length) throw new Error(`${canonicalId} must define at least one movement mode.`);
@@ -267,7 +281,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
     const hitLocations = profile.hits.map(([hitLocationNumber, locationName, bodyPartsIncluded, poolSuffix, locationEffect, notes]) => ({
       variantCanonicalId: null, hitLocationNumber, locationName, bodyPartsIncluded,
       hpPoolCanonicalId: `HP-${idStem}-${poolSuffix}`, naturalArmor: 0, soak: 0,
-      locationEffect, notes, sortOrder: nextOrder("hitLocations"),
+      locationEffect, notes: supplementalNote(notes), sortOrder: nextOrder("hitLocations"),
     }));
     if (hitLocations.length !== 10 || hitLocations.some((row, index) => row.hitLocationNumber !== index)) {
       throw new Error(`${canonicalId} anatomy profile must map each result from 0 through 9 exactly once.`);
@@ -282,7 +296,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
         attackPercentage: number(row.attackPercentage, `${attackId} Attack %`, { optional: false }), damage: optionalText(row.damage),
         damageType: text(row.damageType), rangeReach: text(row.rangeReach), requiredAnatomy: text(row.requiredAnatomy),
         requirements: text(row.requirements), usesRecharge: text(row.usesRecharge), specialEffect: text(row.specialEffect),
-        notes: text(row.notes), sortOrder: nextOrder("attacks"),
+        notes: supplementalNote(row.notes, "PROPOSED FOR REVIEW — calibrated from current CR guidance."), sortOrder: nextOrder("attacks"),
       };
     });
     const uses = (definition.uses ?? []).map((row) => {
@@ -291,7 +305,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
       if (!useName) throw new Error(`${canonicalId} has a blank Creature Use.`);
       return {
         seedIdentity: `use-${hash(`${canonicalId}\u0000\u0000${sortOrder}`)}`,
-        variantCanonicalId: null, useName, notes: text(row.notes), sortOrder,
+        variantCanonicalId: null, useName, notes: supplementalNote(row.notes), sortOrder,
       };
     });
 
@@ -300,7 +314,7 @@ function appendSupplementalCreatures(seed, supplement, canonicalSizes) {
       core: {
         canonicalId, canonicalName, family: text(core.family), creatureType: text(core.creatureType), size: core.size,
         challengeRating, killXp, description: text(core.description), typicalBehavior: text(core.typicalBehavior),
-        habitatEcology: text(core.habitatEcology), notes: text(core.notes),
+        habitatEcology: text(core.habitatEcology), notes: supplementalNote(core.notes, historicalCoreNotes[canonicalId] ?? ""),
       },
       attributes, movement, hpPools, hitLocations, attacks, skillLinks: [], abilities: [], defenses: [], uses, variants: [], provenance: null,
     };
@@ -399,16 +413,16 @@ function buildSeed(snapshot, canonicalSizes, skills) {
     const attributes = mapRows("Creature Attributes", (row, sortOrder) => {
       const attributeKey = text(row.Attribute);
       if (!attributeNames.has(attributeKey)) throw new Error(`${canonicalId} has unsupported Attribute ${JSON.stringify(attributeKey)}.`);
-      return { variantCanonicalId: variantReference(row), attributeKey, value: number(row.Value, `${canonicalId} ${attributeKey}`), notes: text(row.Notes), sortOrder };
+      return { variantCanonicalId: variantReference(row), attributeKey, value: number(row.Value, `${canonicalId} ${attributeKey}`), notes: creatureNotes(row.Notes), sortOrder };
     });
     const movement = mapRows("Creature Movement", (row, sortOrder) => ({
       variantCanonicalId: variantReference(row), movementMode: text(row["Movement Mode"]),
       movementValue: number(row["Movement Value"], `${canonicalId} Movement Value`),
-      initiative: number(row.Initiative, `${canonicalId} Initiative`), requirements: text(row.Requirements), notes: text(row.Notes), sortOrder,
+      initiative: number(row.Initiative, `${canonicalId} Initiative`), requirements: text(row.Requirements), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const hpPools = mapRows("Creature HP Pools", (row, sortOrder) => ({
       canonicalId: text(row["HP Pool ID"]), variantCanonicalId: variantReference(row), poolName: text(row["Pool Name"]),
-      hpPercentage: number(row["HP %"], `${canonicalId} HP %`), notes: text(row.Notes), sortOrder,
+      hpPercentage: number(row["HP %"], `${canonicalId} HP %`), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const hitLocations = mapRows("Creature Hit Locations", (row, sortOrder) => {
       const hitLocationNumber = number(row["Hit Location #"], `${canonicalId} Hit Location #`, { integer: true, optional: false });
@@ -427,33 +441,33 @@ function buildSeed(snapshot, canonicalSizes, skills) {
         variantCanonicalId: variantReference(row), hitLocationNumber, locationName: text(row["Location Name"]),
         bodyPartsIncluded: text(row["Body Parts Included"]), hpPoolCanonicalId,
         naturalArmor: number(row["Natural Armor"], `${canonicalId} Natural Armor`), soak: number(row.Soak, `${canonicalId} Soak`),
-        locationEffect: text(row["Location Effect"]), notes: text(row.Notes), sortOrder,
+        locationEffect: text(row["Location Effect"]), notes: creatureNotes(row.Notes), sortOrder,
       };
     });
     const attacks = mapRows("Creature Attacks", (row, sortOrder) => ({
       canonicalId: text(row["Attack ID"]), variantCanonicalId: variantReference(row), attackName: text(row["Attack Name"]),
       attackPercentage: number(row["Attack %"], `${canonicalId} Attack %`), damage: optionalText(row.Damage), damageType: text(row["Damage Type"]),
       rangeReach: text(row["Range / Reach"]), requiredAnatomy: text(row["Source / Required Anatomy"]), requirements: text(row.Requirements),
-      usesRecharge: text(row["Uses / Recharge"]), specialEffect: text(row["Special Effect"]), notes: text(row.Notes), sortOrder,
+      usesRecharge: text(row["Uses / Recharge"]), specialEffect: text(row["Special Effect"]), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const skillLinks = mapRows("Creature Skills", (row, sortOrder) => {
       const sourceSkillName = text(row.Skill);
       const skill = skills.get(sourceSkillName.toLocaleLowerCase("en-US"));
       if (!skill) throw new Error(`${canonicalId} references missing canonical Skill ${JSON.stringify(sourceSkillName)}.`);
-      return { variantCanonicalId: variantReference(row), skillExternalId: skill.sourceExternalId, skillName: skill.name, rank: optionalText(row.Rank), notes: text(row.Notes), sortOrder };
+      return { variantCanonicalId: variantReference(row), skillExternalId: skill.sourceExternalId, skillName: skill.name, rank: optionalText(row.Rank), notes: creatureNotes(row.Notes), sortOrder };
     });
     const abilities = mapRows("Creature Abilities", (row, sortOrder) => ({
       canonicalId: text(row["Ability ID"]), variantCanonicalId: variantReference(row), abilityName: text(row["Ability Name"]), abilityType: text(row["Ability Type"]),
       activation: text(row.Activation), requirements: text(row.Requirements), usesRecharge: text(row["Uses / Recharge"]), description: text(row.Description),
-      mechanicalEffect: text(row["Mechanical Effect"]), notes: text(row.Notes), sortOrder,
+      mechanicalEffect: text(row["Mechanical Effect"]), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const defenses = mapRows("Creature Defenses", (row, sortOrder) => ({
       seedIdentity: `defense-${hash(`${canonicalId}\u0000${variantReference(row) ?? ""}\u0000${sortOrder}`)}`,
-      variantCanonicalId: variantReference(row), defenseType: text(row["Defense Type"]), against: text(row.Against), value: optionalText(row.Value), notes: text(row.Notes), sortOrder,
+      variantCanonicalId: variantReference(row), defenseType: text(row["Defense Type"]), against: text(row.Against), value: optionalText(row.Value), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const uses = mapRows("Creature Uses", (row, sortOrder) => ({
       seedIdentity: `use-${hash(`${canonicalId}\u0000${variantReference(row) ?? ""}\u0000${sortOrder}`)}`,
-      variantCanonicalId: variantReference(row), useName: text(row.Use), notes: text(row.Notes), sortOrder,
+      variantCanonicalId: variantReference(row), useName: text(row.Use), notes: creatureNotes(row.Notes), sortOrder,
     }));
     const variants = mapRows("Creature Variants", (row, sortOrder) => {
       const sizeOverride = optionalText(row["Size Override"]);
@@ -462,7 +476,7 @@ function buildSeed(snapshot, canonicalSizes, skills) {
       if (crOverride !== null && (crOverride < 1 || crOverride > 50)) throw new Error(`${row["Variant ID"]} CR Override must be 1 through 50.`);
       return { canonicalId: text(row["Variant ID"]), variantName: text(row["Variant Name"]), variantType: text(row["Variant Type"]), sizeOverride,
         challengeRatingOverride: crOverride, killXpOverride: number(row["Kill XP Override"], `${row["Variant ID"]} Kill XP Override`, { integer: true }),
-        description: text(row.Description), notes: text(row.Notes), sortOrder };
+        description: text(row.Description), notes: creatureNotes(row.Notes), sortOrder };
     });
     const provenanceRows = mapRows("Creature IP Provenance", (row) => ({ canonicalName: text(row["Canonical Name"]), basisCategory: text(row["Basis Category"]), sourceTradition: text(row["Source / Tradition"]), copyrightIpNote: text(row["Copyright / IP Note"]), reviewStatus: text(row["Review Status"]) }));
     if (provenanceRows.length !== 1) throw new Error(`${canonicalId} must have exactly one IP Provenance row.`);
@@ -470,7 +484,7 @@ function buildSeed(snapshot, canonicalSizes, skills) {
       sortOrder: creatureSortOrder,
       core: { canonicalId, canonicalName: text(coreRow["Canonical Name"]), family: text(coreRow.Family), creatureType: text(coreRow["Creature Type"]), size,
         challengeRating, killXp: number(coreRow["Kill XP"], `${canonicalId} Kill XP`, { integer: true, optional: false }), description: text(coreRow.Description),
-        typicalBehavior: text(coreRow["Typical Behavior"]), habitatEcology: text(coreRow["Habitat / Ecology"]), notes: text(coreRow.Notes) },
+        typicalBehavior: text(coreRow["Typical Behavior"]), habitatEcology: text(coreRow["Habitat / Ecology"]), notes: creatureNotes(coreRow.Notes) },
       attributes, movement, hpPools, hitLocations, attacks, skillLinks, abilities, defenses, uses, variants, provenance: provenanceRows[0],
     };
   });
@@ -559,6 +573,12 @@ const supplementSha256 = hash(`${JSON.stringify(supplement, null, 2)}\n`);
 const sizeScaleSha256 = hash(sizeScaleText);
 const baseSeed = buildSeed(snapshot, canonicalSizes, parseSkillCatalog(skillCatalogText));
 const { seed, supplementalRecords } = appendSupplementalCreatures(baseSeed, supplement, canonicalSizes);
+const { supplementalRecords: historicalSupplementalRecords } = appendSupplementalCreatures(
+  baseSeed,
+  supplement,
+  canonicalSizes,
+  { preserveHistoricalReviewNotes: true },
+);
 seed.sourceSha256 = sourceSha256;
 seed.supplementSha256 = supplementSha256;
 seed.sizeScaleSha256 = sizeScaleSha256;
@@ -590,25 +610,27 @@ const report = {
     attackDamage: { null: seed.creatures.flatMap((row) => row.attacks).filter((row) => row.damage === null).length },
     defenseValue: { null: seed.creatures.flatMap((row) => row.defenses).filter((row) => row.value === null).length },
   },
-  proposedForReviewRecordCount: everyRecord.filter((row) => Object.values(row).some((value) => typeof value === "string" && value.includes("PROPOSED"))).length,
+  reviewMarkerCount: everyRecord.filter((row) => Object.values(row).some((value) => typeof value === "string" && /proposed for review/iu.test(value))).length,
 };
 
 await Promise.all([
   ...(refreshSource ? [writeFile(snapshotPath, snapshotText, "utf8")] : []),
   writeFile(seedPath, `${JSON.stringify(seed, null, 2)}\n`, "utf8"),
   writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8"),
-  writeFile(supplementMigrationPath, serializeMigration(
-    { challengeReference: [], creatures: supplementalRecords },
-    supplementSha256,
-    sizeScaleSha256,
-    {
-      sourceLabel: "Approved Creature supplement",
-      warning: "Do not hand-edit; update data/serrian-tide-creature-supplements.json and regenerate.",
-    },
-  ), "utf8"),
+  ...(createSupplementMigration
+    ? [writeFile(supplementMigrationPath, serializeMigration(
+      { challengeReference: [], creatures: historicalSupplementalRecords },
+      initialSupplementSha256,
+      sizeScaleSha256,
+      {
+        sourceLabel: "Approved Creature supplement",
+        warning: "Do not hand-edit; update data/serrian-tide-creature-supplements.json and regenerate.",
+      },
+    ), "utf8")]
+    : []),
   ...(createInitialMigration
     ? [writeFile(migrationPath, serializeMigration(seed, sourceSha256, sizeScaleSha256), "utf8")]
     : []),
 ]);
 
-process.stdout.write(`Prepared ${seed.counts.creatures} Creatures, ${seed.counts.challengeRatings} CR references, ${seed.counts.hitLocations} hit locations, and ${seed.counts.attacks} attacks with ${report.validation.unresolvedSkillReferences} unresolved Skill references.${createInitialMigration ? " Initial migration 0008 was regenerated." : " Applied migration 0008 was not rewritten."}\n`);
+process.stdout.write(`Prepared ${seed.counts.creatures} Creatures, ${seed.counts.challengeRatings} CR references, ${seed.counts.hitLocations} hit locations, and ${seed.counts.attacks} attacks with ${report.validation.unresolvedSkillReferences} unresolved Skill references.${createInitialMigration ? " Initial migration 0008 was regenerated." : " Applied migration 0008 was not rewritten."}${createSupplementMigration ? " Supplement migration 0010 was regenerated in its original form." : " Applied migration 0010 was not rewritten."}\n`);

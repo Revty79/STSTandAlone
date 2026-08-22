@@ -6,7 +6,7 @@
   "supplementSourceSystem": "serrian-tide-locally-approved-creature-additions",
   "supplementFile": "data/serrian-tide-creature-supplements.json",
   "sourceSha256": "35641213fd4a884a937b9a144c1d82f86000b00751c3ba5b44950b89409e3043",
-  "supplementSha256": "7af01c82110a4dfda3d10d3618e40c37ed4bc319c0184507f82adcf5cf018f5e",
+  "supplementSha256": "3f14a66bbcb4d054abb15a55057f44b5a114051701ab2468483631df68b4566d",
   "sizeScaleSha256": "bd8859b1036f8aa556be9ac4690d77b68297a6a31da8e2c532487de4b625695f",
   "counts": {
     "creatures": 87,
@@ -54,5 +54,5 @@
       "null": 2
     }
   },
-  "proposedForReviewRecordCount": 866
+  "reviewMarkerCount": 0
 }

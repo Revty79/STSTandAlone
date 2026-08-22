@@ -46,9 +46,9 @@ The application creates `serrian-tide.db` in the operating system application-da
 
 The authoritative Creature workbook is captured in `data/serrian-tide-creature-sheet.json`. Reviewed local additions that are not yet workbook rows live in `data/serrian-tide-creature-supplements.json`. The application never reads Google Sheets at runtime.
 
-- `npm run generate:creature-seed` deterministically regenerates the normalized seed, import report, and additive Creature supplement migration from the checked-in sources.
+- `npm run generate:creature-seed` deterministically regenerates the normalized seed and import report from the checked-in sources. It does not rewrite applied migrations.
 - `npm run refresh:creature-seed` deliberately refreshes the snapshot from the canonical Google Sheet and then regenerates the seed and report.
 
 After a refresh, review `data/serrian-tide-creature-import-report.json` and the generated diff before committing. The importer fails on changed headers, duplicate canonical IDs, orphaned Creature/Variant/HP Pool relationships, noncanonical Sizes, invalid CR values, or Creature Skill names that do not resolve to an existing canonical Serrian Tide Skill. It preserves blank cells as `null` and explicit zero as `0`.
 
-Migration `0008` is the immutable initial catalog migration and is only regenerated with `node scripts/generate-creature-seed.mjs --create-initial-migration`. Once `0008` has been applied anywhere, do not rewrite it. Migration `0010` adds the approved Cat and Falcon supplement after the final Creature schema migration, so existing and fresh databases receive identical records without replacing user-authored Creatures.
+Migration `0008` is the immutable initial catalog migration and is only regenerated with `node scripts/generate-creature-seed.mjs --create-initial-migration`. Once `0008` has been applied anywhere, do not rewrite it. Migration `0010` is likewise immutable and adds the approved Cat and Falcon supplement after the final Creature schema migration. Migration `0011` removes obsolete review-marker notes from canonical Creature records. Existing and fresh databases therefore receive identical records without replacing user-authored Creatures.

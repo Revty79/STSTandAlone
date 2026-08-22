@@ -19,6 +19,8 @@ const CREATURE_CATALOG_MIGRATION: &str =
 const DROP_CREATURE_IP_PROVENANCE_MIGRATION: &str =
     include_str!("../migrations/0009_drop_creature_ip_provenance.sql");
 const CAT_AND_FALCON_MIGRATION: &str = include_str!("../migrations/0010_seed_cat_and_falcon.sql");
+const REMOVE_CREATURE_REVIEW_NOTES_MIGRATION: &str =
+    include_str!("../migrations/0011_remove_creature_review_notes.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -83,6 +85,12 @@ pub fn run() {
             sql: CAT_AND_FALCON_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 11,
+            description: "remove_creature_review_notes",
+            sql: REMOVE_CREATURE_REVIEW_NOTES_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -105,8 +113,8 @@ mod tests {
     use super::{
         CAT_AND_FALCON_MIGRATION, CREATURES_MIGRATION, CREATURE_CATALOG_MIGRATION,
         DROP_CREATURE_IP_PROVENANCE_MIGRATION, INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION,
-        RACE_CATALOG_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
-        SPELL_CONSTRUCTION_MIGRATION,
+        RACE_CATALOG_MIGRATION, REMOVE_CREATURE_REVIEW_NOTES_MIGRATION, SKILLS_MIGRATION,
+        SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -1113,8 +1121,8 @@ mod tests {
             .expect("final Creature schema");
         connection
             .execute(
-                "INSERT INTO creatures (canonical_id, canonical_name, size, challenge_rating, kill_xp)
-                 VALUES ('CR-USER-TEST', 'User Creature', 'Medium', 1, 1)",
+                "INSERT INTO creatures (canonical_id, canonical_name, size, challenge_rating, kill_xp, notes)
+                 VALUES ('CR-USER-TEST', 'User Creature', 'Medium', 1, 1, 'PROPOSED FOR REVIEW — user-authored note')",
                 [],
             )
             .expect("user Creature before additive migration");
@@ -1122,6 +1130,9 @@ mod tests {
         connection
             .execute_batch(CAT_AND_FALCON_MIGRATION)
             .expect("Cat and Falcon supplement");
+        connection
+            .execute_batch(REMOVE_CREATURE_REVIEW_NOTES_MIGRATION)
+            .expect("remove canonical Creature review notes");
 
         let canonical_counts: (i64, i64, i64, i64, i64, i64, i64) = connection
             .query_row(
@@ -1189,6 +1200,35 @@ mod tests {
             .expect("provenance remains removed");
         assert_eq!(user_creatures, 1);
         assert_eq!(provenance_table, 0);
+
+        let canonical_review_notes: i64 = connection
+            .query_row(
+                "SELECT SUM(note_count) FROM (
+                   SELECT COUNT(*) AS note_count FROM creatures WHERE source_system='serrian-tide-creature-canon' AND instr(lower(notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_attributes row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_movement row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_hp_pools row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_hit_locations row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_attacks row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_skill_links row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_abilities row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_defenses row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_uses row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                   UNION ALL SELECT COUNT(*) FROM creature_variants row JOIN creatures creature ON creature.id=row.creature_id WHERE creature.source_system='serrian-tide-creature-canon' AND instr(lower(row.notes), 'proposed for review') > 0
+                 )",
+                [],
+                |row| row.get(0),
+            )
+            .expect("canonical review-marker notes");
+        let user_note: String = connection
+            .query_row(
+                "SELECT notes FROM creatures WHERE canonical_id='CR-USER-TEST'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("preserved user-authored note");
+        assert_eq!(canonical_review_notes, 0);
+        assert_eq!(user_note, "PROPOSED FOR REVIEW — user-authored note");
 
         connection
             .execute_batch(CAT_AND_FALCON_MIGRATION)
