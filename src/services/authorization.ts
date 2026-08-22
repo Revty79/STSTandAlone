@@ -18,6 +18,7 @@ export function canAccessDestination(
     case "heavens":
     case "skills":
     case "races":
+    case "creatures":
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
       return (

@@ -1,5 +1,6 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
 
+mod creature_commands;
 mod race_commands;
 mod skill_commands;
 
@@ -12,6 +13,11 @@ const SPELL_CONSTRUCTION_MIGRATION: &str =
     include_str!("../migrations/0004_seed_spell_construction.sql");
 const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql");
 const RACE_CATALOG_MIGRATION: &str = include_str!("../migrations/0006_seed_race_catalog.sql");
+const CREATURES_MIGRATION: &str = include_str!("../migrations/0007_create_creatures.sql");
+const CREATURE_CATALOG_MIGRATION: &str =
+    include_str!("../migrations/0008_seed_creature_catalog.sql");
+const DROP_CREATURE_IP_PROVENANCE_MIGRATION: &str =
+    include_str!("../migrations/0009_drop_creature_ip_provenance.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -52,10 +58,29 @@ pub fn run() {
             sql: RACE_CATALOG_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 7,
+            description: "create_creatures",
+            sql: CREATURES_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 8,
+            description: "seed_creature_catalog",
+            sql: CREATURE_CATALOG_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 9,
+            description: "drop_creature_ip_provenance",
+            sql: DROP_CREATURE_IP_PROVENANCE_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            creature_commands::save_creature_aggregate,
             race_commands::save_race_aggregate,
             skill_commands::save_skill_aggregate
         ])
@@ -71,6 +96,7 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
+        CREATURES_MIGRATION, CREATURE_CATALOG_MIGRATION, DROP_CREATURE_IP_PROVENANCE_MIGRATION,
         INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION, SKILLS_MIGRATION,
         SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
     };
@@ -911,5 +937,151 @@ mod tests {
             .expect("reload preserved edit");
         assert_eq!(counts_after_reapply, (56, 336, 57, 283));
         assert_eq!(preserved_edit, "Preserved user edit.");
+    }
+
+    #[test]
+    fn creature_catalog_migration_preserves_canon_nulls_relationships_and_idempotency() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("accounts");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("Skill schema");
+        connection
+            .execute_batch(CREATURES_MIGRATION)
+            .expect("Creature schema");
+        let skill_count_before: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("Skill count");
+        connection
+            .execute_batch(CREATURE_CATALOG_MIGRATION)
+            .expect("Creature seed");
+
+        let counts: (i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT
+               (SELECT COUNT(*) FROM creatures WHERE source_system='serrian-tide-creature-canon'),
+               (SELECT COUNT(*) FROM challenge_rating_reference),
+               (SELECT COUNT(*) FROM creature_attributes),
+               (SELECT COUNT(*) FROM creature_movement),
+               (SELECT COUNT(*) FROM creature_hp_pools),
+               (SELECT COUNT(*) FROM creature_hit_locations),
+               (SELECT COUNT(*) FROM creature_attacks),
+               (SELECT COUNT(*) FROM creature_skill_links),
+               (SELECT COUNT(*) FROM creature_abilities),
+               (SELECT COUNT(*) FROM creature_defenses),
+               (SELECT COUNT(*) FROM creature_uses),
+               (SELECT COUNT(*) FROM creature_variants)",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                        row.get(6)?,
+                        row.get(7)?,
+                        row.get(8)?,
+                        row.get(9)?,
+                        row.get(10)?,
+                        row.get(11)?,
+                    ))
+                },
+            )
+            .expect("canonical counts");
+        assert_eq!(counts, (85, 50, 510, 124, 528, 800, 158, 0, 45, 23, 27, 3));
+
+        let null_zero: (i64, i64, i64, i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT
+               (SELECT COUNT(*) FROM creature_hit_locations WHERE natural_armor IS NULL),
+               (SELECT COUNT(*) FROM creature_hit_locations WHERE natural_armor=0),
+               (SELECT COUNT(*) FROM creature_hit_locations WHERE soak IS NULL),
+               (SELECT COUNT(*) FROM creature_hit_locations WHERE soak=0),
+               (SELECT COUNT(*) FROM creature_attacks WHERE damage IS NULL),
+               (SELECT COUNT(*) FROM creature_movement WHERE movement_value=0),
+               (SELECT COUNT(*) FROM creature_movement WHERE initiative=0)",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                        row.get(6)?,
+                    ))
+                },
+            )
+            .expect("null and zero audit");
+        assert_eq!(null_zero, (30, 500, 30, 590, 13, 1, 1));
+
+        let horse: (String, i64, f64, i64) = connection.query_row(
+            "SELECT creature.size, creature.challenge_rating,
+               (SELECT value FROM creature_attributes WHERE creature_id=creature.id AND attribute_key='Strength'),
+               (SELECT COUNT(DISTINCT location.hp_pool_id) FROM creature_hit_locations location WHERE location.creature_id=creature.id)
+             FROM creatures creature WHERE creature.canonical_id='CR-HORSE'", [],
+            |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?)),
+        ).expect("Horse canon");
+        assert_eq!(horse.0, "Large");
+        assert_eq!(horse.1, 8);
+        assert_eq!(horse.2, 45.0, "Creature Attributes remain pre-Size");
+        assert!(
+            horse.3 < 10,
+            "several Horse die results must share HP Pools"
+        );
+
+        let variant_overrides: i64 = connection.query_row(
+            "SELECT COUNT(*) FROM creature_variants WHERE size_override IS NULL AND challenge_rating_override IS NULL AND kill_xp_override IS NULL", [], |row| row.get(0),
+        ).expect("blank Variant overrides");
+        let proposed_notes: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM creatures WHERE notes LIKE '%PROPOSED%'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("proposed notes");
+        let provenance: i64 = connection
+            .query_row("SELECT COUNT(*) FROM creature_ip_provenance", [], |row| {
+                row.get(0)
+            })
+            .expect("provenance");
+        let skill_count_after: i64 = connection
+            .query_row("SELECT COUNT(*) FROM skills", [], |row| row.get(0))
+            .expect("Skill count after");
+        assert_eq!(variant_overrides, 3);
+        assert!(proposed_notes > 0);
+        assert_eq!(provenance, 85);
+        assert_eq!(
+            skill_count_after, skill_count_before,
+            "Creature seed must never create Skills"
+        );
+
+        connection
+            .execute_batch(CREATURE_CATALOG_MIGRATION)
+            .expect("reapply Creature seed");
+        let counts_after: (i64, i64, i64, i64) = connection.query_row(
+            "SELECT (SELECT COUNT(*) FROM creatures), (SELECT COUNT(*) FROM creature_hit_locations),
+                    (SELECT COUNT(*) FROM creature_defenses), (SELECT COUNT(*) FROM creature_uses)", [],
+            |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?)),
+        ).expect("idempotent counts");
+        assert_eq!(counts_after, (85, 800, 23, 27));
+
+        connection
+            .execute_batch(DROP_CREATURE_IP_PROVENANCE_MIGRATION)
+            .expect("drop unused Creature IP Provenance");
+        let provenance_table: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master
+                 WHERE type = 'table' AND name = 'creature_ip_provenance'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("check removed provenance table");
+        assert_eq!(provenance_table, 0);
     }
 }

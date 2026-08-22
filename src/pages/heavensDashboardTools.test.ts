@@ -45,9 +45,10 @@ describe("Heavens dashboard tools", () => {
     );
   });
 
-  it("connects the Races and Skills cards to their real destinations", () => {
+  it("connects the implemented library cards to their real destinations", () => {
     expect(getHeavensToolDestination("races")).toBe("races");
     expect(getHeavensToolDestination("skills")).toBe("skills");
+    expect(getHeavensToolDestination("creatures")).toBe("creatures");
     expect(getHeavensToolDestination("equipment")).toBeNull();
   });
 });

@@ -6,6 +6,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { RacesPage } from "./pages/RacesPage";
+import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
 import { authService } from "./services/authService";
 import {
@@ -103,6 +104,7 @@ function App() {
             session={session}
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
+            onOpenCreatures={() => navigateAuthenticated("creatures")}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
           />
@@ -118,6 +120,14 @@ function App() {
       case "races":
         return (
           <RacesPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "creatures":
+        return (
+          <CreaturesPage
             session={session}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}

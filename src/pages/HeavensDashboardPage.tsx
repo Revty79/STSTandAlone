@@ -17,6 +17,7 @@ type HeavensDashboardPageProps = {
   session: AuthSession;
   onOpenRaces: () => void;
   onOpenSkills: () => void;
+  onOpenCreatures: () => void;
   onReturn: () => void;
   onLogout: () => void;
 };
@@ -31,6 +32,7 @@ export function HeavensDashboardPage({
   session,
   onOpenRaces,
   onOpenSkills,
+  onOpenCreatures,
   onReturn,
   onLogout,
 }: HeavensDashboardPageProps) {
@@ -50,6 +52,10 @@ export function HeavensDashboardPage({
     }
     if (destination === "skills") {
       onOpenSkills();
+      return;
+    }
+    if (destination === "creatures") {
+      onOpenCreatures();
       return;
     }
     showComingSoon(tool.title);

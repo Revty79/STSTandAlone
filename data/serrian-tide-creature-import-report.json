@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "sourceSystem": "serrian-tide-creature-canon",
+  "spreadsheetId": "1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug",
+  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1MPNiOoUEBT8KnC51Bx--FwKyqBbojYPRKLOFc2Azmug/edit",
+  "sourceSha256": "35641213fd4a884a937b9a144c1d82f86000b00751c3ba5b44950b89409e3043",
+  "sizeScaleSha256": "bd8859b1036f8aa556be9ac4690d77b68297a6a31da8e2c532487de4b625695f",
+  "counts": {
+    "creatures": 85,
+    "challengeRatings": 50,
+    "attributes": 510,
+    "movement": 124,
+    "hpPools": 528,
+    "hitLocations": 800,
+    "attacks": 158,
+    "skillLinks": 0,
+    "abilities": 45,
+    "defenses": 23,
+    "uses": 27,
+    "variants": 3,
+    "provenance": 85
+  },
+  "validation": {
+    "duplicateCanonicalIds": 0,
+    "orphanCreatureReferences": 0,
+    "orphanVariantReferences": 0,
+    "orphanHpPoolReferences": 0,
+    "unresolvedSkillReferences": 0
+  },
+  "nullZeroAudit": {
+    "movementValue": {
+      "null": 0,
+      "zero": 1
+    },
+    "movementInitiative": {
+      "null": 0,
+      "zero": 1
+    },
+    "naturalArmor": {
+      "null": 30,
+      "zero": 500
+    },
+    "soak": {
+      "null": 30,
+      "zero": 590
+    },
+    "attackDamage": {
+      "null": 13
+    },
+    "defenseValue": {
+      "null": 2
+    }
+  },
+  "proposedForReviewRecordCount": 847
+}

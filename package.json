@@ -9,6 +9,8 @@
     "generate:skill-seed": "node scripts/generate-skill-seed.mjs",
     "generate:spell-seed": "node scripts/generate-spell-seed.mjs",
     "generate:race-seed": "node scripts/generate-race-seed.mjs",
+    "generate:creature-seed": "node scripts/generate-creature-seed.mjs",
+    "refresh:creature-seed": "node scripts/generate-creature-seed.mjs --refresh-source",
     "test": "vitest run",
     "preview": "vite preview",
     "tauri": "tauri"
