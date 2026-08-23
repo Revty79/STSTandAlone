@@ -115,6 +115,30 @@ describe("G.O.D. Item authoring windows", () => {
     }
   });
 
+  it("does not ask the G.O.D. to assign an Item ID", () => {
+    const inventory = newItemDraft(7, "inventory");
+    const markup = renderToStaticMarkup(
+      <ItemEditor
+        draft={inventory}
+        references={{ tags: [], armorBodyLocations: [] }}
+        saving={false}
+        dirty={false}
+        feedback={null}
+        onChange={vi.fn()}
+        onSave={vi.fn()}
+        onDelete={vi.fn()}
+        onCreateVariant={vi.fn()}
+        findItems={noItems}
+        findCreatures={noCreatures}
+      />,
+    );
+
+    expect(markup).toContain("Assigned automatically when saved");
+    expect(markup).toContain("The program assigns this ID.");
+    expect(markup).toContain("readOnly");
+    expect(markup).not.toContain("Item ID / Canonical ID");
+  });
+
   it("offers search and all requested basic catalog filters", () => {
     const markup = renderToStaticMarkup(
       <ItemLibrary

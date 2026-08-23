@@ -22,7 +22,7 @@ export function ItemOverviewEditor({ draft, onChange }: Props) {
       <p className="item-section__description">Identity, organization, physical definition, and universal credit value stay together in one understandable Item editor.</p>
       {core.parentItemId ? <p className="item-overview__lineage">Variant of <strong>{core.parentItemName}</strong>. This is a complete Item record with permanent lineage, not an inherited override.</p> : null}
       <div className="item-overview__grid">
-        <label><span>Item ID / Canonical ID</span><input value={core.canonicalId} onChange={(event) => updateCore({ canonicalId: event.target.value })} /></label>
+        <label><span>Item ID</span><input value={core.canonicalId || "Assigned automatically when saved"} readOnly /><small>The program assigns this ID.</small></label>
         <label><span>Name</span><input value={core.name} onChange={(event) => updateCore({ name: event.target.value })} /></label>
         <label><span>Catalog Scope</span><select value={core.catalogScope} onChange={(event) => changeScope(event.target.value as ItemCatalogScope)}><option value="equipment">Equipment</option><option value="inventory">Inventory</option></select></label>
         {core.catalogScope === "equipment" ? <label><span>Equipment Browse Group</span><select value={core.equipmentGroup ?? "general"} onChange={(event) => updateCore({ equipmentGroup: event.target.value as typeof core.equipmentGroup })}><option value="weapon">Weapons</option><option value="armor">Armor</option><option value="general">General Equipment</option></select></label> : null}

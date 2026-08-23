@@ -142,12 +142,15 @@ export class TemporaryItemRepository implements ItemRepository {
     const now = new Date().toISOString();
     const id = input.id ?? this.nextId++;
     const existing = this.records.get(id);
+    const canonicalId = existing?.core.canonicalId
+      ?? `DEMO-${input.core.catalogScope === "equipment" ? "EQ" : "INV"}-${String(id).padStart(3, "0")}`;
     const saved: ItemAggregate = {
       ...clone(input),
       id,
       core: {
         ...clone(input.core),
         id,
+        canonicalId,
         createdAt: existing?.core.createdAt ?? now,
         updatedAt: now,
       },

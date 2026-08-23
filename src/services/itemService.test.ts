@@ -40,7 +40,6 @@ describe("ItemService temporary authoring contract", () => {
   it("creates, edits, reloads, filters, and deletes temporary complete Items", async () => {
     const items = service();
     const draft = newItemDraft(7, "inventory");
-    draft.core.canonicalId = "DEMO-INV-NEW";
     draft.core.name = "Water Flask";
     draft.core.recordType = "Consumable";
     draft.core.category = "Water";
@@ -48,6 +47,7 @@ describe("ItemService temporary authoring contract", () => {
     const saved = await items.saveItem(draft);
 
     expect(saved.id).toBeGreaterThan(7);
+    expect(saved.core.canonicalId).toBe(`DEMO-INV-${String(saved.id).padStart(3, "0")}`);
     await expect(items.getItem(saved.id)).resolves.toMatchObject({ core: { name: "Water Flask" } });
     await expect(items.listItems({ catalogScope: "inventory", search: "flask", page: 1, pageSize: 40 })).resolves.toMatchObject({ total: 1 });
 
@@ -83,16 +83,14 @@ describe("ItemService temporary authoring contract", () => {
   it("normalizes provisional fields and rejects invalid catalog records", async () => {
     const items = service();
     const draft = newItemDraft(7, "equipment");
-    draft.core.canonicalId = "  DEMO-EQ-NEW  ";
     draft.core.name = "  Field Light  ";
     draft.core.recordType = "  Tool  ";
     draft.tags = [" Modern ", "Modern"];
     const saved = await items.saveItem(draft);
-    expect(saved.core).toMatchObject({ canonicalId: "DEMO-EQ-NEW", name: "Field Light", recordType: "Tool", equipmentGroup: "general" });
+    expect(saved.core).toMatchObject({ canonicalId: `DEMO-EQ-${String(saved.id).padStart(3, "0")}`, name: "Field Light", recordType: "Tool", equipmentGroup: "general" });
     expect(saved.tags).toEqual(["Modern"]);
 
     const invalid = newItemDraft(7, "inventory");
-    invalid.core.canonicalId = "DEMO-BAD";
     invalid.core.name = "Broken";
     invalid.core.recordType = "Item";
     invalid.core.durability = -1;

@@ -108,7 +108,7 @@ export function normalizeItemAggregate(input: SaveItemAggregate): SaveItemAggreg
     id: input.id,
     core: {
       ...input.core,
-      canonicalId: required(input.core.canonicalId, "Item ID"),
+      canonicalId: input.id ? required(input.core.canonicalId, "Item ID") : "",
       name: required(input.core.name, "Item Name"),
       equipmentGroup,
       recordType: required(input.core.recordType, "Record Type"),
