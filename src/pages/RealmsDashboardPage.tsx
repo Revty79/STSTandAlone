@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
 import {
   PortalActionCard,
   type PortalActionDefinition,
 } from "../components/PortalActionCard";
 import type { AuthSession } from "../types/user";
+import type {
+  CampaignCharacterReference,
+  PlayerCampaignReference,
+} from "../types/campaign";
+import { campaignService } from "../services/campaignService";
 import { REALMS_DASHBOARD_ACTIONS } from "./realmsDashboardActions";
 import "../styles/realms-dashboard.css";
 
@@ -20,6 +25,67 @@ export function RealmsDashboardPage({
   onLogout,
 }: RealmsDashboardPageProps) {
   const [notice, setNotice] = useState("");
+  const [campaigns, setCampaigns] = useState<PlayerCampaignReference[]>([]);
+  const [campaignsLoading, setCampaignsLoading] = useState(true);
+  const [campaignsError, setCampaignsError] = useState("");
+  const [selectedCampaignId, setSelectedCampaignId] = useState("");
+  const [characters, setCharacters] = useState<CampaignCharacterReference[]>([]);
+  const [charactersLoading, setCharactersLoading] = useState(false);
+  const [charactersError, setCharactersError] = useState("");
+  const [selectedCharacterId, setSelectedCharacterId] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    campaignService.listPlayerCampaigns(session.userId)
+      .then((playerCampaigns) => {
+        if (active) setCampaigns(playerCampaigns);
+      })
+      .catch(() => {
+        if (active) {
+          setCampaignsError(
+            "Your Campaigns could not be read from the local archive.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setCampaignsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [session.userId]);
+
+  useEffect(() => {
+    let active = true;
+    setCharacters([]);
+    setSelectedCharacterId("");
+    setCharactersError("");
+    if (!selectedCampaignId) {
+      setCharactersLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setCharactersLoading(true);
+    campaignService.listCharacters(Number(selectedCampaignId), session.userId)
+      .then((playerCharacters) => {
+        if (active) setCharacters(playerCharacters);
+      })
+      .catch(() => {
+        if (active) {
+          setCharactersError(
+            "Your Characters in this Campaign could not be read from the local archive.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setCharactersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedCampaignId, session.userId]);
 
   function showComingSoon(label: string) {
     setNotice(`${label} is coming soon.`);
@@ -56,15 +122,43 @@ export function RealmsDashboardPage({
           <div className="realm-control__rows">
             <div className="realm-control__row">
               <label htmlFor="realm-campaign-select">Campaign</label>
-              <select id="realm-campaign-select" defaultValue="">
-                <option value="">No Campaign Selected</option>
+              <select
+                id="realm-campaign-select"
+                value={selectedCampaignId}
+                disabled={campaignsLoading}
+                onChange={(event) => setSelectedCampaignId(event.target.value)}
+              >
+                <option value="">
+                  {campaignsLoading
+                    ? "Reading Campaigns…"
+                    : campaigns.length === 0
+                      ? "No Campaigns with Characters"
+                      : "No Campaign Selected"}
+                </option>
+                {campaigns.map((campaign) => (
+                  <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                ))}
               </select>
             </div>
 
             <div className="realm-control__row">
               <label htmlFor="realm-character-select">Character</label>
-              <select id="realm-character-select" defaultValue="">
-                <option value="">No Character Selected</option>
+              <select
+                id="realm-character-select"
+                value={selectedCharacterId}
+                disabled={!selectedCampaignId || charactersLoading}
+                onChange={(event) => setSelectedCharacterId(event.target.value)}
+              >
+                <option value="">
+                  {!selectedCampaignId
+                    ? "Select a Campaign First"
+                    : charactersLoading
+                      ? "Reading Characters…"
+                      : "No Character Selected"}
+                </option>
+                {selectedCampaignId ? characters.map((character) => (
+                  <option key={character.id} value={character.id}>{character.name}</option>
+                )) : null}
               </select>
               <button
                 className="realm-control__create"
@@ -75,6 +169,11 @@ export function RealmsDashboardPage({
               </button>
             </div>
           </div>
+          {campaignsError || charactersError ? (
+            <p className="realm-control__error" role="alert">
+              {campaignsError || charactersError}
+            </p>
+          ) : null}
         </section>
 
         <section className="realms-actions" aria-labelledby="realms-actions-heading">

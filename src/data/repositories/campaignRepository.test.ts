@@ -195,4 +195,24 @@ describe("TauriCampaignRepository", () => {
     );
     await expect(repository.listCampaignCharacters(12, 2)).resolves.toHaveLength(2);
   });
+
+  it("lists only Campaigns where the requested Player owns a Character", async () => {
+    const calls: Array<{ query: string; values: unknown[] }> = [];
+    const database: CampaignDatabase = {
+      async select<T>(query: string, values: unknown[] = []): Promise<T> {
+        calls.push({ query, values });
+        return [{ id: 12, name: "Tidefall" }] as T;
+      },
+      async execute() { return { rowsAffected: 0 }; },
+    };
+    const repository = new TauriCampaignRepository(async () => database);
+
+    await expect(repository.listCampaignsForPlayerWithCharacters(2)).resolves.toEqual([
+      { id: 12, name: "Tidefall" },
+    ]);
+    expect(calls[0]?.values).toEqual([2]);
+    expect(calls[0]?.query).toMatch(
+      /where exists[\s\S]*from campaign_characters[\s\S]*player_user_id=\$1/i,
+    );
+  });
 });

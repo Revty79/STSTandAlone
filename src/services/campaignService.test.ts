@@ -6,6 +6,7 @@ import type {
   CampaignPlayerReference,
   CampaignProfileReference,
   CampaignSummary,
+  PlayerCampaignReference,
   SaveCampaignAggregate,
 } from "../types/campaign";
 import { CampaignService, CampaignValidationError } from "./campaignService";
@@ -50,6 +51,16 @@ class RecordingCampaignRepository implements CampaignRepository {
     };
     this.characters.push(character);
     return character;
+  }
+  async listCampaignsForPlayerWithCharacters(
+    playerUserId: number,
+  ): Promise<PlayerCampaignReference[]> {
+    const campaignIds = new Set(
+      this.characters
+        .filter((character) => character.playerUserId === playerUserId)
+        .map((character) => character.campaignId),
+    );
+    return [...campaignIds].map((id) => ({ id, name: `Campaign ${id}` }));
   }
   async saveCampaignAggregate(input: SaveCampaignAggregate): Promise<CampaignAggregate> {
     this.saved = structuredClone(input);
@@ -166,5 +177,19 @@ describe("CampaignService", () => {
     });
     await expect(service.listCharacters(12, 2)).resolves.toHaveLength(2);
     await expect(service.createCharacter(0, 2)).rejects.toThrow(/Campaign/i);
+  });
+
+  it("lists only Campaigns represented by the logged-in Player's Characters", async () => {
+    const repository = new RecordingCampaignRepository();
+    const service = new CampaignService(repository);
+    await service.createCharacter(12, 2);
+    await service.createCharacter(13, 2);
+    await service.createCharacter(14, 3);
+
+    await expect(service.listPlayerCampaigns(2)).resolves.toEqual([
+      { id: 12, name: "Campaign 12" },
+      { id: 13, name: "Campaign 13" },
+    ]);
+    await expect(service.listPlayerCampaigns(0)).rejects.toThrow(/Player Profile/i);
   });
 });

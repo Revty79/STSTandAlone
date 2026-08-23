@@ -83,6 +83,8 @@ export type CampaignCharacterReference = {
   updatedAt: string;
 };
 
+export type PlayerCampaignReference = Pick<CampaignCore, "id" | "name">;
+
 export type CampaignAggregate = {
   campaign: CampaignCore;
   derivedCurrencies: CampaignDerivedCurrencyRecord[];

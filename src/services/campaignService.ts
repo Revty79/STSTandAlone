@@ -10,6 +10,7 @@ import {
   type CampaignProfileReference,
   type CampaignSummary,
   type CampaignSystemOption,
+  type PlayerCampaignReference,
   type SaveCampaignAggregate,
 } from "../types/campaign";
 
@@ -171,6 +172,14 @@ export class CampaignService {
   ): Promise<CampaignCharacterReference> {
     return this.repository.createCampaignCharacter(
       savedId(campaignId, "Campaign"),
+      savedId(playerProfileId, "Player Profile"),
+    );
+  }
+
+  async listPlayerCampaigns(
+    playerProfileId: number,
+  ): Promise<PlayerCampaignReference[]> {
+    return this.repository.listCampaignsForPlayerWithCharacters(
       savedId(playerProfileId, "Player Profile"),
     );
   }

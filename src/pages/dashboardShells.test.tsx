@@ -167,6 +167,9 @@ describe("dashboard shells", () => {
 
     expect(dashboard).toContain("THE REALMS");
     expect(dashboard).toContain("Create Character");
+    expect(dashboard).toContain('id="realm-campaign-select"');
+    expect(dashboard).toContain('id="realm-character-select" disabled=""');
+    expect(dashboard).toContain("Select a Campaign First");
     expect(dashboard).not.toContain("Return to Paths");
   });
 

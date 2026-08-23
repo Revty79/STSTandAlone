@@ -184,8 +184,14 @@
     box-shadow 160ms ease;
 }
 
-.realm-control__row select:hover {
+.realm-control__row select:hover:not(:disabled) {
   border-color: rgb(157 181 180 / 46%);
+}
+
+.realm-control__row select:disabled {
+  color: rgb(213 216 211 / 42%);
+  cursor: default;
+  opacity: 0.72;
 }
 
 .realm-control__row select:focus-visible {
@@ -232,6 +238,13 @@
 .realm-control__create:active,
 .realms-dashboard__return:active {
   transform: translateY(1px);
+}
+
+.realm-control__error {
+  margin: 14px 0 0;
+  color: #dda9a1;
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .realm-control__row select:focus-visible,

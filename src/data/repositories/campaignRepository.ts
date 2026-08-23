@@ -13,6 +13,7 @@ import {
   type CampaignRaceReference,
   type CampaignSummary,
   type CampaignSystemOption,
+  type PlayerCampaignReference,
   type SaveCampaignAggregate,
 } from "../../types/campaign";
 import { isUserRole } from "../../types/user";
@@ -79,6 +80,9 @@ export interface CampaignRepository {
     campaignId: number,
     playerUserId: number,
   ): Promise<CampaignCharacterReference>;
+  listCampaignsForPlayerWithCharacters(
+    playerUserId: number,
+  ): Promise<PlayerCampaignReference[]>;
 }
 
 export class TauriCampaignRepository implements CampaignRepository {
@@ -255,6 +259,23 @@ export class TauriCampaignRepository implements CampaignRepository {
     );
     if (!rows[0]) throw new Error("The saved Character could not be reloaded.");
     return rows[0];
+  }
+
+  async listCampaignsForPlayerWithCharacters(
+    playerUserId: number,
+  ): Promise<PlayerCampaignReference[]> {
+    const database = await this.databaseProvider();
+    return database.select<PlayerCampaignReference[]>(
+      `SELECT campaign.id,campaign.name
+       FROM campaigns campaign
+       WHERE EXISTS (
+         SELECT 1 FROM campaign_characters character
+         WHERE character.campaign_id=campaign.id
+           AND character.player_user_id=$1
+       )
+       ORDER BY campaign.name COLLATE NOCASE,campaign.id`,
+      [playerUserId],
+    );
   }
 }
 
