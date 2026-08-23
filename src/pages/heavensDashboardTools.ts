@@ -34,24 +34,6 @@ export const HEAVENS_CORE_TOOLS: readonly PortalActionDefinition[] = [
   },
 ];
 
-export const HEAVENS_FUTURE_TOOLS: readonly PortalActionDefinition[] = [
-  {
-    id: "genres-worlds",
-    title: "Genres / Worlds",
-    description: "Reserved for future world and setting expansion.",
-  },
-  {
-    id: "game-rules",
-    title: "Game Rules",
-    description: "Reserved for future foundational rules work.",
-  },
-];
-
-export const HEAVENS_DASHBOARD_TOOLS: readonly PortalActionDefinition[] = [
-  ...HEAVENS_CORE_TOOLS,
-  ...HEAVENS_FUTURE_TOOLS,
-];
-
 export function getHeavensToolDestination(
   toolId: string,
 ): "races" | "skills" | "creatures" | "equipment" | "inventory" | null {

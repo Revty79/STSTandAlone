@@ -8,7 +8,6 @@ import {
 import type { AuthSession } from "../types/user";
 import {
   HEAVENS_CORE_TOOLS,
-  HEAVENS_FUTURE_TOOLS,
   getHeavensToolDestination,
 } from "./heavensDashboardTools";
 import "../styles/heavens-dashboard.css";
@@ -188,27 +187,6 @@ export function HeavensDashboardPage({
               />
             ))}
           </div>
-
-          <section
-            className="heavens-future"
-            aria-labelledby="heavens-future-heading"
-          >
-            <div className="heavens-future__heading">
-              <p>FUTURE EXPANSION</p>
-              <h4 id="heavens-future-heading">Reserved Foundations</h4>
-            </div>
-
-            <div className="heavens-tools__grid heavens-tools__grid--future">
-              {HEAVENS_FUTURE_TOOLS.map((tool) => (
-                <PortalActionCard
-                  key={tool.id}
-                  action={tool}
-                  variant="heavens"
-                  onSelect={selectTool}
-                />
-              ))}
-            </div>
-          </section>
 
           <p
             className={`heavens-dashboard__notice${notice ? " is-visible" : ""}`}

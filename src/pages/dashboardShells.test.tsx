@@ -34,7 +34,9 @@ describe("dashboard shells", () => {
     );
 
     expect(dashboard).toContain("View Campaign");
-    expect(dashboard).toContain("FUTURE EXPANSION");
+    expect(dashboard).not.toContain("FUTURE EXPANSION");
+    expect(dashboard).not.toContain("Genres / Worlds");
+    expect(dashboard).not.toContain("Game Rules");
     expect(dashboard).toContain(">Creatures<");
     expect(dashboard).toContain(">NPCs<");
     expect(dashboard).not.toContain("Creatures &amp; NPCs");
