@@ -30,14 +30,15 @@ type Props = {
 };
 
 export const EMPTY_WEAPON_PROFILE: ItemWeaponProfileDraft = {
+  profileRecordType: "",
   weaponType: "", handedness: "", damageSource: "", damage: "", damageType: "",
   range: "", reach: "", ammunitionItemId: null, ammunitionItemName: null,
-  compatibility: "", capacity: null, fireModes: [], rateOfFire: "",
-  reloadInitiative: null, rulesText: "",
+  compatibility: "", capacity: "", fireModes: [], rateOfFire: "",
+  reloadInitiative: "", rulesText: "",
 };
 
 export const EMPTY_ARMOR_PROFILE: ItemArmorProfileDraft = {
-  armorType: "", coverage: "", baseSoak: null, damageModifiers: [],
+  armorType: "", coverage: "", baseSoak: null, damageModifiersSourceText: "", damageModifiers: [],
   coveredBodyLocationKeys: [], rulesText: "",
 };
 
@@ -63,10 +64,10 @@ export function ItemEditor({ draft, references, saving, dirty, feedback, onChang
 
   return (
     <section className="skill-editor item-editor">
-      <header className="skill-editor__header"><div><p>{draft.id ? draft.core.canonicalId : "NEW ITEM DRAFT"}</p><h2>{draft.core.name || "Untitled Item"}</h2><span>{dirty ? "Unsaved changes" : draft.id ? "Saved in temporary session data" : "Not yet saved"}</span></div><div className="skill-editor__actions">{draft.id && !confirmDelete ? <button className="skills-danger-button" type="button" onClick={() => setConfirmDelete(true)}>Delete</button> : null}<button className="skills-primary-button" type="button" disabled={saving} onClick={onSave}>{saving ? "Saving…" : "Save Item"}</button></div></header>
-      {confirmDelete ? <div className="skill-editor__delete-confirm" role="alert"><div><strong>Delete {draft.core.name || "this Item"}?</strong><span>The temporary catalog record and its profiles will be removed. Canonical Creatures remain untouched.</span></div><button className="skills-danger-button" type="button" onClick={onDelete}>Confirm Delete</button><button type="button" onClick={() => setConfirmDelete(false)}>Cancel</button></div> : null}
+      <header className="skill-editor__header"><div><p>{draft.id ? draft.core.canonicalId : "NEW ITEM DRAFT"}</p><h2>{draft.core.name || "Untitled Item"}</h2><span>{dirty ? "Unsaved changes" : draft.id ? "Saved" : "Not yet persisted"}</span></div><div className="skill-editor__actions">{draft.id && !confirmDelete ? <button className="skills-danger-button" type="button" onClick={() => setConfirmDelete(true)}>Delete</button> : null}<button className="skills-primary-button" type="button" disabled={saving} onClick={onSave}>{saving ? "Saving…" : "Save Item"}</button></div></header>
+      {confirmDelete ? <div className="skill-editor__delete-confirm" role="alert"><div><strong>Delete {draft.core.name || "this Item"}?</strong><span>The Item definition and its owned profiles will be removed. Referenced Items and canonical Creatures remain untouched.</span></div><button className="skills-danger-button" type="button" onClick={onDelete}>Confirm Delete</button><button type="button" onClick={() => setConfirmDelete(false)}>Cancel</button></div> : null}
       {feedback ? <p className={`skill-editor__feedback is-${feedback.kind}`} role="status">{feedback.message}</p> : null}
-      <div className="item-editor__profile-strip"><div><strong>Optional profiles</strong><span>Add only the specialized mechanics this Item actually needs.</span></div><div>{!draft.weaponProfile ? <button type="button" onClick={() => { onChange({ ...draft, weaponProfile: { ...EMPTY_WEAPON_PROFILE } }); setActiveTab("weapon"); }}>Add Weapon Profile</button> : <span>Weapon Profile added</span>}{!draft.armorProfile ? <button type="button" onClick={() => { onChange({ ...draft, armorProfile: { ...EMPTY_ARMOR_PROFILE, damageModifiers: [], coveredBodyLocationKeys: [] } }); setActiveTab("armor"); }}>Add Armor Profile</button> : <span>Armor Profile added</span>}</div></div>
+      <div className="item-editor__profile-strip"><div><strong>Optional profiles</strong><span>Add only the specialized mechanics this Item actually needs.</span></div><div>{!draft.weaponProfile ? <button type="button" onClick={() => { onChange({ ...draft, weaponProfile: { ...EMPTY_WEAPON_PROFILE, profileRecordType: draft.core.recordType } }); setActiveTab("weapon"); }}>Add Weapon Profile</button> : <span>Weapon Profile added</span>}{!draft.armorProfile ? <button type="button" onClick={() => { onChange({ ...draft, armorProfile: { ...EMPTY_ARMOR_PROFILE, damageModifiers: [], coveredBodyLocationKeys: [] } }); setActiveTab("armor"); }}>Add Armor Profile</button> : <span>Armor Profile added</span>}</div></div>
       <nav className="skill-editor__tabs item-editor__tabs" aria-label="Item editor sections">{tabs.map((tab) => <button key={tab.id} type="button" className={activeTab === tab.id ? "is-active" : ""} aria-pressed={activeTab === tab.id} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}</nav>
       <div className="skill-editor__content">
         {activeTab === "overview" ? <ItemOverviewEditor draft={draft} onChange={onChange} /> : null}

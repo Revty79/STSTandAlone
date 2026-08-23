@@ -10,9 +10,6 @@ type Props = {
   findItems: (search: string, excludeItemId?: number) => Promise<RelatedItemCandidate[]>;
 };
 
-const numberValue = (value: number | null): number | "" => value ?? "";
-const parseNumber = (value: string): number | null => value === "" ? null : Number(value);
-
 export function ItemWeaponProfileEditor({ itemId, profile, onChange, onRemove, findItems }: Props) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const update = (patch: Partial<ItemWeaponProfileDraft>) => onChange({ ...profile, ...patch });
@@ -32,9 +29,9 @@ export function ItemWeaponProfileEditor({ itemId, profile, onChange, onRemove, f
         <label><span>Damage Type</span><input value={profile.damageType} onChange={(event) => update({ damageType: event.target.value })} /></label>
         <label><span>Range</span><input value={profile.range} onChange={(event) => update({ range: event.target.value })} /></label>
         <label><span>Reach</span><input value={profile.reach} onChange={(event) => update({ reach: event.target.value })} /></label>
-        <label><span>Capacity</span><input type="number" min="0" step="1" value={numberValue(profile.capacity)} onChange={(event) => update({ capacity: parseNumber(event.target.value) })} /></label>
+        <label><span>Capacity</span><input value={profile.capacity} placeholder="30 rounds" onChange={(event) => update({ capacity: event.target.value })} /></label>
         <label><span>Rate of Fire</span><input value={profile.rateOfFire} onChange={(event) => update({ rateOfFire: event.target.value })} /></label>
-        <label><span>Reload Initiative</span><input type="number" min="0" step="any" value={numberValue(profile.reloadInitiative)} onChange={(event) => update({ reloadInitiative: parseNumber(event.target.value) })} /></label>
+        <label><span>Reload Initiative</span><input value={profile.reloadInitiative} placeholder="2 or 1 per round" onChange={(event) => update({ reloadInitiative: event.target.value })} /></label>
         <label className="item-field--wide"><span>Fire Modes</span><input value={profile.fireModes.join(", ")} placeholder="Single, Burst, Automatic" onChange={(event) => update({ fireModes: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} /></label>
         <label className="item-field--wide"><span>Compatibility</span><textarea value={profile.compatibility} onChange={(event) => update({ compatibility: event.target.value })} /></label>
         <ItemRelationPicker kind="item" label="Ammunition Reference" selectedName={profile.ammunitionItemName} findItems={(search) => findItems(search, itemId)} onSelect={(candidate) => update({ ammunitionItemId: candidate?.id ?? null, ammunitionItemName: candidate?.name ?? null })} />

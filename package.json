@@ -11,6 +11,8 @@
     "generate:race-seed": "node scripts/generate-race-seed.mjs",
     "generate:creature-seed": "node scripts/generate-creature-seed.mjs",
     "refresh:creature-seed": "node scripts/generate-creature-seed.mjs --refresh-source",
+    "generate:item-seed": "node scripts/generate-item-seed.mjs",
+    "refresh:item-seed": "node scripts/generate-item-seed.mjs --refresh-source",
     "test": "vitest run",
     "preview": "vite preview",
     "tauri": "tauri"

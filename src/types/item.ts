@@ -43,6 +43,7 @@ export type ItemPropertyDraft = {
 };
 
 export type ItemWeaponProfileDraft = {
+  profileRecordType: string;
   weaponType: string;
   handedness: string;
   damageSource: string;
@@ -53,14 +54,15 @@ export type ItemWeaponProfileDraft = {
   ammunitionItemId: number | null;
   ammunitionItemName: string | null;
   compatibility: string;
-  capacity: number | null;
+  capacity: string;
   fireModes: string[];
   rateOfFire: string;
-  reloadInitiative: number | null;
+  reloadInitiative: string;
   rulesText: string;
 };
 
 export type ItemDamageModifierDraft = {
+  modifierText: string;
   damageType: string;
   modifier: string;
   notes: string;
@@ -71,6 +73,7 @@ export type ItemArmorProfileDraft = {
   armorType: string;
   coverage: string;
   baseSoak: number | null;
+  damageModifiersSourceText: string;
   damageModifiers: ItemDamageModifierDraft[];
   coveredBodyLocationKeys: string[];
   rulesText: string;

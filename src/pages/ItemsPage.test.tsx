@@ -77,7 +77,7 @@ describe("G.O.D. Item authoring windows", () => {
     const markup = renderToStaticMarkup(<ItemArmorProfileEditor profile={profile} bodyLocations={[]} onChange={vi.fn()} onRemove={vi.fn()} />);
 
     for (const label of ["Armor Type", "Coverage", "Base Soak", "Damage Modifiers", "Body Shot Bob Locations", "Rules Text"]) expect(markup).toContain(label);
-    expect(markup).toContain("upcoming database/reference provider must supply the canonical choices");
+    expect(markup).toContain("canonical Body Shot Bob location reference could not be loaded");
     expect(markup).not.toContain("Handedness");
     expect(markup).not.toContain("Fire Modes");
   });

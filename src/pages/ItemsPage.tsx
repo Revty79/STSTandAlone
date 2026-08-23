@@ -54,7 +54,7 @@ export function newItemDraft(userId: number, catalogScope: ItemCatalogScope): Sa
       parentItemId: null,
       parentItemName: null,
       createdByUserId: userId,
-      sourceSystem: "temporary-item-authoring-demo",
+      sourceSystem: null,
     },
     properties: [],
     weaponProfile: null,
@@ -83,7 +83,7 @@ export function ItemsPage({ session, catalogScope, onBack, onLogout }: Props) {
     try {
       setLibrary(await itemService.listItems(nextFilters));
     } catch {
-      setFeedback({ kind: "error", message: "The temporary Item catalog could not be read." });
+      setFeedback({ kind: "error", message: "The Item catalog could not be read from the local archive." });
     } finally {
       setLoadingLibrary(false);
     }
@@ -169,7 +169,7 @@ export function ItemsPage({ session, catalogScope, onBack, onLogout }: Props) {
       const saved = await itemService.saveItem(draft);
       setDraft(itemAggregateToDraft(saved));
       setDirty(false);
-      setFeedback({ kind: "success", message: `${saved.core.name} was saved to temporary session data.` });
+      setFeedback({ kind: "success", message: `${saved.core.name} was saved to the local Item archive.` });
       await Promise.all([refreshFacets(), loadLibrary(filters)]);
     } catch (error: unknown) {
       setFeedback({
@@ -178,7 +178,7 @@ export function ItemsPage({ session, catalogScope, onBack, onLogout }: Props) {
           ? error.message
           : error instanceof Error
             ? error.message
-            : "The Item could not be saved. Existing temporary data was left intact.",
+            : "The Item could not be saved. Existing archive data was left intact.",
       });
     } finally {
       setSaving(false);
@@ -194,7 +194,7 @@ export function ItemsPage({ session, catalogScope, onBack, onLogout }: Props) {
       await itemService.deleteItem(draft.id);
       setDraft(null);
       setDirty(false);
-      setFeedback({ kind: "success", message: `${name} was deleted from temporary session data.` });
+      setFeedback({ kind: "success", message: `${name} was deleted from the local Item archive.` });
       await Promise.all([refreshFacets(), loadLibrary(filters)]);
     } catch (error: unknown) {
       setFeedback({ kind: "error", message: error instanceof Error ? error.message : "The Item could not be deleted." });
@@ -229,7 +229,7 @@ export function ItemsPage({ session, catalogScope, onBack, onLogout }: Props) {
   return (
     <main className="skills-page items-page">
       <header className="skills-page__header"><div className="skills-page__brand"><BrandLogo /></div><div className="skills-page__title"><p>THE HEAVENS / {title.toLocaleUpperCase("en-US")}</p><h1>{title}</h1><span>G.O.D. master catalog · {session.username}</span></div><div className="skills-page__navigation"><button type="button" onClick={() => requestExit("heavens")}>Back to The Heavens</button><button type="button" onClick={() => requestExit("logout")}>Log Out</button></div></header>
-      <div className="items-page__notice" role="note"><strong>Authoring prototype</strong><span>{subtitle}. Values are temporary and session-only until the canonical spreadsheet/database contract arrives.</span></div>
+      <div className="items-page__notice" role="note"><strong>Master Item archive</strong><span>{subtitle}. Changes are stored permanently in this installation&apos;s local SQLite archive.</span></div>
       <div className="skills-workspace items-workspace">
         <ItemLibrary catalogScope={catalogScope} page={library} facets={facets} filters={filters} selectedItemId={draft?.id} loading={loadingLibrary} onFiltersChange={setFilters} onSelect={selectItem} onNewItem={beginItem} />
         {loadingEditor ? <section className="skill-editor skill-editor--empty"><p>LOADING ITEM</p></section> : <ItemEditor key={editorKey} draft={draft} references={references} saving={saving} dirty={dirty} feedback={feedback} onChange={(next) => { setDraft(next); setDirty(true); setFeedback(null); }} onSave={() => void saveItem()} onDelete={() => void deleteItem()} onCreateVariant={(name) => void createVariant(name)} findItems={(search, excludeItemId) => itemService.findRelatedItems(search, excludeItemId)} findCreatures={(search) => itemService.findRelatedCreatures(search)} />}

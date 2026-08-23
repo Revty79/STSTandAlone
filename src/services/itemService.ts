@@ -62,9 +62,10 @@ function normalizeProperty(row: ItemPropertyDraft, sortOrder: number): ItemPrope
   };
 }
 
-function normalizeWeapon(profile: ItemWeaponProfileDraft | null): ItemWeaponProfileDraft | null {
+function normalizeWeapon(profile: ItemWeaponProfileDraft | null, recordType: string): ItemWeaponProfileDraft | null {
   if (!profile) return null;
   return {
+    profileRecordType: clean(profile.profileRecordType) || clean(recordType),
     weaponType: clean(profile.weaponType),
     handedness: clean(profile.handedness),
     damageSource: clean(profile.damageSource),
@@ -75,10 +76,10 @@ function normalizeWeapon(profile: ItemWeaponProfileDraft | null): ItemWeaponProf
     ammunitionItemId: profile.ammunitionItemId,
     ammunitionItemName: profile.ammunitionItemId ? optionalText(profile.ammunitionItemName) : null,
     compatibility: clean(profile.compatibility),
-    capacity: nonNegative(profile.capacity, "Weapon Capacity"),
+    capacity: clean(profile.capacity),
     fireModes: [...new Set(profile.fireModes.map(clean).filter(Boolean))],
     rateOfFire: clean(profile.rateOfFire),
-    reloadInitiative: nonNegative(profile.reloadInitiative, "Reload Initiative"),
+    reloadInitiative: clean(profile.reloadInitiative),
     rulesText: clean(profile.rulesText),
   };
 }
@@ -90,12 +91,14 @@ function normalizeArmor(profile: ItemArmorProfileDraft | null): ItemArmorProfile
     coverage: clean(profile.coverage),
     baseSoak: nonNegative(profile.baseSoak, "Base Soak"),
     damageModifiers: profile.damageModifiers.map((row, sortOrder) => ({
+      modifierText: clean(row.modifierText),
       damageType: required(row.damageType, `Damage Modifier ${sortOrder + 1} Type`),
       modifier: required(row.modifier, `Damage Modifier ${sortOrder + 1} Value`),
       notes: clean(row.notes),
       sortOrder,
     })),
     coveredBodyLocationKeys: [...new Set(profile.coveredBodyLocationKeys.map(clean).filter(Boolean))],
+    damageModifiersSourceText: clean(profile.damageModifiersSourceText),
     rulesText: clean(profile.rulesText),
   };
 }
@@ -104,6 +107,9 @@ export function normalizeItemAggregate(input: SaveItemAggregate): SaveItemAggreg
   const equipmentGroup = input.core.catalogScope === "equipment"
     ? input.core.equipmentGroup ?? "general"
     : null;
+  if ((input.core.weight === null) !== (clean(input.core.weightUnit) === "")) {
+    throw new ItemValidationError("Weight and Weight Unit must be provided together.");
+  }
   return {
     id: input.id,
     core: {
@@ -112,8 +118,8 @@ export function normalizeItemAggregate(input: SaveItemAggregate): SaveItemAggreg
       name: required(input.core.name, "Item Name"),
       equipmentGroup,
       recordType: required(input.core.recordType, "Record Type"),
-      family: clean(input.core.family),
-      category: clean(input.core.category),
+      family: required(input.core.family, "Family"),
+      category: required(input.core.category, "Category"),
       subtype: clean(input.core.subtype),
       description: clean(input.core.description),
       weight: nonNegative(input.core.weight, "Weight"),
@@ -121,12 +127,12 @@ export function normalizeItemAggregate(input: SaveItemAggregate): SaveItemAggreg
       size: clean(input.core.size),
       durability: nonNegative(input.core.durability, "Durability"),
       credits: nonNegative(input.core.credits, "Credits"),
-      priceBasis: clean(input.core.priceBasis),
+      priceBasis: required(input.core.priceBasis, "Price Basis"),
       parentItemName: optionalText(input.core.parentItemName),
       sourceSystem: optionalText(input.core.sourceSystem),
     },
     properties: input.properties.map(normalizeProperty),
-    weaponProfile: normalizeWeapon(input.weaponProfile),
+    weaponProfile: normalizeWeapon(input.weaponProfile, input.core.recordType),
     armorProfile: normalizeArmor(input.armorProfile),
     tags: [...new Set(input.tags.map(clean).filter(Boolean))],
     variants: input.variants,

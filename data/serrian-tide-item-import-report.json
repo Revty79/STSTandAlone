@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "spreadsheetId": "1dGEJSExi2Sw2AWWcvWop6PCUzjnSnZ96_nwu_TaEnN0",
+  "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1dGEJSExi2Sw2AWWcvWop6PCUzjnSnZ96_nwu_TaEnN0/edit",
+  "sourceModifiedTime": "2026-08-23T14:37:31.846Z",
+  "expectedCounts": {
+    "items": 1007,
+    "equipment": 494,
+    "inventory": 513,
+    "weaponProfiles": 221,
+    "armorProfiles": 47,
+    "properties": 252,
+    "tags": 8,
+    "tagLinks": 1242,
+    "armorLocations": 204,
+    "armorDamageModifiers": 128,
+    "rules": 16
+  },
+  "actualCounts": {
+    "items": 1007,
+    "equipment": 494,
+    "inventory": 513,
+    "weaponProfiles": 221,
+    "armorProfiles": 47,
+    "properties": 252,
+    "tags": 8,
+    "tagLinks": 1242,
+    "armorLocations": 204,
+    "armorDamageModifiers": 128,
+    "rules": 16
+  },
+  "status": "PASS",
+  "unresolvedRecords": [],
+  "transformations": [
+    "Catalog Window Equipment/Inventory maps to catalog_scope equipment/inventory.",
+    "Equipment browse group derives from Equipment plus Record_Type; Inventory stores NULL.",
+    "Spreadsheet canonical Item_ID and legacy namespaces are preserved exactly.",
+    "SQLite internal item IDs are generated independently from canonical IDs.",
+    "Weapon Capacity, Reload Initiative, Damage, Range, Reach, Rate of Fire, and Compatibility remain text-capable.",
+    "Weapons.Fire_Modes is stored as a JSON string array without changing the displayed values.",
+    "Ammunition_ID and ITEM-/OFFER- Property relationships resolve to internal Item foreign keys.",
+    "CR- Property relationships retain the Creature canonical ID and reference the Creature catalog.",
+    "Catalog.Tags is audited against normalized Item_Tags; permanent storage uses Item tag links.",
+    "Armor Body Shot Bob names resolve to canonical Reference codes and normalized location links.",
+    "Armor compound modifier text is retained while Armor_Damage_Modifiers supplies repeatable editor rows."
+  ],
+  "hashes": {
+    "snapshotSha256": "15ef78ffdf43a35d7d531dff7eccc324ff075852d0c89e40659a580280b8b1d9",
+    "seedSha256": "9e53eedd53aa7549806c4046ea03ab18d0ef0e8e8a44808095bb9b49c7f464e8",
+    "migrationSha256": "cd6f5dfc1d39addde069c54cb5846009cced3a81988dfc1e8e1f1faf9c78543b"
+  }
+}
