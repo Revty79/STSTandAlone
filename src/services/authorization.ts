@@ -16,6 +16,7 @@ export function canAccessDestination(
   switch (destination) {
     case "access-choice":
     case "heavens":
+    case "campaign-create":
     case "skills":
     case "races":
     case "creatures":

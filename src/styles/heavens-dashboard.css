@@ -226,7 +226,7 @@
     box-shadow 160ms ease;
 }
 
-.campaign-control__actions button:hover,
+.campaign-control__actions button:hover:not(:disabled),
 .heavens-dashboard__return:hover {
   transform: translateY(-1px);
   border-color: rgb(220 188 123 / 78%);
@@ -253,6 +253,189 @@
   margin-top: 22px;
   padding: 22px 0 2px;
   border-top: 1px solid rgb(190 162 105 / 18%);
+}
+
+.campaign-control__actions button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+.campaign-player-panel,
+.campaign-character-panel {
+  margin-top: 22px;
+  padding: 22px 0 2px;
+  border-top: 1px solid rgb(190 162 105 / 18%);
+}
+
+.campaign-character-panel__create {
+  display: flex;
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid rgb(190 162 105 / 17%);
+  border-radius: 4px;
+  background: rgb(3 10 14 / 28%);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.campaign-character-panel__create > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campaign-character-panel__create strong {
+  color: #e6ddce;
+  font: 400 0.94rem "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+}
+
+.campaign-character-panel__create span {
+  color: rgb(192 201 198 / 49%);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.campaign-character-panel__create button {
+  min-height: 42px;
+  padding: 9px 17px;
+  border: 1px solid rgb(190 162 105 / 48%);
+  border-radius: 4px;
+  color: rgb(241 234 220 / 88%);
+  background: linear-gradient(180deg, rgb(42 57 62 / 88%), rgb(20 30 36 / 93%));
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.campaign-character-panel__create button:hover:not(:disabled) {
+  border-color: rgb(220 188 123 / 78%);
+  background: linear-gradient(180deg, rgb(50 68 72 / 95%), rgb(24 36 42 / 97%));
+}
+
+.campaign-character-panel__create button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.campaign-character-panel__scope {
+  margin: 9px 0 0;
+  color: rgb(192 201 198 / 49%);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.campaign-character-panel__existing {
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid rgb(132 158 158 / 14%);
+  border-radius: 4px;
+  background: rgb(3 10 14 / 28%);
+}
+
+.campaign-character-panel__existing h5 {
+  margin: 0 0 8px;
+  color: #c8b27e;
+  font: 400 0.88rem "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+}
+
+.campaign-character-panel__existing p,
+.campaign-character-panel__existing ul {
+  margin: 0;
+  color: rgb(224 220 210 / 65%);
+  font-size: 0.76rem;
+}
+
+.campaign-character-panel__existing ul {
+  display: flex;
+  padding: 0;
+  flex-wrap: wrap;
+  gap: 7px;
+  list-style: none;
+}
+
+.campaign-character-panel__existing li {
+  padding: 5px 9px;
+  border: 1px solid rgb(190 162 105 / 17%);
+  border-radius: 999px;
+  background: rgb(35 48 51 / 42%);
+}
+
+.campaign-player-panel__profiles {
+  display: grid;
+  margin-top: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.campaign-player-panel__profile {
+  display: flex;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgb(132 158 158 / 16%);
+  border-radius: 4px;
+  background: rgb(3 10 14 / 28%);
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.campaign-player-panel__profile > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.campaign-player-panel__profile strong {
+  overflow: hidden;
+  color: #e6ddce;
+  font: 400 0.94rem "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.campaign-player-panel__profile span {
+  color: rgb(192 201 198 / 49%);
+  font-size: 0.63rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.campaign-player-panel__profile button {
+  min-width: 76px;
+  min-height: 34px;
+  padding: 6px 13px;
+  border: 1px solid rgb(190 162 105 / 42%);
+  border-radius: 4px;
+  color: rgb(241 234 220 / 88%);
+  background: linear-gradient(180deg, rgb(42 57 62 / 88%), rgb(20 30 36 / 93%));
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  cursor: pointer;
+}
+
+.campaign-player-panel__profile button:hover:not(:disabled) {
+  border-color: rgb(220 188 123 / 78%);
+  background: linear-gradient(180deg, rgb(50 68 72 / 95%), rgb(24 36 42 / 97%));
+}
+
+.campaign-player-panel__profile button:disabled {
+  border-color: rgb(132 158 158 / 15%);
+  color: rgb(213 216 211 / 43%);
+  background: rgb(18 30 35 / 50%);
+  cursor: default;
+}
+
+.campaign-player-panel__profile button:focus-visible {
+  outline: 2px solid #d9bd82;
+  outline-offset: 3px;
+}
+
+.campaign-player-panel__success {
+  margin: 13px 0 0;
+  color: #9fc8ae;
+  font-size: 0.78rem;
 }
 
 .campaign-information__header {
@@ -299,6 +482,104 @@
   color: rgb(213 216 211 / 62%);
   font-size: 0.86rem;
   line-height: 1.55;
+}
+
+.campaign-information__message--error {
+  color: #dda9a1;
+}
+
+.campaign-information__body {
+  margin-top: 18px;
+}
+
+.campaign-information__rules {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.campaign-information__rules div {
+  padding: 10px 12px;
+  border: 1px solid rgb(132 158 158 / 14%);
+  border-radius: 4px;
+  background: rgb(3 10 14 / 27%);
+}
+
+.campaign-information__rules dt {
+  color: rgb(201 181 141 / 68%);
+  font-size: 0.64rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.campaign-information__rules dd {
+  margin: 4px 0 0;
+  color: #eee4d2;
+  font: 400 1.03rem "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+}
+
+.campaign-information__columns {
+  display: grid;
+  margin-top: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.campaign-information__columns section,
+.campaign-information__inventory {
+  padding: 13px 14px;
+  border: 1px solid rgb(190 162 105 / 14%);
+  border-radius: 4px;
+  background: rgb(18 30 35 / 35%);
+}
+
+.campaign-information__body h5 {
+  margin: 0 0 8px;
+  color: #c8b27e;
+  font: 400 0.9rem "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+}
+
+.campaign-information__body h5 span {
+  margin-left: 8px;
+  color: rgb(213 216 211 / 48%);
+  font: 600 0.62rem system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.campaign-information__body p,
+.campaign-information__body ul {
+  margin: 0;
+  color: rgb(224 220 210 / 72%);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.campaign-information__body ul {
+  padding-left: 17px;
+}
+
+.campaign-information__body li + li {
+  margin-top: 5px;
+}
+
+.campaign-information__body li span {
+  display: block;
+  color: rgb(195 202 199 / 50%);
+  font-size: 0.68rem;
+}
+
+.campaign-information__inventory {
+  margin-top: 10px;
+}
+
+.campaign-information__inventory ul {
+  display: grid;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  list-style: none;
 }
 
 .heavens-tools {
@@ -447,6 +728,18 @@
 
   .heavens-tools__grid {
     grid-template-columns: 1fr;
+  }
+
+  .campaign-information__rules,
+  .campaign-information__columns,
+  .campaign-information__inventory ul,
+  .campaign-player-panel__profiles {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-character-panel__create {
+    align-items: stretch;
+    flex-direction: column;
   }
 
 }

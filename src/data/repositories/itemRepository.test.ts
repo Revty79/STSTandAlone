@@ -41,6 +41,31 @@ describe("TauriItemRepository", () => {
     });
   });
 
+  it("reads grouped inventory Tags without changing catalog data", async () => {
+    const calls: Array<{ query: string; values: unknown[] }> = [];
+    const database: ItemDatabase = {
+      async select<T>(query: string, values: unknown[] = []): Promise<T> {
+        calls.push({ query, values });
+        return [{
+          name: "Fantasy",
+          tagGroup: "Genre Pack",
+          description: "Fantasy inventory content.",
+        }] as T;
+      },
+      async execute() { return { rowsAffected: 0 }; },
+    };
+    const repository = new TauriItemRepository(async () => database);
+
+    await expect(repository.listTagReferences("inventory")).resolves.toEqual([{
+      name: "Fantasy",
+      tagGroup: "Genre Pack",
+      description: "Fantasy inventory content.",
+    }]);
+    expect(calls[0]?.query).toMatch(/select distinct tag\.name, tag\.tag_group as tagGroup/i);
+    expect(calls[0]?.values).toEqual(["inventory"]);
+    expect(calls[0]?.query).not.toMatch(/insert|update|delete/i);
+  });
+
   it("uses the native aggregate transaction and reloads its committed result", async () => {
     const draft = { id: 8 } as SaveItemAggregate;
     const invoker = vi.fn(async () => 8);

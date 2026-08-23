@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
 import { CampaignInformationPanel } from "../components/CampaignInformationPanel";
+import { CampaignCharacterPanel } from "../components/CampaignCharacterPanel";
+import { CampaignPlayerPanel } from "../components/CampaignPlayerPanel";
 import {
   PortalActionCard,
   type PortalActionDefinition,
@@ -10,10 +12,19 @@ import {
   HEAVENS_CORE_TOOLS,
   getHeavensToolDestination,
 } from "./heavensDashboardTools";
+import { campaignService } from "../services/campaignService";
+import type {
+  CampaignAggregate,
+  CampaignCharacterReference,
+  CampaignPlayerReference,
+  CampaignProfileReference,
+  CampaignSummary,
+} from "../types/campaign";
 import "../styles/heavens-dashboard.css";
 
 type HeavensDashboardPageProps = {
   session: AuthSession;
+  onCreateCampaign: () => void;
   onOpenRaces: () => void;
   onOpenSkills: () => void;
   onOpenCreatures: () => void;
@@ -31,6 +42,7 @@ const CONTROL_PLACEHOLDERS = {
 
 export function HeavensDashboardPage({
   session,
+  onCreateCampaign,
   onOpenRaces,
   onOpenSkills,
   onOpenCreatures,
@@ -42,6 +54,216 @@ export function HeavensDashboardPage({
   const [notice, setNotice] = useState("");
   const [isCampaignInformationOpen, setIsCampaignInformationOpen] =
     useState(false);
+  const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
+  const [campaignsLoading, setCampaignsLoading] = useState(true);
+  const [campaignListError, setCampaignListError] = useState("");
+  const [selectedCampaignId, setSelectedCampaignId] = useState("");
+  const [selectedCampaign, setSelectedCampaign] = useState<CampaignAggregate | null>(null);
+  const [campaignInformationLoading, setCampaignInformationLoading] = useState(false);
+  const [campaignInformationError, setCampaignInformationError] = useState("");
+  const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
+  const [profiles, setProfiles] = useState<CampaignProfileReference[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(false);
+  const [profilesError, setProfilesError] = useState("");
+  const [addingProfileId, setAddingProfileId] = useState<number | null>(null);
+  const [addPlayerMessage, setAddPlayerMessage] = useState("");
+  const [campaignPlayers, setCampaignPlayers] = useState<CampaignPlayerReference[]>([]);
+  const [campaignPlayersLoading, setCampaignPlayersLoading] = useState(false);
+  const [campaignPlayersError, setCampaignPlayersError] = useState("");
+  const [selectedPlayerId, setSelectedPlayerId] = useState("");
+  const [isCharacterPanelOpen, setIsCharacterPanelOpen] = useState(false);
+  const [campaignCharacters, setCampaignCharacters] = useState<CampaignCharacterReference[]>([]);
+  const [campaignCharactersLoading, setCampaignCharactersLoading] = useState(false);
+  const [campaignCharactersError, setCampaignCharactersError] = useState("");
+  const [characterSaving, setCharacterSaving] = useState(false);
+  const [characterMessage, setCharacterMessage] = useState("");
+  const [selectedCharacterId, setSelectedCharacterId] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    campaignService.listCampaigns()
+      .then((savedCampaigns) => {
+        if (active) setCampaigns(savedCampaigns);
+      })
+      .catch(() => {
+        if (active) setCampaignListError("Saved Campaigns could not be read from the local archive.");
+      })
+      .finally(() => {
+        if (active) setCampaignsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    setCampaignPlayers([]);
+    setSelectedPlayerId("");
+    setCampaignPlayersError("");
+    if (!selectedCampaignId) {
+      setCampaignPlayersLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setCampaignPlayersLoading(true);
+    campaignService.listCampaignPlayers(Number(selectedCampaignId))
+      .then((players) => {
+        if (active) setCampaignPlayers(players);
+      })
+      .catch(() => {
+        if (active) setCampaignPlayersError("Campaign Players could not be read from the local archive.");
+      })
+      .finally(() => {
+        if (active) setCampaignPlayersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedCampaignId]);
+
+  useEffect(() => {
+    let active = true;
+    setProfiles([]);
+    setProfilesError("");
+    setAddPlayerMessage("");
+    if (!isAddPlayerOpen || !selectedCampaignId) {
+      setProfilesLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setProfilesLoading(true);
+    campaignService.listProfilesForCampaign(Number(selectedCampaignId))
+      .then((availableProfiles) => {
+        if (active) setProfiles(availableProfiles);
+      })
+      .catch(() => {
+        if (active) setProfilesError("Local profiles could not be read for this Campaign.");
+      })
+      .finally(() => {
+        if (active) setProfilesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isAddPlayerOpen, selectedCampaignId]);
+
+  useEffect(() => {
+    let active = true;
+    setCampaignCharacters([]);
+    setSelectedCharacterId("");
+    setCampaignCharactersError("");
+    setCharacterMessage("");
+    if (!selectedCampaignId || !selectedPlayerId) {
+      setCampaignCharactersLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setCampaignCharactersLoading(true);
+    campaignService.listCharacters(
+      Number(selectedCampaignId),
+      Number(selectedPlayerId),
+    )
+      .then((characters) => {
+        if (active) setCampaignCharacters(characters);
+      })
+      .catch(() => {
+        if (active) {
+          setCampaignCharactersError(
+            "Characters for this Campaign Player could not be read from the local archive.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setCampaignCharactersLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selectedCampaignId, selectedPlayerId]);
+
+  async function viewCampaign() {
+    setIsAddPlayerOpen(false);
+    setIsCharacterPanelOpen(false);
+    setIsCampaignInformationOpen(true);
+    setSelectedCampaign(null);
+    setCampaignInformationError("");
+    if (!selectedCampaignId) return;
+
+    setCampaignInformationLoading(true);
+    try {
+      const savedCampaign = await campaignService.getCampaign(Number(selectedCampaignId));
+      if (!savedCampaign) {
+        setCampaignInformationError("That Campaign is no longer available in the local archive.");
+        return;
+      }
+      setSelectedCampaign(savedCampaign);
+    } catch {
+      setCampaignInformationError("The Campaign and its linked records could not be loaded.");
+    } finally {
+      setCampaignInformationLoading(false);
+    }
+  }
+
+  async function addPlayer(profileId: number) {
+    if (!selectedCampaignId) return;
+    setAddingProfileId(profileId);
+    setProfilesError("");
+    setAddPlayerMessage("");
+    try {
+      const players = await campaignService.addPlayer(Number(selectedCampaignId), profileId);
+      const addedProfile = profiles.find((profile) => profile.id === profileId);
+      setCampaignPlayers(players);
+      setSelectedPlayerId(String(profileId));
+      setProfiles((current) => current.map((profile) =>
+        profile.id === profileId ? { ...profile, isCampaignPlayer: true } : profile,
+      ));
+      setAddPlayerMessage(
+        `${addedProfile?.username ?? "The profile"} is now a Player in this Campaign.`,
+      );
+    } catch {
+      setProfilesError("That profile could not be added as a Player in this Campaign.");
+    } finally {
+      setAddingProfileId(null);
+    }
+  }
+
+  async function createNewCharacter() {
+    if (!selectedCampaignId || !selectedPlayerId) return;
+    setIsCampaignInformationOpen(false);
+    setIsAddPlayerOpen(false);
+    setIsCharacterPanelOpen(true);
+    setCharacterSaving(true);
+    setCampaignCharactersError("");
+    setCharacterMessage("");
+    try {
+      const character = await campaignService.createCharacter(
+        Number(selectedCampaignId),
+        Number(selectedPlayerId),
+      );
+      const characters = await campaignService.listCharacters(
+        Number(selectedCampaignId),
+        Number(selectedPlayerId),
+      );
+      setCampaignCharacters(characters);
+      setSelectedCharacterId(String(character.id));
+      setCharacterMessage(
+        "New Character is saved and linked to this Player and Campaign.",
+      );
+    } catch {
+      setCampaignCharactersError(
+        "New Character could not be created for this Campaign Player.",
+      );
+    } finally {
+      setCharacterSaving(false);
+    }
+  }
 
   function showComingSoon(label: string) {
     setNotice(`${label} is coming soon.`);
@@ -103,21 +325,38 @@ export function HeavensDashboardPage({
           <div className="campaign-control__rows">
             <div className="campaign-control__row">
               <label htmlFor="campaign-select">Campaign</label>
-              <select id="campaign-select" defaultValue="">
-                <option value="">{CONTROL_PLACEHOLDERS.campaign}</option>
+              <select
+                id="campaign-select"
+                value={selectedCampaignId}
+                disabled={campaignsLoading}
+                onChange={(event) => {
+                  setSelectedCampaignId(event.target.value);
+                  setSelectedCampaign(null);
+                  setCampaignInformationError("");
+                  setIsCampaignInformationOpen(false);
+                  setIsAddPlayerOpen(false);
+                  setIsCharacterPanelOpen(false);
+                }}
+              >
+                <option value="">
+                  {campaignsLoading ? "Reading Campaigns…" : CONTROL_PLACEHOLDERS.campaign}
+                </option>
+                {campaigns.map((campaign) => (
+                  <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                ))}
               </select>
               <div className="campaign-control__actions">
                 <button
                   type="button"
                   aria-expanded={isCampaignInformationOpen}
                   aria-controls="campaign-information"
-                  onClick={() => setIsCampaignInformationOpen(true)}
+                  onClick={viewCampaign}
                 >
                   View Campaign
                 </button>
                 <button
                   type="button"
-                  onClick={() => showComingSoon("Create Campaign")}
+                  onClick={onCreateCampaign}
                 >
                   Create Campaign
                 </button>
@@ -126,13 +365,38 @@ export function HeavensDashboardPage({
 
             <div className="campaign-control__row">
               <label htmlFor="player-select">Player</label>
-              <select id="player-select" defaultValue="">
-                <option value="">{CONTROL_PLACEHOLDERS.player}</option>
+              <select
+                id="player-select"
+                value={selectedPlayerId}
+                disabled={!selectedCampaignId || campaignPlayersLoading}
+                onChange={(event) => {
+                  setSelectedPlayerId(event.target.value);
+                  setIsCharacterPanelOpen(false);
+                }}
+              >
+                <option value="">
+                  {!selectedCampaignId
+                    ? "Select a Campaign First"
+                    : campaignPlayersLoading
+                      ? "Reading Players…"
+                      : campaignPlayers.length === 0
+                        ? "No Players Added"
+                        : CONTROL_PLACEHOLDERS.player}
+                </option>
+                {campaignPlayers.map((player) => (
+                  <option key={player.id} value={player.id}>{player.username}</option>
+                ))}
               </select>
               <div className="campaign-control__actions">
                 <button
                   type="button"
-                  onClick={() => showComingSoon("Add Player")}
+                  aria-expanded={isAddPlayerOpen}
+                  aria-controls="campaign-player-panel"
+                  onClick={() => {
+                    setIsCampaignInformationOpen(false);
+                    setIsCharacterPanelOpen(false);
+                    setIsAddPlayerOpen(true);
+                  }}
                 >
                   Add Player
                 </button>
@@ -141,18 +405,38 @@ export function HeavensDashboardPage({
 
             <div className="campaign-control__row">
               <label htmlFor="character-select">Character</label>
-              <select id="character-select" defaultValue="">
-                <option value="">{CONTROL_PLACEHOLDERS.character}</option>
+              <select
+                id="character-select"
+                value={selectedCharacterId}
+                disabled={!selectedPlayerId || campaignCharactersLoading}
+                onChange={(event) => setSelectedCharacterId(event.target.value)}
+              >
+                <option value="">
+                  {!selectedPlayerId
+                    ? "Select a Player First"
+                    : campaignCharactersLoading
+                      ? "Reading Characters…"
+                      : campaignCharacters.length === 0
+                        ? "No Characters Created"
+                        : CONTROL_PLACEHOLDERS.character}
+                </option>
+                {campaignCharacters.map((character) => (
+                  <option key={character.id} value={character.id}>{character.name}</option>
+                ))}
               </select>
               <div className="campaign-control__actions campaign-control__actions--character">
                 <button
                   type="button"
-                  onClick={() => showComingSoon("New Character")}
+                  disabled={!selectedCampaignId || !selectedPlayerId || characterSaving}
+                  aria-expanded={isCharacterPanelOpen}
+                  aria-controls="campaign-character-panel"
+                  onClick={createNewCharacter}
                 >
                   New Character
                 </button>
                 <button
                   type="button"
+                  disabled={!selectedCharacterId}
                   onClick={() => showComingSoon("Edit Character")}
                 >
                   Edit Character
@@ -163,9 +447,58 @@ export function HeavensDashboardPage({
 
           {isCampaignInformationOpen && (
             <CampaignInformationPanel
+              campaign={selectedCampaign}
+              loading={campaignInformationLoading}
+              error={campaignInformationError}
               onClose={() => setIsCampaignInformationOpen(false)}
             />
           )}
+          {isAddPlayerOpen ? (
+            <CampaignPlayerPanel
+              campaignName={campaigns.find(
+                (campaign) => String(campaign.id) === selectedCampaignId,
+              )?.name}
+              profiles={profiles}
+              loading={profilesLoading}
+              error={profilesError}
+              addingProfileId={addingProfileId}
+              successMessage={addPlayerMessage}
+              onAdd={addPlayer}
+              onClose={() => setIsAddPlayerOpen(false)}
+            />
+          ) : null}
+          {isCharacterPanelOpen ? (
+            <CampaignCharacterPanel
+              campaignName={campaigns.find(
+                (campaign) => String(campaign.id) === selectedCampaignId,
+              )?.name}
+              playerName={campaignPlayers.find(
+                (player) => String(player.id) === selectedPlayerId,
+              )?.username}
+              characters={campaignCharacters}
+              loading={campaignCharactersLoading}
+              saving={characterSaving}
+              error={campaignCharactersError}
+              successMessage={characterMessage}
+              onCreate={createNewCharacter}
+              onClose={() => setIsCharacterPanelOpen(false)}
+            />
+          ) : null}
+          {campaignListError ? (
+            <p className="campaign-information__message campaign-information__message--error" role="alert">
+              {campaignListError}
+            </p>
+          ) : null}
+          {campaignPlayersError ? (
+            <p className="campaign-information__message campaign-information__message--error" role="alert">
+              {campaignPlayersError}
+            </p>
+          ) : null}
+          {!isCharacterPanelOpen && campaignCharactersError ? (
+            <p className="campaign-information__message campaign-information__message--error" role="alert">
+              {campaignCharactersError}
+            </p>
+          ) : null}
         </section>
 
         <section

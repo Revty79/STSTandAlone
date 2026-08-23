@@ -9,6 +9,7 @@ import type {
   ItemLibraryFilters,
   ItemLibraryPage,
   ItemSummary,
+  ItemTagReference,
   RelatedCreatureCandidate,
   RelatedItemCandidate,
   SaveItemAggregate,
@@ -57,6 +58,7 @@ function parseFireModes(value: string): string[] {
 export interface ItemRepository {
   listItems(filters: ItemLibraryFilters): Promise<ItemLibraryPage>;
   listFacets(catalogScope: ItemCatalogScope): Promise<ItemLibraryFacets>;
+  listTagReferences(catalogScope: ItemCatalogScope): Promise<ItemTagReference[]>;
   listAuthoringReferences(): Promise<ItemAuthoringReferences>;
   getItemAggregate(id: number): Promise<ItemAggregate | null>;
   saveItemAggregate(input: SaveItemAggregate): Promise<ItemAggregate>;
@@ -133,6 +135,19 @@ export class TauriItemRepository implements ItemRepository {
         WHERE item.catalog_scope=$1`, [catalogScope]),
     ]);
     return { recordTypes: uniqueSorted(recordTypes), categories: uniqueSorted(categories), tags: uniqueSorted(tags) };
+  }
+
+  async listTagReferences(catalogScope: ItemCatalogScope): Promise<ItemTagReference[]> {
+    const database = await this.databaseProvider();
+    return database.select<ItemTagReference[]>(
+      `SELECT DISTINCT tag.name, tag.tag_group AS tagGroup, tag.description
+       FROM item_tags_catalog tag
+       JOIN item_tag_links link ON link.tag_id = tag.id
+       JOIN items item ON item.id = link.item_id
+       WHERE item.catalog_scope = $1
+       ORDER BY tag.tag_group COLLATE NOCASE, tag.name COLLATE NOCASE, tag.id`,
+      [catalogScope],
+    );
   }
 
   async listAuthoringReferences(): Promise<ItemAuthoringReferences> {

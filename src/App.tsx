@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { initializeDatabase } from "./data/database";
 import { AccessChoicePage } from "./pages/AccessChoicePage";
 import { HeavensDashboardPage } from "./pages/HeavensDashboardPage";
+import { CampaignPrototypePage } from "./pages/CampaignPrototypePage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
@@ -103,12 +104,21 @@ function App() {
         return (
           <HeavensDashboardPage
             session={session}
+            onCreateCampaign={() => navigateAuthenticated("campaign-create")}
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
             onOpenCreatures={() => navigateAuthenticated("creatures")}
             onOpenEquipment={() => navigateAuthenticated("equipment")}
             onOpenInventory={() => navigateAuthenticated("inventory")}
             onReturn={() => navigateAuthenticated("access-choice")}
+            onLogout={logout}
+          />
+        );
+      case "campaign-create":
+        return (
+          <CampaignPrototypePage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}
           />
         );

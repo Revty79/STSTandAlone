@@ -7,6 +7,7 @@ import type {
   ItemLibraryFilters,
   ItemLibraryPage,
   ItemPropertyDraft,
+  ItemTagReference,
   ItemWeaponProfileDraft,
   RelatedCreatureCandidate,
   RelatedItemCandidate,
@@ -148,6 +149,12 @@ export class ItemService {
 
   listFacets(catalogScope: ItemLibraryFilters["catalogScope"]): Promise<ItemLibraryFacets> {
     return this.repository.listFacets(catalogScope);
+  }
+
+  listTagReferences(
+    catalogScope: ItemLibraryFilters["catalogScope"],
+  ): Promise<ItemTagReference[]> {
+    return this.repository.listTagReferences(catalogScope);
   }
 
   listAuthoringReferences(): Promise<ItemAuthoringReferences> {

@@ -143,6 +143,12 @@ export type ItemLibraryFacets = {
   tags: string[];
 };
 
+export type ItemTagReference = {
+  name: string;
+  tagGroup: string;
+  description: string;
+};
+
 export type RelatedItemCandidate = {
   id: number;
   canonicalId: string;
