@@ -19,6 +19,8 @@ export function canAccessDestination(
     case "skills":
     case "races":
     case "creatures":
+    case "equipment":
+    case "inventory":
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
       return (

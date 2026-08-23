@@ -18,6 +18,8 @@ type HeavensDashboardPageProps = {
   onOpenRaces: () => void;
   onOpenSkills: () => void;
   onOpenCreatures: () => void;
+  onOpenEquipment: () => void;
+  onOpenInventory: () => void;
   onReturn: () => void;
   onLogout: () => void;
 };
@@ -33,6 +35,8 @@ export function HeavensDashboardPage({
   onOpenRaces,
   onOpenSkills,
   onOpenCreatures,
+  onOpenEquipment,
+  onOpenInventory,
   onReturn,
   onLogout,
 }: HeavensDashboardPageProps) {
@@ -56,6 +60,14 @@ export function HeavensDashboardPage({
     }
     if (destination === "creatures") {
       onOpenCreatures();
+      return;
+    }
+    if (destination === "equipment") {
+      onOpenEquipment();
+      return;
+    }
+    if (destination === "inventory") {
+      onOpenInventory();
       return;
     }
     showComingSoon(tool.title);

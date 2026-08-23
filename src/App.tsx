@@ -8,6 +8,7 @@ import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { RacesPage } from "./pages/RacesPage";
 import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
+import { EquipmentPage, InventoryPage } from "./pages/ItemsPage";
 import { authService } from "./services/authService";
 import {
   authorizeDestination,
@@ -105,6 +106,8 @@ function App() {
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
             onOpenCreatures={() => navigateAuthenticated("creatures")}
+            onOpenEquipment={() => navigateAuthenticated("equipment")}
+            onOpenInventory={() => navigateAuthenticated("inventory")}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
           />
@@ -128,6 +131,22 @@ function App() {
       case "creatures":
         return (
           <CreaturesPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "equipment":
+        return (
+          <EquipmentPage
+            session={session}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "inventory":
+        return (
+          <InventoryPage
             session={session}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}

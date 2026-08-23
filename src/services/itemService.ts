@@ -152,7 +152,7 @@ export class ItemService {
     return this.repository.getItemAggregate(id);
   }
 
-  saveItem(input: SaveItemAggregate): Promise<ItemAggregate> {
+  async saveItem(input: SaveItemAggregate): Promise<ItemAggregate> {
     return this.repository.saveItemAggregate(normalizeItemAggregate(input));
   }
 

@@ -23,6 +23,8 @@ describe("dashboard shells", () => {
         onOpenRaces={vi.fn()}
         onOpenSkills={vi.fn()}
         onOpenCreatures={vi.fn()}
+        onOpenEquipment={vi.fn()}
+        onOpenInventory={vi.fn()}
         onReturn={vi.fn()}
         onLogout={vi.fn()}
       />,
