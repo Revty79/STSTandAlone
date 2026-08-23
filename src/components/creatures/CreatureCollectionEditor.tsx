@@ -80,7 +80,7 @@ export function CreatureCollectionEditor<Row extends object>({
                 );
                 return (
                   <label className={className} key={field.key}>
-                    <span>{field.label}{field.type === "number" || field.type === "nullableText" ? <small>Blank remains unresolved</small> : null}</span>
+                    <span>{field.label}</span>
                     <input type={field.type === "number" ? "number" : "text"} min={field.min} max={field.max} step={field.step} value={value ?? ""} onChange={(event) => update(index, field, event.target.value)} />
                   </label>
                 );

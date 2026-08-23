@@ -22,7 +22,7 @@ describe("Creature management UI", () => {
         onNewCreature={vi.fn()}
       />,
     );
-    const resultList = markup.slice(markup.indexOf('creature-library__results'));
+    const resultList = markup.slice(markup.indexOf("creature-library__results"));
     expect(resultList).toContain("skill-library__row");
     expect(resultList).toContain("skill-library__row-name");
     expect(resultList).toContain(">Horse<");
@@ -31,37 +31,37 @@ describe("Creature management UI", () => {
     expect(resultList).not.toContain("CR 8");
   });
 
-  it("creates a neutral draft from shared Size and blank unresolved mechanics", () => {
+  it("creates a neutral draft with a complete initial CR and canonical XP", () => {
     const draft = newCreatureDraft(7);
-    expect(draft.core).toMatchObject({ size: "Medium", challengeRating: null, killXp: null, createdByUserId: 7 });
+    expect(draft.core).toMatchObject({ size: "Medium", challengeRating: 1, killXp: 1, calculatedChallengeRating: 1, challengeRatingAdjustment: 0, createdByUserId: 7 });
     expect(draft.attributes.map((row) => row.attributeKey)).toEqual(["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"]);
     expect(draft.attributes.every((row) => row.value === null)).toBe(true);
-    expect(draft.variants).toEqual([]);
+    expect(draft.derivedCreatures).toEqual([]);
   });
 
-  it("exposes every Creature section and visible CR guidance without hiding Notes", () => {
+  it("exposes every Creature section and transparent CR guidance without blank-is-unresolved language", () => {
     const draft = newCreatureDraft(7);
     draft.core.canonicalId = "CR-TEST";
     draft.core.canonicalName = "Test Creature";
-    draft.core.challengeRating = 8;
-    draft.core.notes = "PROPOSED FOR REVIEW — exact mechanic unresolved.";
+    draft.core.notes = "Authored note.";
     const markup = renderToStaticMarkup(
       <CreatureEditor
         draft={draft}
-        challengeRatings={[{ challengeRating: 8, threatBand: "Low", attackTargetGuidance: "78 to 73", damageGuidance: "2–6", initiativeGuidance: "12–36", soakGuidance: "0–5", hpToughnessGuidance: "Natural baseline", killXp: 3, currentCreatureExample: "Horse", exampleNotes: "Guidance only." }]}
+        challengeRatings={[{ challengeRating: 1, threatBand: "Minor", attackTargetGuidance: "95 to 90", damageGuidance: "1–3", initiativeGuidance: "12–25", soakGuidance: "0–2", hpToughnessGuidance: "Natural baseline", killXp: 1, currentCreatureExample: "Rat", exampleNotes: "Guidance only." }]}
         saving={false}
         dirty={false}
         feedback={null}
         onChange={vi.fn()}
         onSave={vi.fn()}
         onDelete={vi.fn()}
+        onCreateVariant={vi.fn()}
         findSkills={vi.fn(async () => [])}
       />,
     );
     for (const label of ["Overview", "Attributes", "Movement", "HP &amp; Hit Locations", "Attacks", "Skills", "Abilities", "Defenses", "Uses", "Variants"]) expect(markup).toContain(label);
-    expect(markup).toContain("PROPOSED FOR REVIEW");
-    expect(markup).toContain("Guidance only.");
-    expect(markup).toContain("not an automatic stat formula");
+    expect(markup).toContain("Authored note.");
+    expect(markup).toContain("TRANSPARENT CALCULATION");
+    expect(markup).not.toContain("Blank remains unresolved");
     expect(markup).not.toContain("IP Provenance");
   });
 
@@ -69,27 +69,19 @@ describe("Creature management UI", () => {
     const draft = newCreatureDraft(7);
     draft.attributes[0]!.value = 0;
     const markup = renderToStaticMarkup(
-      <CreatureAttributesEditor
-        attributes={draft.attributes}
-        variants={[]}
-        onChange={vi.fn()}
-      />,
+      <CreatureAttributesEditor attributes={draft.attributes} onChange={vi.fn()} />,
     );
-    for (const label of ["STR", "DEX", "CON", "INT", "WIS", "CHR"]) {
-      expect(markup).toContain(`>${label}<`);
-    }
+    for (const label of ["STR", "DEX", "CON", "INT", "WIS", "CHR"]) expect(markup).toContain(`>${label}<`);
     expect(markup).toContain('aria-label="STR value"');
     expect(markup).toContain('value="0"');
     expect(markup).not.toContain("Applies To");
-    expect(markup).not.toContain(">Notes<");
   });
 
   it("renders HP and hit locations as compact linked charts", () => {
     const markup = renderToStaticMarkup(
       <CreatureHpChartEditor
-        hpPools={[{ canonicalId: "HP-HORSE-TORSO", variantCanonicalId: null, poolName: "Torso", hpPercentage: 30, notes: "", sortOrder: 0 }]}
-        hitLocations={[{ variantCanonicalId: null, hitLocationNumber: 6, locationName: "Chest", bodyPartsIncluded: "Torso — chest", hpPoolCanonicalId: "HP-HORSE-TORSO", naturalArmor: 0, soak: 0, locationEffect: "", notes: "Shares Torso HP", sortOrder: 0 }]}
-        variants={[]}
+        hpPools={[{ canonicalId: "HP-HORSE-TORSO", poolName: "Torso", hpPercentage: 30, notes: "", sortOrder: 0 }]}
+        hitLocations={[{ hitLocationNumber: 6, locationName: "Chest", bodyPartsIncluded: "Torso — chest", hpPoolCanonicalId: "HP-HORSE-TORSO", naturalArmor: 0, soak: 0, locationEffect: "", notes: "Shares Torso HP", sortOrder: 0 }]}
         onChange={vi.fn()}
       />,
     );

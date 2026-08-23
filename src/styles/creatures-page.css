@@ -368,6 +368,27 @@
   grid-column: 1 / -1;
 }
 
+.creature-overview__grid output {
+  display: flex;
+  min-height: 38px;
+  padding: 9px 10px;
+  align-items: center;
+  border: 1px solid rgb(130 158 153 / 18%);
+  border-radius: 4px;
+  background: rgb(4 11 15 / 30%);
+  color: #eadcb9;
+  font: 400 1.05rem "Palatino Linotype", Georgia, serif;
+}
+
+.creature-overview__lineage {
+  margin: 0 0 15px;
+  padding: 10px 12px;
+  border-left: 2px solid rgb(200 173 112 / 75%);
+  background: rgb(200 173 112 / 6%);
+  color: rgb(222 218 207 / 68%);
+  font: 400 0.82rem/1.5 "Palatino Linotype", Georgia, serif;
+}
+
 .creature-cr-reference dl {
   display: grid;
   margin: 14px 0 10px;
@@ -403,6 +424,83 @@
   font: 400 0.78rem/1.5 "Palatino Linotype", Georgia, serif;
   white-space: pre-wrap;
 }
+
+.creature-cr-reference h4 {
+  margin: 18px 0 0;
+  color: #d8cba9;
+  font: 400 1rem "Palatino Linotype", Georgia, serif;
+}
+
+.creature-lineage__parent,
+.creature-lineage__creator,
+.creature-lineage__children article {
+  border: 1px solid rgb(200 173 112 / 20%);
+  border-radius: 5px;
+  background: rgb(4 11 15 / 30%);
+}
+
+.creature-lineage__parent {
+  display: grid;
+  margin: 16px 0;
+  padding: 14px;
+  gap: 4px;
+}
+
+.creature-lineage__parent span,
+.creature-lineage__creator label > span {
+  color: rgb(221 218 207 / 56%);
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.creature-lineage__parent strong {
+  color: #eadfca;
+  font: 400 1.1rem "Palatino Linotype", Georgia, serif;
+}
+
+.creature-lineage__parent small,
+.creature-lineage__notice,
+.creature-lineage__children span,
+.creature-lineage__children small {
+  color: rgb(222 218 207 / 50%);
+}
+
+.creature-lineage__creator {
+  display: grid;
+  padding: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.creature-lineage__creator label {
+  display: grid;
+  gap: 6px;
+}
+
+.creature-lineage__creator input { width: 100%; }
+.creature-lineage__notice { margin: 8px 0 0; font-size: 0.72rem; }
+.creature-lineage__children { margin-top: 20px; }
+.creature-lineage__children h4 { margin: 0 0 8px; color: #d8cba9; font: 400 1rem "Palatino Linotype", Georgia, serif; }
+
+.creature-lineage__children article {
+  display: flex;
+  margin-bottom: 6px;
+  padding: 11px 12px;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.creature-lineage__children article > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.creature-lineage__children strong,
+.creature-lineage__children b { color: #e3d8c2; }
 
 .creature-skill-search {
   display: block;
@@ -454,4 +552,7 @@
   .creature-hp-chart__heading { align-items: stretch; flex-direction: column; }
   .creature-chart-details__row { grid-template-columns: 1fr; }
   .creature-chart-details__row > strong { grid-column: auto; }
+  .creature-lineage__creator { grid-template-columns: 1fr; }
+  .creature-lineage__children article,
+  .creature-lineage__children article > div { align-items: flex-start; flex-direction: column; }
 }

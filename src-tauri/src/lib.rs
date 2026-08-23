@@ -21,6 +21,8 @@ const DROP_CREATURE_IP_PROVENANCE_MIGRATION: &str =
 const CAT_AND_FALCON_MIGRATION: &str = include_str!("../migrations/0010_seed_cat_and_falcon.sql");
 const REMOVE_CREATURE_REVIEW_NOTES_MIGRATION: &str =
     include_str!("../migrations/0011_remove_creature_review_notes.sql");
+const DERIVED_CREATURES_AND_CR_MIGRATION: &str =
+    include_str!("../migrations/0012_create_derived_creatures_and_cr.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -91,11 +93,18 @@ pub fn run() {
             sql: REMOVE_CREATURE_REVIEW_NOTES_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 12,
+            description: "create_derived_creatures_and_cr",
+            sql: DERIVED_CREATURES_AND_CR_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             creature_commands::save_creature_aggregate,
+            creature_commands::clone_creature_as_variant,
             race_commands::save_race_aggregate,
             skill_commands::save_skill_aggregate
         ])
@@ -112,9 +121,10 @@ pub fn run() {
 mod tests {
     use super::{
         CAT_AND_FALCON_MIGRATION, CREATURES_MIGRATION, CREATURE_CATALOG_MIGRATION,
-        DROP_CREATURE_IP_PROVENANCE_MIGRATION, INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION,
-        RACE_CATALOG_MIGRATION, REMOVE_CREATURE_REVIEW_NOTES_MIGRATION, SKILLS_MIGRATION,
-        SKILL_CATALOG_MIGRATION, SPELL_CONSTRUCTION_MIGRATION,
+        DERIVED_CREATURES_AND_CR_MIGRATION, DROP_CREATURE_IP_PROVENANCE_MIGRATION,
+        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION,
+        REMOVE_CREATURE_REVIEW_NOTES_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
+        SPELL_CONSTRUCTION_MIGRATION,
     };
     use rusqlite::{params, Connection};
 
@@ -1243,5 +1253,99 @@ mod tests {
             )
             .expect("idempotent supplement counts");
         assert_eq!(counts_after_reapply, (88, 820, 162));
+    }
+
+    #[test]
+    fn derived_creature_migration_converts_variant_shells_and_canonicalizes_cr_xp() {
+        let connection = Connection::open_in_memory().expect("open in-memory database");
+        connection
+            .execute_batch(INITIAL_ACCOUNT_MIGRATION)
+            .expect("accounts");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("Skill schema");
+        connection
+            .execute_batch(CREATURES_MIGRATION)
+            .expect("Creature schema");
+        connection
+            .execute_batch(CREATURE_CATALOG_MIGRATION)
+            .expect("Creature seed");
+        connection
+            .execute_batch(DROP_CREATURE_IP_PROVENANCE_MIGRATION)
+            .expect("drop provenance");
+        connection
+            .execute_batch(CAT_AND_FALCON_MIGRATION)
+            .expect("Cat and Falcon");
+        connection
+            .execute_batch(REMOVE_CREATURE_REVIEW_NOTES_MIGRATION)
+            .expect("review-note cleanup");
+        connection.execute(
+            "INSERT INTO creatures (canonical_id, canonical_name, family, creature_type, size, notes)
+             VALUES ('CR-USER-DRAFT', 'User Draft', 'User Family', 'Animal', 'Medium', 'Keep me')",
+            [],
+        ).expect("pre-migration user Creature");
+
+        connection
+            .execute_batch(DERIVED_CREATURES_AND_CR_MIGRATION)
+            .expect("derived Creature migration");
+
+        let counts: (i64, i64, i64) = connection.query_row(
+            "SELECT
+               (SELECT COUNT(*) FROM creatures),
+               (SELECT COUNT(*) FROM creature_variants),
+               (SELECT COUNT(*) FROM creatures child JOIN creatures parent ON parent.id=child.parent_creature_id WHERE parent.canonical_id='CR-HORSE')",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        ).expect("lineage counts");
+        assert_eq!(counts, (91, 0, 3));
+
+        let draft_horse: (String, String, i64, i64, i64, i64, i64) = connection
+            .query_row(
+                "SELECT child.family, child.canonical_id, child.challenge_rating, child.kill_xp,
+               (SELECT COUNT(*) FROM creature_attributes WHERE creature_id=child.id),
+               (SELECT COUNT(*) FROM creature_hit_locations WHERE creature_id=child.id),
+               (SELECT COUNT(*) FROM creature_attacks WHERE creature_id=child.id)
+             FROM creatures child WHERE child.canonical_id='VAR-HORSE-DRAFT'",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                        row.get(6)?,
+                    ))
+                },
+            )
+            .expect("full Draft Horse");
+        assert_eq!(
+            draft_horse,
+            ("Equine".into(), "VAR-HORSE-DRAFT".into(), 8, 3, 6, 10, 3)
+        );
+
+        let user: (i64, i64, String) = connection.query_row(
+            "SELECT challenge_rating, kill_xp, notes FROM creatures WHERE canonical_id='CR-USER-DRAFT'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        ).expect("upgraded user Creature");
+        assert_eq!(user, (1, 1, "Keep me".into()));
+
+        let xp_mismatches: i64 = connection.query_row(
+            "SELECT COUNT(*) FROM creatures creature
+             JOIN challenge_rating_reference reference ON reference.challenge_rating=creature.challenge_rating
+             WHERE creature.kill_xp != reference.kill_xp
+                OR creature.calculated_challenge_rating IS NULL",
+            [],
+            |row| row.get(0),
+        ).expect("XP consistency");
+        let foreign_key_errors: i64 = connection
+            .query_row("SELECT COUNT(*) FROM pragma_foreign_key_check", [], |row| {
+                row.get(0)
+            })
+            .expect("foreign-key check");
+        assert_eq!(xp_mismatches, 0);
+        assert_eq!(foreign_key_errors, 0);
     }
 }

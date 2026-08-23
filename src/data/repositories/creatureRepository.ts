@@ -42,6 +42,7 @@ export interface CreatureRepository {
   listSkillCandidates(search: string): Promise<CreatureSkillCandidate[]>;
   getCreatureAggregate(id: number): Promise<CreatureAggregate | null>;
   saveCreatureAggregate(input: SaveCreatureAggregate): Promise<CreatureAggregate>;
+  createVariant(parentCreatureId: number, variantName: string, userId: number): Promise<CreatureAggregate>;
   deleteCreature(id: number): Promise<void>;
 }
 
@@ -55,6 +56,8 @@ export class TauriCreatureRepository implements CreatureRepository {
     private readonly databaseProvider: () => Promise<CreatureDatabase> = getDatabase,
     private readonly saveInvoker: (input: SaveCreatureAggregate) => Promise<number> =
       (input) => invoke<number>("save_creature_aggregate", { input }),
+    private readonly cloneInvoker: (parentCreatureId: number, variantName: string, userId: number) => Promise<number> =
+      (parentCreatureId, variantName, userId) => invoke<number>("clone_creature_as_variant", { parentCreatureId, variantName, userId }),
   ) {}
 
   async listCreatures(filters: CreatureLibraryFilters): Promise<CreatureLibraryPage> {
@@ -131,27 +134,36 @@ export class TauriCreatureRepository implements CreatureRepository {
   async getCreatureAggregate(id: number): Promise<CreatureAggregate | null> {
     const database = await this.databaseProvider();
     const creatures = await database.select<Array<Omit<Creature, "size"> & { size: string }>>(
-      `SELECT id, canonical_id AS canonicalId, canonical_name AS canonicalName, family,
-         creature_type AS creatureType, size, challenge_rating AS challengeRating,
-         kill_xp AS killXp, description, typical_behavior AS typicalBehavior,
-         habitat_ecology AS habitatEcology, notes, created_by_user_id AS createdByUserId,
-         source_system AS sourceSystem, created_at AS createdAt, updated_at AS updatedAt
-       FROM creatures WHERE id = $1 LIMIT 1`,
+      `SELECT creature.id, creature.canonical_id AS canonicalId, creature.canonical_name AS canonicalName, creature.family,
+         creature.creature_type AS creatureType, creature.size,
+         creature.challenge_rating AS challengeRating,
+         creature.kill_xp AS killXp, creature.parent_creature_id AS parentCreatureId,
+         parent.canonical_name AS parentCreatureName,
+         creature.calculated_challenge_rating AS calculatedChallengeRating,
+         creature.challenge_rating_adjustment AS challengeRatingAdjustment,
+         creature.challenge_rating_adjustment_reason AS challengeRatingAdjustmentReason,
+         creature.description, creature.typical_behavior AS typicalBehavior,
+         creature.habitat_ecology AS habitatEcology, creature.notes,
+         creature.created_by_user_id AS createdByUserId,
+         creature.source_system AS sourceSystem, creature.created_at AS createdAt,
+         creature.updated_at AS updatedAt
+       FROM creatures creature
+       LEFT JOIN creatures parent ON parent.id = creature.parent_creature_id
+       WHERE creature.id = $1 LIMIT 1`,
       [id],
     );
     if (!creatures[0]) return null;
-    const variantJoin = "LEFT JOIN creature_variants variant ON variant.id = child.variant_id";
-    const [attributes, movement, hpPools, hitLocations, attacks, skillLinks, abilities, defenses, uses, variants] = await Promise.all([
-      database.select<CreatureAggregate["attributes"]>(`SELECT variant.canonical_id AS variantCanonicalId, child.attribute_key AS attributeKey, child.value, child.notes, child.sort_order AS sortOrder FROM creature_attributes child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["movement"]>(`SELECT variant.canonical_id AS variantCanonicalId, child.movement_mode AS movementMode, child.movement_value AS movementValue, child.initiative, child.requirements, child.notes, child.sort_order AS sortOrder FROM creature_movement child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["hpPools"]>(`SELECT child.canonical_id AS canonicalId, variant.canonical_id AS variantCanonicalId, child.pool_name AS poolName, child.hp_percentage AS hpPercentage, child.notes, child.sort_order AS sortOrder FROM creature_hp_pools child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["hitLocations"]>(`SELECT variant.canonical_id AS variantCanonicalId, child.hit_location_number AS hitLocationNumber, child.location_name AS locationName, child.body_parts_included AS bodyPartsIncluded, pool.canonical_id AS hpPoolCanonicalId, child.natural_armor AS naturalArmor, child.soak, child.location_effect AS locationEffect, child.notes, child.sort_order AS sortOrder FROM creature_hit_locations child ${variantJoin} LEFT JOIN creature_hp_pools pool ON pool.id = child.hp_pool_id WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["attacks"]>(`SELECT child.canonical_id AS canonicalId, variant.canonical_id AS variantCanonicalId, child.attack_name AS attackName, child.attack_percentage AS attackPercentage, child.damage, child.damage_type AS damageType, child.range_reach AS rangeReach, child.required_anatomy AS requiredAnatomy, child.requirements, child.uses_recharge AS usesRecharge, child.special_effect AS specialEffect, child.notes, child.sort_order AS sortOrder FROM creature_attacks child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["skillLinks"]>(`SELECT variant.canonical_id AS variantCanonicalId, child.skill_id AS skillId, skill.name AS skillName, skill.classification AS skillClassification, child.rank, child.notes, child.sort_order AS sortOrder FROM creature_skill_links child ${variantJoin} JOIN skills skill ON skill.id = child.skill_id WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["abilities"]>(`SELECT child.canonical_id AS canonicalId, variant.canonical_id AS variantCanonicalId, child.ability_name AS abilityName, child.ability_type AS abilityType, child.activation, child.requirements, child.uses_recharge AS usesRecharge, child.description, child.mechanical_effect AS mechanicalEffect, child.notes, child.sort_order AS sortOrder FROM creature_abilities child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["defenses"]>(`SELECT child.seed_identity AS seedIdentity, variant.canonical_id AS variantCanonicalId, child.defense_type AS defenseType, child.against, child.value, child.notes, child.sort_order AS sortOrder FROM creature_defenses child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["uses"]>(`SELECT child.seed_identity AS seedIdentity, variant.canonical_id AS variantCanonicalId, child.use_name AS useName, child.notes, child.sort_order AS sortOrder FROM creature_uses child ${variantJoin} WHERE child.creature_id = $1 ORDER BY child.sort_order, child.id`, [id]),
-      database.select<CreatureAggregate["variants"]>(`SELECT canonical_id AS canonicalId, variant_name AS variantName, variant_type AS variantType, size_override AS sizeOverride, challenge_rating_override AS challengeRatingOverride, kill_xp_override AS killXpOverride, description, notes, sort_order AS sortOrder FROM creature_variants WHERE creature_id = $1 ORDER BY sort_order, id`, [id]),
+    const [attributes, movement, hpPools, hitLocations, attacks, skillLinks, abilities, defenses, uses, derivedCreatures] = await Promise.all([
+      database.select<CreatureAggregate["attributes"]>(`SELECT child.attribute_key AS attributeKey, child.value, child.notes, child.sort_order AS sortOrder FROM creature_attributes child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["movement"]>(`SELECT child.movement_mode AS movementMode, child.movement_value AS movementValue, child.initiative, child.requirements, child.notes, child.sort_order AS sortOrder FROM creature_movement child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["hpPools"]>(`SELECT child.canonical_id AS canonicalId, child.pool_name AS poolName, child.hp_percentage AS hpPercentage, child.notes, child.sort_order AS sortOrder FROM creature_hp_pools child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["hitLocations"]>(`SELECT child.hit_location_number AS hitLocationNumber, child.location_name AS locationName, child.body_parts_included AS bodyPartsIncluded, pool.canonical_id AS hpPoolCanonicalId, child.natural_armor AS naturalArmor, child.soak, child.location_effect AS locationEffect, child.notes, child.sort_order AS sortOrder FROM creature_hit_locations child LEFT JOIN creature_hp_pools pool ON pool.id = child.hp_pool_id WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["attacks"]>(`SELECT child.canonical_id AS canonicalId, child.attack_name AS attackName, child.attack_percentage AS attackPercentage, child.damage, child.damage_type AS damageType, child.range_reach AS rangeReach, child.required_anatomy AS requiredAnatomy, child.requirements, child.uses_recharge AS usesRecharge, child.special_effect AS specialEffect, child.notes, child.sort_order AS sortOrder FROM creature_attacks child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["skillLinks"]>(`SELECT child.skill_id AS skillId, skill.name AS skillName, skill.classification AS skillClassification, child.rank, child.notes, child.sort_order AS sortOrder FROM creature_skill_links child JOIN skills skill ON skill.id = child.skill_id WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["abilities"]>(`SELECT child.canonical_id AS canonicalId, child.ability_name AS abilityName, child.ability_type AS abilityType, child.activation, child.requirements, child.uses_recharge AS usesRecharge, child.description, child.mechanical_effect AS mechanicalEffect, child.notes, child.sort_order AS sortOrder, child.cr_impact AS crImpact FROM creature_abilities child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["defenses"]>(`SELECT child.seed_identity AS seedIdentity, child.defense_type AS defenseType, child.against, child.value, child.notes, child.sort_order AS sortOrder, child.cr_impact AS crImpact FROM creature_defenses child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["uses"]>(`SELECT child.seed_identity AS seedIdentity, child.use_name AS useName, child.notes, child.sort_order AS sortOrder FROM creature_uses child WHERE child.creature_id = $1 AND child.variant_id IS NULL ORDER BY child.sort_order, child.id`, [id]),
+      database.select<CreatureAggregate["derivedCreatures"]>(`SELECT id, canonical_id AS canonicalId, canonical_name AS canonicalName, size, challenge_rating AS challengeRating, kill_xp AS killXp FROM creatures WHERE parent_creature_id = $1 ORDER BY canonical_name COLLATE NOCASE, id`, [id]),
     ]);
     const core = requireStoredSize(creatures[0]);
     return {
@@ -166,7 +178,7 @@ export class TauriCreatureRepository implements CreatureRepository {
       abilities,
       defenses,
       uses,
-      variants,
+      derivedCreatures: derivedCreatures.map((row) => requireStoredSize(row)),
     };
   }
 
@@ -177,8 +189,22 @@ export class TauriCreatureRepository implements CreatureRepository {
     return saved;
   }
 
+  async createVariant(parentCreatureId: number, variantName: string, userId: number): Promise<CreatureAggregate> {
+    const id = await this.cloneInvoker(parentCreatureId, variantName, userId);
+    const saved = await this.getCreatureAggregate(id);
+    if (!saved) throw new Error("The derived Creature could not be reloaded.");
+    return saved;
+  }
+
   async deleteCreature(id: number): Promise<void> {
     const database = await this.databaseProvider();
+    const children = await database.select<CountRow[]>(
+      "SELECT COUNT(*) AS count FROM creatures WHERE parent_creature_id = $1",
+      [id],
+    );
+    if (Number(children[0]?.count ?? 0) > 0) {
+      throw new Error("This Creature cannot be deleted while derived Creatures still link to it.");
+    }
     await database.execute("DELETE FROM creatures WHERE id = $1", [id]);
   }
 }

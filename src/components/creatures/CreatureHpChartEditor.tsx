@@ -1,32 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
-import type { CreatureHitLocationDraft, CreatureHpPoolDraft, CreatureVariantDraft } from "../../types/creature";
+import type { CreatureHitLocationDraft, CreatureHpPoolDraft } from "../../types/creature";
 
 type Props = {
   hpPools: CreatureHpPoolDraft[];
   hitLocations: CreatureHitLocationDraft[];
-  variants: CreatureVariantDraft[];
   onChange: (hpPools: CreatureHpPoolDraft[], hitLocations: CreatureHitLocationDraft[]) => void;
 };
 
-const variantKey = (value: string | null) => value ?? "";
 const numericValue = (value: number | null) => value ?? "";
 const parseNumber = (value: string) => value === "" ? null : Number(value);
 
-export function CreatureHpChartEditor({ hpPools, hitLocations, variants, onChange }: Props) {
-  const [selectedVariantId, setSelectedVariantId] = useState("");
-  const availableVariantIds = useMemo(() => new Set(variants.map((variant) => variant.canonicalId).filter(Boolean)), [variants]);
-
-  useEffect(() => {
-    if (selectedVariantId && !availableVariantIds.has(selectedVariantId)) setSelectedVariantId("");
-  }, [availableVariantIds, selectedVariantId]);
-
+export function CreatureHpChartEditor({ hpPools, hitLocations, onChange }: Props) {
   const visiblePools = hpPools
     .map((row, index) => ({ row, index }))
-    .filter(({ row }) => variantKey(row.variantCanonicalId) === selectedVariantId)
     .sort((left, right) => left.row.sortOrder - right.row.sortOrder);
   const visibleHitLocations = hitLocations
     .map((row, index) => ({ row, index }))
-    .filter(({ row }) => variantKey(row.variantCanonicalId) === selectedVariantId)
     .sort((left, right) => left.row.hitLocationNumber - right.row.hitLocationNumber || left.row.sortOrder - right.row.sortOrder);
   const poolByCanonicalId = new Map(visiblePools.map(({ row }) => [row.canonicalId, row]));
   const unusedHitNumber = Array.from({ length: 10 }, (_, index) => index)
@@ -39,7 +27,7 @@ export function CreatureHpChartEditor({ hpPools, hitLocations, variants, onChang
     const nextPools = hpPools.map((row, rowIndex) => rowIndex === index ? next : row);
     if (patch.canonicalId !== undefined && patch.canonicalId !== previous.canonicalId) {
       const nextHitLocations = hitLocations.map((row) => (
-        variantKey(row.variantCanonicalId) === selectedVariantId && row.hpPoolCanonicalId === previous.canonicalId
+        row.hpPoolCanonicalId === previous.canonicalId
           ? { ...row, hpPoolCanonicalId: patch.canonicalId || null }
           : row
       ));
@@ -59,20 +47,11 @@ export function CreatureHpChartEditor({ hpPools, hitLocations, variants, onChang
     <section className="creature-section creature-hp-chart">
       <header className="creature-section__heading creature-hp-chart__heading">
         <div><p>0–9 ANATOMY MAP</p><h3>HP &amp; Hit Locations</h3></div>
-        <label className="creature-attributes__set">
-          <span>Chart Set</span>
-          <select value={selectedVariantId} onChange={(event) => setSelectedVariantId(event.target.value)}>
-            <option value="">Base Creature</option>
-            {variants.filter((variant) => variant.canonicalId).map((variant) => (
-              <option key={variant.canonicalId} value={variant.canonicalId}>{variant.variantName || variant.canonicalId}</option>
-            ))}
-          </select>
-        </label>
       </header>
       <p className="creature-section__description">HP Pools hold the Creature’s durability. The location chart maps each 0–9 result to a location and its shared pool.</p>
 
       <div className="creature-chart-block">
-        <div className="creature-chart-block__heading"><h4>HP Pools</h4><button type="button" onClick={() => onChange([...hpPools, { canonicalId: "", variantCanonicalId: selectedVariantId || null, poolName: "", hpPercentage: null, notes: "", sortOrder: hpPools.length }], hitLocations)}>Add HP Pool</button></div>
+        <div className="creature-chart-block__heading"><h4>HP Pools</h4><button type="button" onClick={() => onChange([...hpPools, { canonicalId: "", poolName: "", hpPercentage: null, notes: "", sortOrder: hpPools.length }], hitLocations)}>Add HP Pool</button></div>
         <div className="creature-chart-table-wrap">
           <table className="creature-chart-table creature-hp-pool-table">
             <thead><tr><th>Pool</th><th>HP %</th><th>Used By Results</th><th aria-label="Actions" /></tr></thead>
@@ -109,7 +88,7 @@ export function CreatureHpChartEditor({ hpPools, hitLocations, variants, onChang
       </div>
 
       <div className="creature-chart-block">
-        <div className="creature-chart-block__heading"><h4>Hit Location Chart</h4><button type="button" disabled={unusedHitNumber === undefined} onClick={() => unusedHitNumber !== undefined && onChange(hpPools, [...hitLocations, { variantCanonicalId: selectedVariantId || null, hitLocationNumber: unusedHitNumber, locationName: "", bodyPartsIncluded: "", hpPoolCanonicalId: null, naturalArmor: null, soak: null, locationEffect: "", notes: "", sortOrder: hitLocations.length }])}>Add Hit Location</button></div>
+        <div className="creature-chart-block__heading"><h4>Hit Location Chart</h4><button type="button" disabled={unusedHitNumber === undefined} onClick={() => unusedHitNumber !== undefined && onChange(hpPools, [...hitLocations, { hitLocationNumber: unusedHitNumber, locationName: "", bodyPartsIncluded: "", hpPoolCanonicalId: null, naturalArmor: null, soak: null, locationEffect: "", notes: "", sortOrder: hitLocations.length }])}>Add Hit Location</button></div>
         <div className="creature-chart-table-wrap">
           <table className="creature-chart-table creature-hit-location-table">
             <thead><tr><th>Result</th><th>Location</th><th>HP Pool</th><th>HP %</th><th>Relevance</th><th>Armor</th><th>Soak</th><th aria-label="Actions" /></tr></thead>

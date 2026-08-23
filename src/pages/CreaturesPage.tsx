@@ -31,11 +31,13 @@ export function newCreatureDraft(userId: number): SaveCreatureAggregate {
   return {
     core: {
       canonicalId: "", canonicalName: "", family: "", creatureType: "", size: "Medium",
-      challengeRating: null, killXp: null, description: "", typicalBehavior: "", habitatEcology: "", notes: "",
+      challengeRating: 1, killXp: 1, parentCreatureId: null, parentCreatureName: null,
+      calculatedChallengeRating: 1, challengeRatingAdjustment: 0, challengeRatingAdjustmentReason: "",
+      description: "", typicalBehavior: "", habitatEcology: "", notes: "",
       createdByUserId: userId, sourceSystem: null,
     },
-    attributes: CREATURE_ATTRIBUTES.map((attributeKey, sortOrder) => ({ variantCanonicalId: null, attributeKey, value: null, notes: "", sortOrder })),
-    movement: [], hpPools: [], hitLocations: [], attacks: [], skillLinks: [], abilities: [], defenses: [], uses: [], variants: [],
+    attributes: CREATURE_ATTRIBUTES.map((attributeKey, sortOrder) => ({ attributeKey, value: null, notes: "", sortOrder })),
+    movement: [], hpPools: [], hitLocations: [], attacks: [], skillLinks: [], abilities: [], defenses: [], uses: [], derivedCreatures: [],
   };
 }
 
@@ -109,8 +111,23 @@ export function CreaturesPage({ session, onBack, onLogout }: Props) {
       setDraft(null); setDirty(false); setFeedback({ kind: "success", message: `${name} was deleted.` });
       const [nextFacets] = await Promise.all([creatureService.listFacets(), loadLibrary(filters)]);
       setFacets(nextFacets);
-    } catch { setFeedback({ kind: "error", message: "The Creature could not be deleted." }); }
+    } catch (error: unknown) {
+      setFeedback({ kind: "error", message: error instanceof Error ? error.message : "The Creature could not be deleted." });
+    }
     finally { setSaving(false); }
+  }
+  async function createVariant(variantName: string) {
+    if (!draft?.id) return;
+    setSaving(true); setFeedback(null);
+    try {
+      const saved = await creatureService.createVariant(draft.id, variantName, session.userId);
+      setDraft(creatureAggregateToDraft(saved)); setDirty(false);
+      setFeedback({ kind: "success", message: `${saved.core.canonicalName} was created from its parent Creature.` });
+      const [nextFacets] = await Promise.all([creatureService.listFacets(), loadLibrary(filters)]);
+      setFacets(nextFacets);
+    } catch (error: unknown) {
+      setFeedback({ kind: "error", message: typeof error === "string" && error.trim() ? error : "The derived Creature could not be created." });
+    } finally { setSaving(false); }
   }
   const findSkills = useCallback((search: string) => creatureService.listSkillCandidates(search), []);
 
@@ -119,7 +136,7 @@ export function CreaturesPage({ session, onBack, onLogout }: Props) {
       <header className="skills-page__header"><div className="skills-page__brand"><BrandLogo /></div><div className="skills-page__title"><p>THE HEAVENS / CREATURES</p><h1>Creatures</h1><span>G.O.D. archive · {session.username}</span></div><div className="skills-page__navigation"><button type="button" onClick={onBack}>Back to The Heavens</button><button type="button" onClick={onLogout}>Log Out</button></div></header>
       <div className="skills-workspace creature-workspace">
         <CreatureLibrary page={library} facets={facets} filters={filters} selectedCreatureId={draft?.id} loading={loadingLibrary} onFiltersChange={setFilters} onSelect={selectCreature} onNewCreature={beginCreature} />
-        {loadingEditor ? <section className="skill-editor skill-editor--empty"><p>LOADING CREATURE</p></section> : <CreatureEditor draft={draft} challengeRatings={challengeRatings} saving={saving} dirty={dirty} feedback={feedback} onChange={(next) => { setDraft(next); setDirty(true); setFeedback(null); }} onSave={() => void saveCreature()} onDelete={() => void deleteCreature()} findSkills={findSkills} />}
+        {loadingEditor ? <section className="skill-editor skill-editor--empty"><p>LOADING CREATURE</p></section> : <CreatureEditor draft={draft} challengeRatings={challengeRatings} saving={saving} dirty={dirty} feedback={feedback} onChange={(next) => { setDraft(next); setDirty(true); setFeedback(null); }} onSave={() => void saveCreature()} onDelete={() => void deleteCreature()} onCreateVariant={(name) => void createVariant(name)} findSkills={findSkills} />}
       </div>
       {pendingChange ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-creature-title"><div><p id="discard-creature-title">Unsaved changes</p><span>Leave this Creature draft and discard the changes you have not saved?</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setPendingChange(null)}>Keep Editing</button><button className="skills-danger-button" type="button" onClick={discardAndContinue}>Discard Changes</button></div></div> : null}
     </main>

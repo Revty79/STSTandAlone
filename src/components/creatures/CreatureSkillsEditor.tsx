@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import type { CreatureSkillCandidate, CreatureSkillLinkDraft, CreatureVariantDraft } from "../../types/creature";
+import type { CreatureSkillCandidate, CreatureSkillLinkDraft } from "../../types/creature";
 
 type Props = {
   links: CreatureSkillLinkDraft[];
-  variants: CreatureVariantDraft[];
   onChange: (links: CreatureSkillLinkDraft[]) => void;
   findSkills: (search: string) => Promise<CreatureSkillCandidate[]>;
 };
 
-export function CreatureSkillsEditor({ links, variants, onChange, findSkills }: Props) {
+export function CreatureSkillsEditor({ links, onChange, findSkills }: Props) {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<CreatureSkillCandidate[]>([]);
   useEffect(() => {
@@ -20,8 +19,8 @@ export function CreatureSkillsEditor({ links, variants, onChange, findSkills }: 
   }, [findSkills, search]);
 
   function add(candidate: CreatureSkillCandidate) {
-    if (links.some((link) => link.skillId === candidate.id && link.variantCanonicalId === null)) return;
-    onChange([...links, { variantCanonicalId: null, skillId: candidate.id, skillName: candidate.name, skillClassification: candidate.classification, rank: null, notes: "", sortOrder: links.length }]);
+    if (links.some((link) => link.skillId === candidate.id)) return;
+    onChange([...links, { skillId: candidate.id, skillName: candidate.name, skillClassification: candidate.classification, rank: null, notes: "", sortOrder: links.length }]);
   }
 
   return (
@@ -37,8 +36,7 @@ export function CreatureSkillsEditor({ links, variants, onChange, findSkills }: 
           <article className="creature-repeat-row" key={`${link.skillId}-${index}`}>
             <header><strong>{link.skillName}</strong><button type="button" onClick={() => onChange(links.filter((_, rowIndex) => rowIndex !== index))}>Remove</button></header>
             <div className="creature-repeat-row__fields">
-              <label><span>Applies To</span><select value={link.variantCanonicalId ?? ""} onChange={(event) => onChange(links.map((row, rowIndex) => rowIndex === index ? { ...row, variantCanonicalId: event.target.value || null } : row))}><option value="">Base creature</option>{variants.map((variant) => <option key={variant.canonicalId} value={variant.canonicalId}>{variant.variantName || variant.canonicalId}</option>)}</select></label>
-              <label><span>Rank <small>Blank remains unresolved</small></span><input value={link.rank ?? ""} onChange={(event) => onChange(links.map((row, rowIndex) => rowIndex === index ? { ...row, rank: event.target.value || null } : row))} /></label>
+              <label><span>Rank</span><input value={link.rank ?? ""} onChange={(event) => onChange(links.map((row, rowIndex) => rowIndex === index ? { ...row, rank: event.target.value || null } : row))} /></label>
               <label className="creature-field--wide"><span>Notes</span><textarea value={link.notes} onChange={(event) => onChange(links.map((row, rowIndex) => rowIndex === index ? { ...row, notes: event.target.value } : row))} /></label>
             </div>
           </article>

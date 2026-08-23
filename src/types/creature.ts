@@ -1,6 +1,6 @@
 import type { Size } from "../data/sizeOptions";
 
-export type VariantReference = { variantCanonicalId: string | null };
+export type CreatureCrImpact = "None" | "Minor" | "Moderate" | "Major" | "Extreme";
 
 export type Creature = {
   id: number;
@@ -11,6 +11,11 @@ export type Creature = {
   size: Size;
   challengeRating: number | null;
   killXp: number | null;
+  parentCreatureId: number | null;
+  parentCreatureName: string | null;
+  calculatedChallengeRating: number | null;
+  challengeRatingAdjustment: number;
+  challengeRatingAdjustmentReason: string;
   description: string;
   typicalBehavior: string;
   habitatEcology: string;
@@ -23,14 +28,14 @@ export type Creature = {
 
 export type CreatureCoreDraft = Omit<Creature, "id" | "createdAt" | "updatedAt">;
 
-export type CreatureAttributeDraft = VariantReference & {
+export type CreatureAttributeDraft = {
   attributeKey: string;
   value: number | null;
   notes: string;
   sortOrder: number;
 };
 
-export type CreatureMovementDraft = VariantReference & {
+export type CreatureMovementDraft = {
   movementMode: string;
   movementValue: number | null;
   initiative: number | null;
@@ -39,7 +44,7 @@ export type CreatureMovementDraft = VariantReference & {
   sortOrder: number;
 };
 
-export type CreatureHpPoolDraft = VariantReference & {
+export type CreatureHpPoolDraft = {
   canonicalId: string;
   poolName: string;
   hpPercentage: number | null;
@@ -47,7 +52,7 @@ export type CreatureHpPoolDraft = VariantReference & {
   sortOrder: number;
 };
 
-export type CreatureHitLocationDraft = VariantReference & {
+export type CreatureHitLocationDraft = {
   hitLocationNumber: number;
   locationName: string;
   bodyPartsIncluded: string;
@@ -59,7 +64,7 @@ export type CreatureHitLocationDraft = VariantReference & {
   sortOrder: number;
 };
 
-export type CreatureAttackDraft = VariantReference & {
+export type CreatureAttackDraft = {
   canonicalId: string;
   attackName: string;
   attackPercentage: number | null;
@@ -74,7 +79,7 @@ export type CreatureAttackDraft = VariantReference & {
   sortOrder: number;
 };
 
-export type CreatureSkillLinkDraft = VariantReference & {
+export type CreatureSkillLinkDraft = {
   skillId: number;
   skillName: string;
   skillClassification: string;
@@ -83,7 +88,7 @@ export type CreatureSkillLinkDraft = VariantReference & {
   sortOrder: number;
 };
 
-export type CreatureAbilityDraft = VariantReference & {
+export type CreatureAbilityDraft = {
   canonicalId: string;
   abilityName: string;
   abilityType: string;
@@ -94,32 +99,22 @@ export type CreatureAbilityDraft = VariantReference & {
   mechanicalEffect: string;
   notes: string;
   sortOrder: number;
+  crImpact: CreatureCrImpact;
 };
 
-export type CreatureDefenseDraft = VariantReference & {
+export type CreatureDefenseDraft = {
   seedIdentity: string | null;
   defenseType: string;
   against: string;
   value: string | null;
   notes: string;
   sortOrder: number;
+  crImpact: CreatureCrImpact;
 };
 
-export type CreatureUseDraft = VariantReference & {
+export type CreatureUseDraft = {
   seedIdentity: string | null;
   useName: string;
-  notes: string;
-  sortOrder: number;
-};
-
-export type CreatureVariantDraft = {
-  canonicalId: string;
-  variantName: string;
-  variantType: string;
-  sizeOverride: Size | null;
-  challengeRatingOverride: number | null;
-  killXpOverride: number | null;
-  description: string;
   notes: string;
   sortOrder: number;
 };
@@ -136,13 +131,18 @@ export type SaveCreatureAggregate = {
   abilities: CreatureAbilityDraft[];
   defenses: CreatureDefenseDraft[];
   uses: CreatureUseDraft[];
-  variants: CreatureVariantDraft[];
+  derivedCreatures: CreatureLineageSummary[];
 };
 
 export type CreatureAggregate = SaveCreatureAggregate & {
   id: number;
   core: Creature;
 };
+
+export type CreatureLineageSummary = Pick<
+  Creature,
+  "id" | "canonicalId" | "canonicalName" | "size" | "challengeRating" | "killXp"
+>;
 
 export type CreatureSummary = Pick<
   Creature,
@@ -183,6 +183,20 @@ export type ChallengeRatingReference = {
   killXp: number | null;
   currentCreatureExample: string;
   exampleNotes: string;
+};
+
+export type ChallengeRatingBreakdown = {
+  accuracyRating: number | null;
+  damageRating: number | null;
+  offenseRating: number;
+  defenseRating: number;
+  initiativeRating: number | null;
+  mobilityBonus: number;
+  specialImpact: number;
+  calculatedRating: number;
+  adjustment: number;
+  finalRating: number;
+  killXp: number;
 };
 
 export type CreatureSkillCandidate = {

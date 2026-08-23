@@ -47,4 +47,15 @@ describe("TauriCreatureRepository", () => {
     await expect(repository.listSkillCandidates("track")).resolves.toEqual([{ id: 9, name: "Tracking", classification: "standard", tier: 2 }]);
     expect(calls[0]).toMatch(/source_system = 'serrian-tide-core'[\s\S]*limit 30/i);
   });
+
+  it("protects parent Creatures while derived Creatures remain linked", async () => {
+    const execute = vi.fn();
+    const database: CreatureDatabase = {
+      async select<T>(): Promise<T> { return [{ count: 1 }] as T; },
+      execute,
+    };
+    const repository = new TauriCreatureRepository(async () => database);
+    await expect(repository.deleteCreature(4)).rejects.toThrow(/derived Creatures still link/i);
+    expect(execute).not.toHaveBeenCalled();
+  });
 });
