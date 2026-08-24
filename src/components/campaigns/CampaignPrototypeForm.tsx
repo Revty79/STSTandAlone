@@ -416,8 +416,8 @@ export function CampaignPrototypeForm({
       <section className="campaign-prototype__section" aria-labelledby="campaign-inventory-section-heading">
         <div className="campaign-prototype__section-heading campaign-prototype__section-heading--races">
           <div>
-            <p>CAMPAIGN INVENTORY</p>
-            <h2 id="campaign-inventory-section-heading">Available Campaign Items</h2>
+            <p>CAMPAIGN ITEM CATALOG</p>
+            <h2 id="campaign-inventory-section-heading">Available Equipment & Inventory</h2>
           </div>
           <span>{draft.inventoryItems.length} Items selected</span>
         </div>

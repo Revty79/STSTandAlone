@@ -66,8 +66,9 @@ class RecordingCampaignRepository implements CampaignRepository {
         id: index + 1, name, tagGroup: "Genre Pack", description: "",
       })),
       inventoryItems: input.inventoryItemIds.map((id) => ({
-        id, canonicalId: `ITEM-${id}`, name: `Item ${id}`, recordType: "Item",
-        family: "Gear", category: "Gear", tags: [],
+         id, canonicalId: `ITEM-${id}`, name: `Item ${id}`, recordType: "Item",
+         family: "Gear", category: "Gear", catalogScope: "inventory",
+         equipmentGroup: null, tags: [],
       })),
     };
   }

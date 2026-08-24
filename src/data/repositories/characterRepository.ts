@@ -58,6 +58,7 @@ export interface CharacterRepository {
     characterId: number,
     campaignId: number,
     requestingUserId: number,
+    administrativeOverride: boolean,
   ): Promise<CharacterAggregate | null>;
   createCharacterAggregate(
     campaignId: number,
@@ -69,6 +70,7 @@ export interface CharacterRepository {
     campaignId: number,
     requestingUserId: number,
     raceId: number,
+    administrativeOverride: boolean,
   ): Promise<RaceAggregate | null>;
 }
 
@@ -91,6 +93,7 @@ export class TauriCharacterRepository implements CharacterRepository {
     characterId: number,
     campaignId: number,
     requestingUserId: number,
+    administrativeOverride = false,
   ): Promise<CharacterAggregate | null> {
     const database = await this.databaseProvider();
     const coreRows = await database.select<CharacterCoreAndCampaignRow[]>(
@@ -109,14 +112,20 @@ export class TauriCharacterRepository implements CharacterRepository {
        JOIN campaigns campaign ON campaign.id=character.campaign_id
        JOIN users profile ON profile.id=character.player_user_id
        WHERE character.id=$1 AND character.campaign_id=$2
-         AND character.player_user_id=$3
+         AND (
+           ($4=0 AND character.player_user_id=$3)
+           OR ($4=1 AND EXISTS (
+             SELECT 1 FROM user_roles actor_role
+             WHERE actor_role.user_id=$3 AND actor_role.role='god'
+           ))
+         )
          AND EXISTS (
            SELECT 1 FROM campaign_players membership
            WHERE membership.campaign_id=character.campaign_id
              AND membership.user_id=character.player_user_id
          )
        LIMIT 1`,
-      [characterId, campaignId, requestingUserId],
+      [characterId, campaignId, requestingUserId, administrativeOverride ? 1 : 0],
     );
     const row = coreRows[0];
     if (!row) return null;
@@ -201,7 +210,17 @@ export class TauriCharacterRepository implements CharacterRepository {
       ),
       database.select<CharacterAggregate["skillCatalog"]>(
         `SELECT id,name,classification,tier,primary_attribute AS primaryAttribute,
-           secondary_attribute AS secondaryAttribute,definition
+           secondary_attribute AS secondaryAttribute,definition,
+           (SELECT json_extract(extension.data_json,'$.spreadsheetReference.masteryLabel')
+            FROM skill_extensions extension
+            WHERE extension.skill_id=skills.id
+              AND extension.extension_type='spell-import-source'
+            LIMIT 1) AS spellLevel,
+           (SELECT CAST(json_extract(extension.data_json,'$.spreadsheetReference.statedSpellCost') AS REAL)
+            FROM skill_extensions extension
+            WHERE extension.skill_id=skills.id
+              AND extension.extension_type='spell-import-source'
+            LIMIT 1) AS manaCost
          FROM skills ORDER BY name COLLATE NOCASE,id`,
       ),
       database.select<CharacterAggregate["skillRelationships"]>(
@@ -215,9 +234,19 @@ export class TauriCharacterRepository implements CharacterRepository {
         `SELECT item.id,item.canonical_id AS canonicalId,item.name,
            item.catalog_scope AS catalogScope,item.equipment_group AS equipmentGroup,
            item.record_type AS recordType,item.category,item.credits,
-           item.price_basis AS priceBasis
+           item.price_basis AS priceBasis,item.description,item.weight,
+           item.weight_unit AS weightUnit,item.size,item.durability,
+           weapon.weapon_type AS weaponType,weapon.handedness,
+           weapon.damage,weapon.damage_type AS damageType,
+           weapon.range_text AS rangeText,weapon.reach_text AS reachText,
+           weapon.rules_text AS weaponRulesText,
+           armor.armor_type AS armorType,armor.coverage,armor.base_soak AS baseSoak,
+           armor.damage_modifiers_source_text AS armorDamageModifiers,
+           armor.rules_text AS armorRulesText
          FROM campaign_inventory_items allowed
          JOIN items item ON item.id=allowed.item_id
+         LEFT JOIN weapon_profiles weapon ON weapon.item_id=item.id
+         LEFT JOIN armor_profiles armor ON armor.item_id=item.id
          WHERE allowed.campaign_id=$1
          ORDER BY item.name COLLATE NOCASE,item.id`,
         [campaignId],
@@ -234,6 +263,7 @@ export class TauriCharacterRepository implements CharacterRepository {
           campaignId,
           requestingUserId,
           profile.raceId,
+          administrativeOverride,
         );
     if (profile.raceId !== null && !selectedRace) {
       throw new Error("The Character references a Race that is not allowed by its Campaign.");
@@ -283,7 +313,7 @@ export class TauriCharacterRepository implements CharacterRepository {
     playerUserId: number,
   ): Promise<CharacterAggregate> {
     const id = await this.createInvoker(campaignId, playerUserId);
-    const aggregate = await this.getCharacterAggregate(id, campaignId, playerUserId);
+    const aggregate = await this.getCharacterAggregate(id, campaignId, playerUserId, false);
     if (!aggregate) throw new Error("The new Character aggregate could not be reloaded.");
     return aggregate;
   }
@@ -294,6 +324,7 @@ export class TauriCharacterRepository implements CharacterRepository {
       id,
       input.campaignId,
       input.requestingUserId,
+      input.administrativeOverride,
     );
     if (!aggregate) throw new Error("The saved Character aggregate could not be reloaded.");
     return aggregate;
@@ -304,6 +335,7 @@ export class TauriCharacterRepository implements CharacterRepository {
     campaignId: number,
     requestingUserId: number,
     raceId: number,
+    administrativeOverride = false,
   ): Promise<RaceAggregate | null> {
     const database = await this.databaseProvider();
     const rows = await database.select<Array<{ allowed: number }>>(
@@ -313,9 +345,15 @@ export class TauriCharacterRepository implements CharacterRepository {
            ON allowed.campaign_id=character.campaign_id
           AND allowed.race_id=$4
          WHERE character.id=$1 AND character.campaign_id=$2
-           AND character.player_user_id=$3
+           AND (
+             ($5=0 AND character.player_user_id=$3)
+             OR ($5=1 AND EXISTS (
+               SELECT 1 FROM user_roles actor_role
+               WHERE actor_role.user_id=$3 AND actor_role.role='god'
+             ))
+           )
        ) AS allowed`,
-      [characterId, campaignId, requestingUserId, raceId],
+      [characterId, campaignId, requestingUserId, raceId, administrativeOverride ? 1 : 0],
     );
     if (!Boolean(Number(rows[0]?.allowed ?? 0))) return null;
     return this.races.getRaceAggregate(raceId);

@@ -141,7 +141,8 @@ export class TauriCampaignRepository implements CampaignRepository {
         ),
         database.select<CampaignInventoryItemRow[]>(
           `SELECT item.id,item.canonical_id AS canonicalId,item.name,item.record_type AS recordType,
-             item.family,item.category,
+             item.family,item.category,item.catalog_scope AS catalogScope,
+             item.equipment_group AS equipmentGroup,
              COALESCE((SELECT group_concat(tag_name,char(31)) FROM (
                SELECT tag.name AS tag_name FROM item_tag_links item_link
                JOIN item_tags_catalog tag ON tag.id=item_link.tag_id

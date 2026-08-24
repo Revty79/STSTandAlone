@@ -29,6 +29,7 @@ describe("dashboard shells", () => {
         onOpenCreatures={vi.fn()}
         onOpenEquipment={vi.fn()}
         onOpenInventory={vi.fn()}
+        onOpenCharacter={vi.fn()}
         onReturn={vi.fn()}
         onLogout={vi.fn()}
       />,
@@ -77,7 +78,8 @@ describe("dashboard shells", () => {
       }],
       inventoryItems: [{
         id: 7, canonicalId: "ITEM-0007", name: "Travel Pack", recordType: "Item",
-        family: "Pack", category: "Gear", tags: ["Fantasy"],
+        family: "Pack", category: "Gear", catalogScope: "equipment",
+        equipmentGroup: "general", tags: ["Fantasy"],
       }],
     };
     const information = renderToStaticMarkup(

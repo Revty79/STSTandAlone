@@ -153,10 +153,14 @@ describe("canonical Race seed", () => {
       { skillName: "Full Sphere Access", linkType: "granted", value: 3 },
     ]);
     expectLinks("Harbinger Elf", [
-      { skillName: "Harbinger Elf Berserker Rage", linkType: "granted" },
+      { skillName: "Harbinger Elf Berserker Rage", linkType: "granted", value: 10 },
     ]);
     expectLinks("Moonshade Elf", [
       { skillName: "Perception", linkType: "bonus", value: 5 },
+      { skillName: "Moonshadow Omen", linkType: "granted", value: 10 },
+    ]);
+    expectLinks("Changeling", [
+      { skillName: "Glamour Shift", linkType: "granted", value: 10 },
     ]);
     expectLinks("Shift-Folk (Lagomorph)", [
       { skillName: "Agile Movement", linkType: "bonus", value: 5 },

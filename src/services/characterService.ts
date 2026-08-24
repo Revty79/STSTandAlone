@@ -7,6 +7,7 @@ import {
   type CharacterAggregate,
   type CharacterAttributeKey,
   type CharacterDraft,
+  type CharacterEditorMode,
   type CharacterProfileDraft,
   type SaveCharacterAggregate,
 } from "../types/character";
@@ -56,7 +57,6 @@ function optionalWholeNonNegative(value: number | null, label: string): number |
 function profileDraft(aggregate: CharacterAggregate): CharacterProfileDraft {
   const {
     characterId: _characterId,
-    creditsRemaining: _creditsRemaining,
     creationCompletedAt: _creationCompletedAt,
     createdAt: _createdAt,
     updatedAt: _updatedAt,
@@ -94,6 +94,7 @@ function normalizeSave(
   aggregate: CharacterAggregate,
   draft: CharacterDraft,
   requestingUserId: number,
+  editorMode: CharacterEditorMode,
   completeCreation: boolean,
 ): SaveCharacterAggregate {
   const heightFeet = optionalWholeNonNegative(draft.profile.heightFeet, "Height feet");
@@ -126,6 +127,7 @@ function normalizeSave(
     characterId: savedId(aggregate.character.id, "Character"),
     campaignId: savedId(aggregate.campaign.id, "Campaign"),
     requestingUserId: savedId(requestingUserId, "Player Profile"),
+    administrativeOverride: editorMode === "god",
     completeCreation,
     name: required(draft.name, "Character Name"),
     profile: {
@@ -157,6 +159,7 @@ function normalizeSave(
         draft.profile.totalQuintessence,
         "Total Quintessence",
       ),
+      creditsRemaining: nonNegative(draft.profile.creditsRemaining, "Current funds"),
     },
     attributes,
     skillAllocations: buildSkillAllocationTree(draft.skillAllocations),
@@ -181,11 +184,13 @@ export class CharacterService {
     characterId: number,
     campaignId: number,
     requestingUserId: number,
+    editorMode: CharacterEditorMode = "player",
   ): Promise<CharacterAggregate | null> {
     return this.repository.getCharacterAggregate(
       savedId(characterId, "Character"),
       savedId(campaignId, "Campaign"),
       savedId(requestingUserId, "Player Profile"),
+      editorMode === "god",
     );
   }
 
@@ -194,17 +199,24 @@ export class CharacterService {
     draft: CharacterDraft,
     requestingUserId: number,
     completeCreation = false,
+    editorMode: CharacterEditorMode = "player",
   ): Promise<CharacterAggregate> {
-    if (aggregate.character.playerUserId !== requestingUserId) {
+    if (editorMode === "player" && aggregate.character.playerUserId !== requestingUserId) {
       throw new CharacterValidationError("A Player may only save their own Character.");
     }
-    if (aggregate.profile.creationCompletedAt) {
+    if (editorMode === "player" && aggregate.profile.creationCompletedAt) {
       throw new CharacterValidationError(
         "Character creation is complete and its creation record is permanently locked.",
       );
     }
     return this.repository.saveCharacterAggregate(
-      normalizeSave(aggregate, draft, requestingUserId, completeCreation),
+      normalizeSave(
+        aggregate,
+        draft,
+        requestingUserId,
+        editorMode,
+        completeCreation,
+      ),
     );
   }
 
@@ -212,8 +224,9 @@ export class CharacterService {
     aggregate: CharacterAggregate,
     requestingUserId: number,
     raceId: number,
+    editorMode: CharacterEditorMode = "player",
   ): Promise<RaceAggregate | null> {
-    if (aggregate.character.playerUserId !== requestingUserId) {
+    if (editorMode === "player" && aggregate.character.playerUserId !== requestingUserId) {
       throw new CharacterValidationError("A Player may only read Races for their own Character.");
     }
     return this.repository.getAllowedRaceForCharacter(
@@ -221,6 +234,7 @@ export class CharacterService {
       aggregate.campaign.id,
       requestingUserId,
       savedId(raceId, "Race"),
+      editorMode === "god",
     );
   }
 }

@@ -55,7 +55,8 @@ describe("TauriCampaignRepository", () => {
         }] as T;
         if (/campaign_inventory_items/i.test(query)) return [{
           id: 7, canonicalId: "ITEM-0007", name: "Travel Pack", recordType: "Item",
-          family: "Pack", category: "Gear", tagsText: "Fantasy\u001fModern",
+          family: "Pack", category: "Gear", catalogScope: "equipment",
+          equipmentGroup: "general", tagsText: "Fantasy\u001fModern",
         }] as T;
         return [] as T;
       },
@@ -97,7 +98,8 @@ describe("TauriCampaignRepository", () => {
         }] as T;
         if (/campaign_inventory_items/i.test(query)) return [{
           id: 7, canonicalId: "ITEM-0007", name: "Travel Pack", recordType: "Item",
-          family: "Pack", category: "Gear", tagsText: "Fantasy",
+          family: "Pack", category: "Gear", catalogScope: "equipment",
+          equipmentGroup: "general", tagsText: "Fantasy",
         }] as T;
         return [] as T;
       },

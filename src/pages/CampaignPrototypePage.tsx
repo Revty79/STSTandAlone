@@ -66,41 +66,54 @@ export async function readCampaignRaceOptions(): Promise<CampaignRaceOption[]> {
 }
 
 export async function readCampaignInventoryGenres(): Promise<ItemTagReference[]> {
-  return itemService.listTagReferences("inventory");
+  const references = await Promise.all([
+    itemService.listTagReferences("equipment"),
+    itemService.listTagReferences("inventory"),
+  ]);
+  const byName = new Map<string, ItemTagReference>();
+  for (const reference of references.flat()) {
+    if (!byName.has(reference.name)) byName.set(reference.name, reference);
+  }
+  return [...byName.values()].sort((left, right) =>
+    left.name.localeCompare(right.name, undefined, { sensitivity: "base" }));
 }
 
 export async function readCampaignInventoryItems(
   genres: readonly string[],
 ): Promise<CampaignInventoryItem[]> {
-  const taggedItemGroups = await Promise.all(genres.map(async (genre) => {
-    const firstPage = await itemService.listItems({
-      catalogScope: "inventory",
-      tag: genre,
-      page: 1,
-      pageSize: 100,
-    });
-    const items = [...firstPage.items];
-
-    for (let page = 2; page <= firstPage.pageCount; page += 1) {
-      const nextPage = await itemService.listItems({
-        catalogScope: "inventory",
+  const taggedItemGroups = await Promise.all(genres.flatMap((genre) =>
+    (["equipment", "inventory"] as const).map(async (catalogScope) => {
+      const firstPage = await itemService.listItems({
+        catalogScope,
         tag: genre,
-        page,
+        page: 1,
         pageSize: 100,
       });
-      items.push(...nextPage.items);
-    }
-    return items;
-  }));
+      const items = [...firstPage.items];
+
+      for (let page = 2; page <= firstPage.pageCount; page += 1) {
+        const nextPage = await itemService.listItems({
+          catalogScope,
+          tag: genre,
+          page,
+          pageSize: 100,
+        });
+        items.push(...nextPage.items);
+      }
+      return items;
+    }),
+  ));
 
   return deduplicateCampaignInventoryItems(taggedItemGroups.flatMap((items) =>
-    items.map(({ id, canonicalId, name, recordType, family, category, tags }) => ({
+    items.map(({ id, canonicalId, name, recordType, family, category, catalogScope, equipmentGroup, tags }) => ({
       id,
       canonicalId,
       name,
       recordType,
       family,
       category,
+      catalogScope,
+      equipmentGroup,
       tags,
     })),
   ));

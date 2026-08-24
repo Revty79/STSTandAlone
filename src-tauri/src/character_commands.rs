@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Deserialize;
@@ -20,6 +20,7 @@ pub struct SaveCharacterAggregateInput {
     character_id: i64,
     campaign_id: i64,
     requesting_user_id: i64,
+    administrative_override: bool,
     complete_creation: bool,
     name: String,
     profile: CharacterProfileInput,
@@ -52,6 +53,7 @@ struct CharacterProfileInput {
     total_experience: f64,
     quintessence: f64,
     total_quintessence: f64,
+    credits_remaining: f64,
 }
 
 #[derive(Deserialize)]
@@ -84,6 +86,11 @@ struct CampaignSkillRules {
     points_to_unlock_next_tier: f64,
     max_points_in_skill: f64,
     allowed_systems: HashSet<String>,
+    administrative_override: bool,
+    enforce_campaign_tier_limits: bool,
+    racial_skill_values: HashMap<i64, f64>,
+    racial_skill_ids: HashSet<i64>,
+    mana_pools: HashMap<String, f64>,
 }
 
 #[derive(Clone)]
@@ -92,6 +99,82 @@ struct SkillMeta {
     name: String,
     classification: String,
     tier: Option<i64>,
+    spell_level: Option<String>,
+    mana_cost: Option<f64>,
+}
+
+fn allocated_points_for_skill(allocations: &[CharacterSkillAllocationInput], skill_id: i64) -> f64 {
+    allocations.iter().fold(0.0, |largest, allocation| {
+        let own_points = if allocation.skill_id == skill_id {
+            allocation.points.max(0.0)
+        } else {
+            0.0
+        };
+        largest
+            .max(own_points)
+            .max(allocated_points_for_skill(&allocation.children, skill_id))
+    })
+}
+
+fn build_character_mana_pools(
+    transaction: &Transaction<'_>,
+    race_id: Option<i64>,
+    allocations: &[CharacterSkillAllocationInput],
+    racial_skill_values: &HashMap<i64, f64>,
+) -> Result<HashMap<String, f64>, String> {
+    let base_magic = if let Some(race_id) = race_id {
+        transaction
+            .query_row(
+                "SELECT COALESCE(base_magic,0) FROM races WHERE id=?1",
+                [race_id],
+                |row| row.get::<_, f64>(0),
+            )
+            .map_err(|error| format!("Race Base Magic could not be read: {error}"))?
+    } else {
+        0.0
+    };
+
+    let mut source_ids = HashMap::new();
+    let mut statement = transaction
+        .prepare(
+            "SELECT id,lower(name) FROM skills
+             WHERE lower(name) IN ('channeling','devotion','psionic channeling','resonance attunement')
+             ORDER BY id",
+        )
+        .map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+    let rows = statement
+        .query_map([], |row| {
+            Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))
+        })
+        .map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+    for row in rows {
+        let (skill_id, name) =
+            row.map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+        source_ids.entry(name).or_insert(skill_id);
+    }
+
+    let mana_for = |source_name: &str| {
+        source_ids
+            .get(source_name)
+            .map(|skill_id| {
+                let purchased = allocated_points_for_skill(allocations, *skill_id);
+                let racial = racial_skill_values.get(skill_id).copied().unwrap_or(0.0);
+                (purchased + racial) * base_magic
+            })
+            .unwrap_or(0.0)
+    };
+    let channeling_mana = mana_for("channeling");
+
+    Ok(HashMap::from([
+        ("Spellcraft".to_string(), channeling_mana),
+        ("Talismanism".to_string(), channeling_mana),
+        ("Faith".to_string(), mana_for("devotion")),
+        ("Psyonics".to_string(), mana_for("psionic channeling")),
+        (
+            "Bardic Resonance".to_string(),
+            mana_for("resonance attunement"),
+        ),
+    ]))
 }
 
 fn open_database(app: &AppHandle) -> Result<Connection, String> {
@@ -248,23 +331,29 @@ fn save_character_aggregate_in_connection(
     let quintessence = finite_non_negative(input.profile.quintessence, "Quintessence")?;
     let total_quintessence =
         finite_non_negative(input.profile.total_quintessence, "Total Quintessence")?;
+    let requested_credits_remaining =
+        finite_non_negative(input.profile.credits_remaining, "Current funds")?;
 
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|error| format!("The Character save transaction could not begin: {error}"))?;
-    let campaign_rules: Option<(f64, f64, f64, f64, f64, Option<String>)> = transaction
+    let campaign_rules: Option<(f64, f64, f64, f64, f64, Option<String>, i64, bool)> = transaction
         .query_row(
             "SELECT campaign.attribute_points,campaign.skill_points,
                     campaign.max_starting_skill,campaign.points_to_unlock_next_tier,
-                    campaign.max_points_in_skill,profile.creation_completed_at
+                    campaign.max_points_in_skill,profile.creation_completed_at,
+                    character.player_user_id,
+                    EXISTS(
+                      SELECT 1 FROM user_roles actor_role
+                      WHERE actor_role.user_id=?3 AND actor_role.role='god'
+                    )
              FROM campaign_characters character
              JOIN campaign_players membership
                ON membership.campaign_id=character.campaign_id
               AND membership.user_id=character.player_user_id
              JOIN campaigns campaign ON campaign.id=character.campaign_id
              JOIN campaign_character_profiles profile ON profile.character_id=character.id
-             WHERE character.id=?1 AND character.campaign_id=?2
-               AND character.player_user_id=?3",
+             WHERE character.id=?1 AND character.campaign_id=?2",
             params![
                 input.character_id,
                 input.campaign_id,
@@ -278,6 +367,8 @@ fn save_character_aggregate_in_connection(
                     row.get(3)?,
                     row.get(4)?,
                     row.get(5)?,
+                    row.get(6)?,
+                    row.get(7)?,
                 ))
             },
         )
@@ -290,16 +381,25 @@ fn save_character_aggregate_in_connection(
         tier_unlock_points,
         max_points_in_skill,
         creation_completed_at,
+        character_owner_id,
+        requesting_user_is_god,
     )) = campaign_rules
     else {
-        return Err("The Character does not belong to this Player and Campaign.".to_string());
+        return Err("The Character does not belong to the requested Campaign.".to_string());
     };
-    if creation_completed_at.is_some() {
+    if input.administrative_override && !requesting_user_is_god {
+        return Err("G.O.D. Character access requires a G.O.D. profile.".to_string());
+    }
+    if !input.administrative_override && character_owner_id != input.requesting_user_id {
+        return Err("The Character does not belong to this Player and Campaign.".to_string());
+    }
+    if creation_completed_at.is_some() && !input.administrative_override {
         return Err(
             "Character creation is complete and its creation record is permanently locked."
                 .to_string(),
         );
     }
+    let enforce_campaign_tier_limits = creation_completed_at.is_none();
 
     if let Some(race_id) = input.profile.race_id {
         if race_id <= 0 {
@@ -325,6 +425,7 @@ fn save_character_aggregate_in_connection(
         &input.attributes,
         input.profile.race_id,
         attribute_budget,
+        !input.administrative_override,
     )?;
     let allowed_system_rows = {
         let mut statement = transaction
@@ -339,12 +440,44 @@ fn save_character_aggregate_in_connection(
         rows.collect::<Result<Vec<_>, _>>()
             .map_err(|error| format!("Campaign Skill access could not be read: {error}"))?
     };
+    let (racial_skill_values, racial_skill_ids) = {
+        let mut values = HashMap::new();
+        let mut ids = HashSet::new();
+        if let Some(race_id) = input.profile.race_id {
+            let mut statement = transaction
+                .prepare("SELECT skill_id,value FROM race_skill_links WHERE race_id=?1")
+                .map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+            let rows = statement
+                .query_map([race_id], |row| {
+                    Ok((row.get::<_, i64>(0)?, row.get::<_, Option<f64>>(1)?))
+                })
+                .map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+            for row in rows {
+                let (skill_id, value) =
+                    row.map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+                ids.insert(skill_id);
+                *values.entry(skill_id).or_insert(0.0) += value.unwrap_or(0.0).max(0.0);
+            }
+        }
+        (values, ids)
+    };
+    let mana_pools = build_character_mana_pools(
+        &transaction,
+        input.profile.race_id,
+        &input.skill_allocations,
+        &racial_skill_values,
+    )?;
     let skill_rules = CampaignSkillRules {
         skill_points: skill_budget,
         max_starting_skill,
         points_to_unlock_next_tier: tier_unlock_points,
         max_points_in_skill,
         allowed_systems: allowed_system_rows.into_iter().collect(),
+        administrative_override: input.administrative_override,
+        enforce_campaign_tier_limits,
+        racial_skill_values,
+        racial_skill_ids,
+        mana_pools,
     };
 
     transaction
@@ -399,13 +532,21 @@ fn save_character_aggregate_in_connection(
             &mut total_skill_points,
         )?;
     }
-    if total_skill_points > skill_rules.skill_points + 0.000_001 {
+    if !input.administrative_override && total_skill_points > skill_rules.skill_points + 0.000_001 {
         return Err(
             "Character Skill allocations exceed the Campaign Skill Point budget.".to_string(),
         );
     }
+    let calculated_credits_remaining = validate_and_insert_items(
+        &transaction,
+        input.character_id,
+        input.campaign_id,
+        &input.items,
+        input.administrative_override,
+    )?;
     if input.complete_creation {
         validate_creation_completion(
+            &transaction,
             &input,
             &name,
             normalized_height,
@@ -416,13 +557,11 @@ fn save_character_aggregate_in_connection(
             skill_budget,
         )?;
     }
-
-    let credits_remaining = validate_and_insert_items(
-        &transaction,
-        input.character_id,
-        input.campaign_id,
-        &input.items,
-    )?;
+    let credits_remaining = if input.administrative_override {
+        requested_credits_remaining
+    } else {
+        calculated_credits_remaining
+    };
     transaction
         .execute(
             "INSERT INTO campaign_character_profiles (
@@ -510,6 +649,7 @@ fn validate_attributes(
     attributes: &[CharacterAttributeInput],
     race_id: Option<i64>,
     attribute_budget: f64,
+    enforce_creation_rules: bool,
 ) -> Result<f64, String> {
     if attributes.len() != ATTRIBUTE_KEYS.len() {
         return Err("A Character must have exactly six core Attribute allocations.".to_string());
@@ -525,22 +665,26 @@ fn validate_attributes(
         }
         let value = finite_non_negative(attribute.value, &format!("{key} Attribute"))?;
         total += value;
-        if let Some(race_id) = race_id {
-            let cap: Option<f64> = transaction
-                .query_row(
-                    "SELECT max_value FROM race_attribute_caps
+        if enforce_creation_rules {
+            if let Some(race_id) = race_id {
+                let cap: Option<f64> = transaction
+                    .query_row(
+                        "SELECT max_value FROM race_attribute_caps
                      WHERE race_id=?1 AND attribute_key=?2 LIMIT 1",
-                    params![race_id, key],
-                    |row| row.get(0),
-                )
-                .optional()
-                .map_err(|error| format!("The Race Attribute cap could not be read: {error}"))?;
-            if cap.is_some_and(|maximum| value > maximum + 0.000_001) {
-                return Err(format!("{key} exceeds the selected Race maximum."));
+                        params![race_id, key],
+                        |row| row.get(0),
+                    )
+                    .optional()
+                    .map_err(|error| {
+                        format!("The Race Attribute cap could not be read: {error}")
+                    })?;
+                if cap.is_some_and(|maximum| value > maximum + 0.000_001) {
+                    return Err(format!("{key} exceeds the selected Race maximum."));
+                }
             }
         }
     }
-    if total > attribute_budget + 0.000_001 {
+    if enforce_creation_rules && total > attribute_budget + 0.000_001 {
         return Err("Character Attributes exceed the Campaign Attribute Point budget.".to_string());
     }
     Ok(total)
@@ -548,6 +692,7 @@ fn validate_attributes(
 
 #[allow(clippy::too_many_arguments)]
 fn validate_creation_completion(
+    transaction: &Transaction<'_>,
     input: &SaveCharacterAggregateInput,
     name: &str,
     height: Option<(i64, i64)>,
@@ -566,7 +711,9 @@ fn validate_creation_completion(
         && weight.is_some_and(|value| value > 0.0)
         && !profile.skin_color.trim().is_empty()
         && !profile.eye_color.trim().is_empty()
-        && !profile.hair_color.trim().is_empty();
+        && !profile.hair_color.trim().is_empty()
+        && !profile.deity.trim().is_empty()
+        && !profile.defining_marks.trim().is_empty();
     if !identity_complete {
         return Err(
             "Character creation cannot be completed until every required Identity field is valid."
@@ -583,13 +730,57 @@ fn validate_creation_completion(
             "Character creation requires the exact Campaign Skill Point budget.".to_string(),
         );
     }
+    let story_complete = [
+        &profile.personality,
+        &profile.goals,
+        &profile.secrets,
+        &profile.backstory,
+        &profile.motivations,
+    ]
+    .into_iter()
+    .all(|value| !value.trim().is_empty());
+    if !story_complete {
+        return Err(
+            "Character creation cannot be completed until every Story and Personality field contains something."
+                .to_string(),
+        );
+    }
+    let equipment_count: i64 = transaction
+        .query_row(
+            "SELECT COUNT(*)
+             FROM campaign_character_items owned
+             JOIN items item ON item.id=owned.item_id
+             WHERE owned.character_id=?1
+               AND item.catalog_scope='equipment' COLLATE NOCASE
+               AND owned.quantity>0",
+            [input.character_id],
+            |row| row.get(0),
+        )
+        .map_err(|error| format!("Starting Equipment could not be verified: {error}"))?;
+    if equipment_count == 0 {
+        return Err(
+            "Character creation requires at least one Campaign-authorized Equipment purchase."
+                .to_string(),
+        );
+    }
     Ok(())
 }
 
 fn read_skill(transaction: &Transaction<'_>, skill_id: i64) -> Result<SkillMeta, String> {
     transaction
         .query_row(
-            "SELECT id,name,classification,tier FROM skills WHERE id=?1",
+            "SELECT skill.id,skill.name,skill.classification,skill.tier,
+               (SELECT json_extract(extension.data_json,'$.spreadsheetReference.masteryLabel')
+                FROM skill_extensions extension
+                WHERE extension.skill_id=skill.id
+                  AND extension.extension_type='spell-import-source' COLLATE NOCASE
+                ORDER BY extension.id LIMIT 1),
+               (SELECT CAST(json_extract(extension.data_json,'$.spreadsheetReference.statedSpellCost') AS REAL)
+                FROM skill_extensions extension
+                WHERE extension.skill_id=skill.id
+                  AND extension.extension_type='spell-import-source' COLLATE NOCASE
+                ORDER BY extension.id LIMIT 1)
+             FROM skills skill WHERE skill.id=?1",
             [skill_id],
             |row| {
                 Ok(SkillMeta {
@@ -597,6 +788,8 @@ fn read_skill(transaction: &Transaction<'_>, skill_id: i64) -> Result<SkillMeta,
                     name: row.get(1)?,
                     classification: row.get(2)?,
                     tier: row.get(3)?,
+                    spell_level: row.get(4)?,
+                    mana_cost: row.get(5)?,
                 })
             },
         )
@@ -605,13 +798,96 @@ fn read_skill(transaction: &Transaction<'_>, skill_id: i64) -> Result<SkillMeta,
         .ok_or_else(|| "A Skill allocation references a missing Skill.".to_string())
 }
 
+fn spell_level_index(level: &str) -> Option<usize> {
+    match level.trim().to_lowercase().as_str() {
+        "apprentice" => Some(0),
+        "novice" => Some(1),
+        "master" => Some(2),
+        "high master" => Some(3),
+        "grand master" => Some(4),
+        _ => None,
+    }
+}
+
+fn spell_access_level_for_mana_pool(mana_pool: f64) -> Option<usize> {
+    [1.0, 12.0, 32.0, 72.0, 142.0]
+        .iter()
+        .rposition(|required| mana_pool + 0.000_001 >= *required)
+}
+
+fn spell_access_required_mana(level_index: usize) -> Option<f64> {
+    [1.0, 12.0, 32.0, 72.0, 142.0].get(level_index).copied()
+}
+
+fn magic_system_for_root(root: &SkillMeta) -> Option<&'static str> {
+    match root.name.trim().to_lowercase().as_str() {
+        "spellcraft" => Some("Spellcraft"),
+        "talismanism" => Some("Talismanism"),
+        "faith" | "prayer" => Some("Faith"),
+        "psionic focus" => Some("Psyonics"),
+        "resonant performance" => Some("Bardic Resonance"),
+        _ => None,
+    }
+}
+
+fn validate_spell_mana_access(
+    skill: &SkillMeta,
+    root: &SkillMeta,
+    rules: &CampaignSkillRules,
+) -> Result<(), String> {
+    if rules.administrative_override {
+        return Ok(());
+    }
+    let classification = skill.classification.trim().to_lowercase();
+    let is_spell = skill.spell_level.is_some()
+        || matches!(
+            classification.as_str(),
+            "spell" | "psionic skill" | "reverberation"
+        );
+    if !is_spell {
+        return Ok(());
+    }
+    let system = magic_system_for_root(root).ok_or_else(|| {
+        format!(
+            "Spell {:?} is not attached to a recognized supernatural Skill tree.",
+            skill.name
+        )
+    })?;
+    let spell_level = skill.spell_level.as_deref().ok_or_else(|| {
+        format!(
+            "Spell {:?} has no recorded spell level and cannot be assigned.",
+            skill.name
+        )
+    })?;
+    let required_level = spell_level_index(spell_level).ok_or_else(|| {
+        format!(
+            "Spell {:?} has an unrecognized spell level {:?}.",
+            skill.name, spell_level
+        )
+    })?;
+    let mana_pool = rules.mana_pools.get(system).copied().unwrap_or(0.0);
+    let access_level = spell_access_level_for_mana_pool(mana_pool);
+    if access_level.is_some_and(|level| level >= required_level) {
+        return Ok(());
+    }
+    let required_mana = spell_access_required_mana(required_level).unwrap_or(0.0);
+    let mana_cost = skill
+        .mana_cost
+        .map(|cost| format!("; recorded cost {cost} Mana"))
+        .unwrap_or_default();
+    Err(format!(
+        "Spell {:?} requires {spell_level} spell access ({required_mana} Mana), but the {system} pool is {mana_pool}{mana_cost}.",
+        skill.name
+    ))
+}
+
 fn root_systems(skill: &SkillMeta) -> Result<Vec<&'static str>, String> {
     let name = skill.name.to_lowercase();
     let classification = skill.classification.to_lowercase();
     if classification == "standard" {
         return Ok(vec![]);
     }
-    if classification == "special ability" {
+    if classification == "special ability" || classification == "special abilities" {
         return Ok(vec!["Special Abilities"]);
     }
     match name.as_str() {
@@ -634,11 +910,18 @@ fn validate_skill_access(
     skill: &SkillMeta,
     root: &SkillMeta,
     rules: &CampaignSkillRules,
+    racially_granted: bool,
 ) -> Result<(), String> {
-    if let Some(tier) = skill.tier {
-        let tier_name = format!("Tier {tier}");
-        if !rules.allowed_systems.contains(&tier_name) {
-            return Err(format!("{tier_name} is not allowed in this Campaign."));
+    validate_spell_mana_access(skill, root, rules)?;
+    if racially_granted {
+        return Ok(());
+    }
+    if rules.enforce_campaign_tier_limits {
+        if let Some(tier) = skill.tier {
+            let tier_name = format!("Tier {tier}");
+            if !rules.allowed_systems.contains(&tier_name) {
+                return Err(format!("{tier_name} is not allowed in this Campaign."));
+            }
         }
     }
     let systems = root_systems(root)?;
@@ -655,6 +938,20 @@ fn validate_skill_access(
     Ok(())
 }
 
+fn skill_unlock_threshold(root: &SkillMeta, campaign_threshold: f64) -> Result<f64, String> {
+    let uses_one_point_unlock = root_systems(root)?.into_iter().any(|system| {
+        matches!(
+            system,
+            "Spellcraft" | "Talismanism" | "Faith" | "Psyonics" | "Bardic Resonance"
+        )
+    });
+    Ok(if uses_one_point_unlock {
+        1.0
+    } else {
+        campaign_threshold
+    })
+}
+
 #[allow(clippy::too_many_arguments)]
 fn validate_and_insert_skill(
     transaction: &Transaction<'_>,
@@ -669,18 +966,28 @@ fn validate_and_insert_skill(
         return Err("Skill allocations must reference saved Skills.".to_string());
     }
     let points = finite_non_negative(allocation.points, "Skill Points Invested")?;
-    if points <= 0.0 {
-        return Err("Stored Skill allocations must invest more than zero points.".to_string());
+    let racial_minimum = rules
+        .racial_skill_values
+        .get(&allocation.skill_id)
+        .copied()
+        .unwrap_or(0.0);
+    let racially_granted = rules.racial_skill_ids.contains(&allocation.skill_id);
+    if points <= 0.0 && !racially_granted && allocation.children.is_empty() {
+        return Err(
+            "A zero-point Skill allocation must be a racial Skill or a structural parent."
+                .to_string(),
+        );
     }
-    if points > rules.max_starting_skill + 0.000_001 {
+    if !rules.administrative_override && points > rules.max_starting_skill + 0.000_001 {
         return Err("A starting Skill allocation exceeds Max Starting Skill.".to_string());
     }
-    if points > rules.max_points_in_skill + 0.000_001 {
+    let purchased_maximum = (rules.max_points_in_skill - racial_minimum).max(0.0);
+    if points > purchased_maximum + 0.000_001 {
         return Err("A Skill allocation exceeds Max Points in a Skill.".to_string());
     }
     let skill = read_skill(transaction, allocation.skill_id)?;
     let root_skill = root.unwrap_or(&skill);
-    validate_skill_access(&skill, root_skill, rules)?;
+    validate_skill_access(&skill, root_skill, rules, racially_granted)?;
 
     let parent_id = if let Some((parent_allocation_id, parent_skill, parent_points)) = parent {
         let linked: bool = transaction
@@ -702,10 +1009,18 @@ fn validate_and_insert_skill(
                 skill.name, parent_skill.name
             ));
         }
-        if parent_points + 0.000_001 < rules.points_to_unlock_next_tier {
+        let unlock_threshold =
+            skill_unlock_threshold(root_skill, rules.points_to_unlock_next_tier)?;
+        let parent_effective_points = parent_points
+            + rules
+                .racial_skill_values
+                .get(&parent_skill.id)
+                .copied()
+                .unwrap_or(0.0);
+        if !racially_granted && parent_effective_points + 0.000_001 < unlock_threshold {
             return Err(format!(
-                "Skill {:?} is locked until its parent reaches the Campaign threshold.",
-                skill.name
+                "Skill {:?} is locked until its parent reaches {unlock_threshold} invested points.",
+                skill.name,
             ));
         }
         if let (Some(parent_tier), Some(child_tier)) = (parent_skill.tier, skill.tier) {
@@ -759,6 +1074,7 @@ fn validate_and_insert_items(
     character_id: i64,
     campaign_id: i64,
     items: &[CharacterItemInput],
+    administrative_override: bool,
 ) -> Result<f64, String> {
     let starting_credits: f64 = transaction
         .query_row(
@@ -792,16 +1108,22 @@ fn validate_and_insert_items(
             .map_err(|error| {
                 format!("Campaign Item authorization could not be checked: {error}")
             })?;
-        let Some(Some(catalog_cost)) = catalog_cost else {
-            return Err(
-                "A Character Item is not authorized and priced by this Campaign.".to_string(),
-            );
+        let Some(catalog_cost) = catalog_cost else {
+            return Err("A Character Item is not authorized by this Campaign.".to_string());
         };
-        if (catalog_cost - unit_cost).abs() > 0.000_001 {
-            return Err("A Character Item cost no longer matches its master Item.".to_string());
-        }
-        spent += catalog_cost * item.quantity as f64;
-        if spent > starting_credits + 0.000_001 {
+        let saved_cost = if administrative_override {
+            unit_cost
+        } else {
+            let Some(catalog_cost) = catalog_cost else {
+                return Err("A Character Item is not priced by this Campaign.".to_string());
+            };
+            if (catalog_cost - unit_cost).abs() > 0.000_001 {
+                return Err("A Character Item cost no longer matches its master Item.".to_string());
+            }
+            catalog_cost
+        };
+        spent += saved_cost * item.quantity as f64;
+        if !administrative_override && spent > starting_credits + 0.000_001 {
             return Err("Character Items exceed the remaining starting funds.".to_string());
         }
         transaction
@@ -809,7 +1131,7 @@ fn validate_and_insert_items(
                 "INSERT INTO campaign_character_items
                  (character_id,item_id,quantity,unit_cost_credits)
                  VALUES (?1,?2,?3,?4)",
-                params![character_id, item.item_id, item.quantity, catalog_cost],
+                params![character_id, item.item_id, item.quantity, saved_cost],
             )
             .map_err(|error| format!("A Character Item could not be saved: {error}"))?;
     }
@@ -833,6 +1155,8 @@ mod tests {
         include_str!("../migrations/0019_lock_completed_character_creation.sql");
     const CHARACTER_HEIGHT_UNITS: &str =
         include_str!("../migrations/0020_add_character_height_units.sql");
+    const RACIAL_SKILL_ANCHORS: &str =
+        include_str!("../migrations/0023_allow_racial_skill_anchors.sql");
 
     struct Fixture {
         connection: Connection,
@@ -841,6 +1165,10 @@ mod tests {
         race_id: i64,
         root_skill_id: i64,
         child_skill_id: i64,
+        channeling_skill_id: i64,
+        spellcraft_skill_id: i64,
+        sphere_skill_id: i64,
+        spell_skill_id: i64,
         item_id: i64,
     }
 
@@ -865,6 +1193,9 @@ mod tests {
             connection
                 .execute_batch(CHARACTER_HEIGHT_UNITS)
                 .expect("Character height units");
+            connection
+                .execute_batch(RACIAL_SKILL_ANCHORS)
+                .expect("Racial Skill anchors");
         }
         connection
     }
@@ -896,7 +1227,10 @@ mod tests {
                 params![campaign_id, user_id],
             )
             .expect("membership");
-        for (index, system) in ["Tier 1", "Tier 2"].into_iter().enumerate() {
+        for (index, system) in ["Tier 1", "Tier 2", "Tier 3", "Spellcraft"]
+            .into_iter()
+            .enumerate()
+        {
             connection
                 .execute(
                     "INSERT INTO campaign_allowed_systems
@@ -954,10 +1288,61 @@ mod tests {
             .expect("Skill relationship");
         connection
             .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Channeling','magic stabalization',1,'INT')",
+                [],
+            )
+            .expect("Channeling Skill");
+        let channeling_skill_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Spellcraft','magic access',1,'INT')",
+                [],
+            )
+            .expect("Spellcraft Skill");
+        let spellcraft_skill_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Evocation','sphere',2,'INT')",
+                [],
+            )
+            .expect("Sphere Skill");
+        let sphere_skill_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Flame Bolt','spell',3,'INT')",
+                [],
+            )
+            .expect("Spell Skill");
+        let spell_skill_id = connection.last_insert_rowid();
+        connection
+            .execute(
+                "INSERT INTO skill_extensions
+                 (skill_id,extension_type,schema_version,data_json)
+                 VALUES (?1,'spell-import-source',1,?2)",
+                params![
+                    spell_skill_id,
+                    r#"{"spreadsheetReference":{"masteryLabel":"Apprentice","statedSpellCost":8}}"#
+                ],
+            )
+            .expect("Spell import source");
+        connection
+            .execute(
+                "INSERT INTO skill_relationships
+                 (skill_id,related_skill_id,relationship_type,sort_order)
+                 VALUES (?1,?2,'parent',0), (?3,?1,'parent',0)",
+                params![sphere_skill_id, spellcraft_skill_id, spell_skill_id],
+            )
+            .expect("Spellcraft relationships");
+        connection
+            .execute(
                 "INSERT INTO items (
                    canonical_id,name,catalog_scope,equipment_group,record_type,
                    family,category,credits,price_basis
-                 ) VALUES ('ITEM-TEST','Rope','inventory',NULL,'Item','Gear','Gear',10,'each')",
+                 ) VALUES ('ITEM-TEST','Rope','equipment','general','Item','Gear','Gear',10,'each')",
                 [],
             )
             .expect("Item");
@@ -976,6 +1361,10 @@ mod tests {
             race_id,
             root_skill_id,
             child_skill_id,
+            channeling_skill_id,
+            spellcraft_skill_id,
+            sphere_skill_id,
+            spell_skill_id,
             item_id,
         }
     }
@@ -985,6 +1374,7 @@ mod tests {
             character_id,
             campaign_id: fixture.campaign_id,
             requesting_user_id: fixture.user_id,
+            administrative_override: false,
             complete_creation: false,
             name: "Neris".to_string(),
             profile: CharacterProfileInput {
@@ -997,11 +1387,11 @@ mod tests {
                 skin_color: "Bronze".to_string(),
                 eye_color: "Green".to_string(),
                 hair_color: "Black".to_string(),
-                deity: "".to_string(),
-                defining_marks: "".to_string(),
+                deity: "None".to_string(),
+                defining_marks: "None".to_string(),
                 personality: "Patient".to_string(),
                 goals: "Explore".to_string(),
-                secrets: "".to_string(),
+                secrets: "None".to_string(),
                 backstory: "A traveler.".to_string(),
                 motivations: "Discovery".to_string(),
                 fame: 0.0,
@@ -1009,6 +1399,7 @@ mod tests {
                 total_experience: 0.0,
                 quintessence: 0.0,
                 total_quintessence: 0.0,
+                credits_remaining: 80.0,
             },
             attributes: ATTRIBUTE_KEYS
                 .into_iter()
@@ -1081,6 +1472,74 @@ mod tests {
     }
 
     #[test]
+    fn racial_skill_points_are_free_parent_minimums_and_zero_anchors_persist() {
+        let mut fixture = setup();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id,skill_id,link_type,value,sort_order)
+                 VALUES (?1,?2,'bonus',5,0)",
+                params![fixture.race_id, fixture.root_skill_id],
+            )
+            .expect("racial Skill bonus");
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let mut input = save_input(&fixture, character_id);
+        input.skill_allocations = vec![CharacterSkillAllocationInput {
+            skill_id: fixture.root_skill_id,
+            points: 0.0,
+            children: vec![CharacterSkillAllocationInput {
+                skill_id: fixture.child_skill_id,
+                points: 5.0,
+                children: vec![],
+            }],
+        }];
+
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("racial bonus unlocks its child without spending the racial points");
+        let saved: (f64, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT root.points,child.points
+                 FROM campaign_character_skill_allocations root
+                 JOIN campaign_character_skill_allocations child
+                   ON child.parent_allocation_id=root.id
+                 WHERE root.character_id=?1",
+                [character_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("reload racial Skill path");
+        assert_eq!(saved, (0.0, 5.0));
+    }
+
+    #[test]
+    fn spell_access_uses_the_current_spell_range_unlock_points() {
+        let levels = [0.0, 1.0, 11.0, 12.0, 31.0, 32.0, 71.0, 72.0, 141.0, 142.0]
+            .map(spell_access_level_for_mana_pool);
+        assert_eq!(
+            levels,
+            [
+                None,
+                Some(0),
+                Some(0),
+                Some(1),
+                Some(1),
+                Some(2),
+                Some(2),
+                Some(3),
+                Some(3),
+                Some(4),
+            ]
+        );
+    }
+
+    #[test]
     fn save_replaces_the_aggregate_and_rolls_back_invalid_rules_or_ownership() {
         let mut fixture = setup();
         let character_id = create_character_aggregate_in_connection(
@@ -1117,6 +1576,51 @@ mod tests {
             },
         ).expect("saved aggregate");
         assert_eq!(saved, ("Neris".into(), 6, 2, 1, 80.0, 5, 7));
+
+        let spellcraft_allocations = || {
+            vec![CharacterSkillAllocationInput {
+                skill_id: fixture.spellcraft_skill_id,
+                points: 1.0,
+                children: vec![CharacterSkillAllocationInput {
+                    skill_id: fixture.sphere_skill_id,
+                    points: 1.0,
+                    children: vec![CharacterSkillAllocationInput {
+                        skill_id: fixture.spell_skill_id,
+                        points: 8.0,
+                        children: vec![],
+                    }],
+                }],
+            }]
+        };
+        let mut unavailable_spell = save_input(&fixture, character_id);
+        unavailable_spell.skill_allocations = spellcraft_allocations();
+        let error =
+            save_character_aggregate_in_connection(&mut fixture.connection, unavailable_spell)
+                .expect_err("an Apprentice spell requires an Apprentice mana pool");
+        assert!(error.contains("requires Apprentice spell access"));
+
+        fixture
+            .connection
+            .execute(
+                "UPDATE races SET base_magic=1 WHERE id=?1",
+                [fixture.race_id],
+            )
+            .expect("one-point Base Magic fixture");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id,skill_id,link_type,value,sort_order)
+                 VALUES (?1,?2,'bonus',1,0)",
+                params![fixture.race_id, fixture.channeling_skill_id],
+            )
+            .expect("racial Channeling bonus");
+        let mut one_point_spellcraft_unlock = save_input(&fixture, character_id);
+        one_point_spellcraft_unlock.skill_allocations = spellcraft_allocations();
+        save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            one_point_spellcraft_unlock,
+        )
+        .expect("Spellcraft tiers unlock with one point in each parent");
 
         let mut invalid_cap = save_input(&fixture, character_id);
         invalid_cap.attributes[0].value = 41.0;
@@ -1214,6 +1718,23 @@ mod tests {
         )
         .is_err());
 
+        let mut incomplete_story = save_input(&fixture, character_id);
+        incomplete_story.profile.secrets = "".to_string();
+        incomplete_story.complete_creation = true;
+        assert!(
+            save_character_aggregate_in_connection(&mut fixture.connection, incomplete_story,)
+                .is_err()
+        );
+
+        let mut incomplete_equipment = save_input(&fixture, character_id);
+        incomplete_equipment.items.clear();
+        incomplete_equipment.complete_creation = true;
+        assert!(save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            incomplete_equipment,
+        )
+        .is_err());
+
         let mut complete = save_input(&fixture, character_id);
         complete.complete_creation = true;
         save_character_aggregate_in_connection(&mut fixture.connection, complete)
@@ -1231,6 +1752,107 @@ mod tests {
         let locked_edit = save_input(&fixture, character_id);
         assert!(
             save_character_aggregate_in_connection(&mut fixture.connection, locked_edit,).is_err()
+        );
+
+        let mut forged_administrator = save_input(&fixture, character_id);
+        forged_administrator.requesting_user_id += 999;
+        forged_administrator.administrative_override = true;
+        assert!(save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            forged_administrator,
+        )
+        .is_err());
+
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO users (username,password_hash,password_salt,password_iterations)
+                 VALUES ('GameMaster','hash','salt',1)",
+                [],
+            )
+            .expect("G.O.D. profile");
+        let god_user_id = fixture.connection.last_insert_rowid();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO user_roles (user_id,role) VALUES (?1,'god')",
+                [god_user_id],
+            )
+            .expect("G.O.D. role");
+        fixture
+            .connection
+            .execute(
+                "DELETE FROM campaign_allowed_systems
+                 WHERE campaign_id=?1 AND system_name IN ('Tier 2','Tier 3')",
+                [fixture.campaign_id],
+            )
+            .expect("remove post-creation Campaign tier access");
+
+        let mut god_locked_standard_tier = save_input(&fixture, character_id);
+        god_locked_standard_tier.requesting_user_id = god_user_id;
+        god_locked_standard_tier.administrative_override = true;
+        god_locked_standard_tier.skill_allocations[0].points = 4.0;
+        god_locked_standard_tier.skill_allocations[0].children[0].points = 6.0;
+        assert!(save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            god_locked_standard_tier,
+        )
+        .is_err());
+
+        let mut god_exceeds_absolute_skill_max = save_input(&fixture, character_id);
+        god_exceeds_absolute_skill_max.requesting_user_id = god_user_id;
+        god_exceeds_absolute_skill_max.administrative_override = true;
+        god_exceeds_absolute_skill_max.skill_allocations[0].points = 76.0;
+        assert!(save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            god_exceeds_absolute_skill_max,
+        )
+        .is_err());
+
+        let mut god_edit = save_input(&fixture, character_id);
+        god_edit.requesting_user_id = god_user_id;
+        god_edit.administrative_override = true;
+        god_edit.attributes[0].value = 45.0;
+        god_edit.skill_allocations[0].points = 15.0;
+        god_edit.items[0].quantity = 15;
+        god_edit.profile.experience = 25.0;
+        god_edit.profile.total_experience = 40.0;
+        god_edit.profile.quintessence = 7.0;
+        god_edit.profile.total_quintessence = 12.0;
+        god_edit.profile.credits_remaining = 333.0;
+        save_character_aggregate_in_connection(&mut fixture.connection, god_edit)
+            .expect("G.O.D. edits a completed Character");
+        let god_saved: (f64, f64, f64, f64, f64, f64, i64, Option<String>) = fixture
+            .connection
+            .query_row(
+                "SELECT profile.experience,profile.total_experience,
+                        profile.quintessence,profile.total_quintessence,
+                        profile.credits_remaining,
+                        (SELECT value FROM campaign_character_attributes
+                         WHERE character_id=?1 AND attribute_key='STR'),
+                        (SELECT quantity FROM campaign_character_items
+                         WHERE character_id=?1 AND item_id=?2),
+                        profile.creation_completed_at
+                 FROM campaign_character_profiles profile
+                 WHERE profile.character_id=?1",
+                params![character_id, fixture.item_id],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                        row.get(6)?,
+                        row.get(7)?,
+                    ))
+                },
+            )
+            .expect("G.O.D. Character values");
+        assert_eq!(
+            god_saved,
+            (25.0, 40.0, 7.0, 12.0, 333.0, 45.0, 15, completed_at)
         );
     }
 

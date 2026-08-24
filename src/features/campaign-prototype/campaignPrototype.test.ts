@@ -86,6 +86,8 @@ describe("Campaign prototype completion", () => {
         recordType: "Item",
         family: "Pack",
         category: "General Gear",
+        catalogScope: "equipment" as const,
+        equipmentGroup: "general" as const,
         tags: ["Fantasy"],
       }],
     };
@@ -121,6 +123,8 @@ describe("Campaign prototype completion", () => {
         recordType: "Item",
         family: "Pack",
         category: "General Gear",
+        catalogScope: "equipment",
+        equipmentGroup: "general",
         tags: ["Fantasy"],
       }],
     });
@@ -134,6 +138,8 @@ describe("Campaign prototype completion", () => {
       recordType: "Item",
       family: "Pack",
       category: "General Gear",
+      catalogScope: "equipment" as const,
+      equipmentGroup: "general" as const,
       tags: ["Fantasy", "Historical"],
     };
 

@@ -5,21 +5,34 @@ import {
   getCampaignMoneyBreakdown,
 } from "../features/currency/currencyRules";
 import {
+  canAccessSpellAtLevel,
   evaluateCharacterReadiness,
   getAttributeModifier,
   getAttributePointsUsed,
   getAttributeRollTarget,
   getBaseInitiative,
   getCharacterHp,
+  getCharacterMagicSystem,
+  getCharacterManaProfiles,
   getCharacterSkillRanks,
+  getCharacterSkillGroupKey,
+  getEffectiveSkillPoints,
   getMovementInitiative,
   getRaceAttributeCap,
+  getRacialSkillGrant,
   getSkillPointsUsed,
   getSkillRank,
   getSkillRollTarget,
+  getSkillTierLabel,
+  getSkillUnlockThreshold,
+  getSpecialAbilityRollTarget,
   getStartingFundsRemaining,
   isSkillAllowedByCampaign,
+  isSpellSkill,
+  isSpecialAbilitySkill,
   normalizeSkillAttributeKey,
+  reconcileRacialSkillAnchors,
+  type CharacterManaProfile,
 } from "../features/characters/characterRules";
 import {
   characterAggregateToDraft,
@@ -31,6 +44,7 @@ import {
   type CharacterAggregate,
   type CharacterAttributeKey,
   type CharacterDraft,
+  type CharacterEditorMode,
   type CharacterSkillAllocationDraft,
   type CharacterSkillReference,
 } from "../types/character";
@@ -45,6 +59,7 @@ const TABS = [
   ["skills", "Skills & Abilities"],
   ["story", "Story & Personality"],
   ["equipment", "Equipment"],
+  ["god", "G.O.D. Controls"],
   ["sheet", "Character Sheet"],
 ] as const;
 
@@ -55,6 +70,7 @@ type Props = {
   session: AuthSession;
   campaignId: number;
   characterId: number;
+  editorMode: CharacterEditorMode;
   onBack: () => void;
   onLogout: () => void;
 };
@@ -94,6 +110,10 @@ type SkillBranchProps = {
   draft: CharacterDraft;
   ranks: ReadonlyMap<number, number>;
   childrenByParent: ReadonlyMap<number, CharacterSkillReference[]>;
+  selectedRace: RaceAggregate | null;
+  administrativeOverride: boolean;
+  enforceCampaignTierLimits: boolean;
+  manaProfiles: readonly CharacterManaProfile[];
   onPointsChange: (
     skillId: number,
     parentDraftId: number | null,
@@ -113,40 +133,69 @@ function SkillBranch({
   draft,
   ranks,
   childrenByParent,
+  selectedRace,
+  administrativeOverride,
+  enforceCampaignTierLimits,
+  manaProfiles,
   onPointsChange,
   onShowDescription,
 }: SkillBranchProps) {
   if (visited.has(skill.id)) return null;
-  if (!isSkillAllowedByCampaign(skill, rootSkill, aggregate.campaign.allowedSystems)) return null;
+  const racialGrant = getRacialSkillGrant(selectedRace, skill.id);
+  if (!isSkillAllowedByCampaign(
+    skill,
+    rootSkill,
+    aggregate.campaign.allowedSystems,
+    enforceCampaignTierLimits,
+    racialGrant.granted,
+  )) return null;
 
   const allocation = allocationFor(draft, skill.id, parentDraftId);
   const points = allocation?.points ?? 0;
+  const effectivePoints = getEffectiveSkillPoints(points, selectedRace, skill.id);
   const attributeKey = normalizeSkillAttributeKey(skill.primaryAttribute);
   const attributeScore = attributeKey ? draft.attributes[attributeKey] : 0;
   const rank = allocation
     ? ranks.get(allocation.draftId) ?? 0
     : getSkillRank(
-        0,
+        effectivePoints,
         attributeKey ? getAttributeModifier(attributeScore) : 0,
         parentRank,
         skill.tier,
       );
-  const isLocked = parentDraftId !== null
-    && (parentRank === null
-      || !draft.skillAllocations.some((row) =>
-        row.draftId === parentDraftId
-          && row.points >= aggregate.campaign.pointsToUnlockNextTier,
-      ));
+  const unlockThreshold = getSkillUnlockThreshold(
+    rootSkill,
+    aggregate.campaign.pointsToUnlockNextTier,
+  );
   const nextVisited = new Set(visited).add(skill.id);
   const children = childrenByParent.get(skill.id) ?? [];
-  const maxAllocation = Math.min(
-    aggregate.campaign.maxStartingSkill,
-    aggregate.campaign.maxPointsInSkill,
+  const magicSystem = getCharacterMagicSystem(rootSkill);
+  const spellAccessLevel = magicSystem
+    ? manaProfiles.find((profile) => profile.system === magicSystem)?.spellAccessLevel ?? null
+    : null;
+  const visibleChildren = children.filter((child) =>
+    (effectivePoints >= unlockThreshold
+      || getRacialSkillGrant(selectedRace, child.id).granted)
+      && (administrativeOverride || !isSpellSkill(child) || canAccessSpellAtLevel(child, spellAccessLevel)),
   );
+  const hiddenSpellCount = children.filter(isSpellSkill).length
+    - visibleChildren.filter(isSpellSkill).length;
+  const maxPurchased = Math.min(
+    administrativeOverride
+      ? aggregate.campaign.maxPointsInSkill
+      : aggregate.campaign.maxStartingSkill,
+    Math.max(0, aggregate.campaign.maxPointsInSkill - racialGrant.minimum),
+  );
+  const maxTotal = racialGrant.minimum + maxPurchased;
+  const rollTarget = attributeKey
+    ? getSkillRollTarget(attributeScore, rank)
+    : isSpecialAbilitySkill(skill)
+      ? getSpecialAbilityRollTarget(rank)
+      : null;
 
   return (
     <div className="character-skill-branch" style={{ "--skill-depth": depth } as React.CSSProperties}>
-      <div className={`character-skill-row${isLocked ? " is-locked" : ""}`}>
+      <div className="character-skill-row">
         <div className="character-skill-row__identity">
           <div>
             <strong>{skill.name}</strong>
@@ -162,41 +211,42 @@ function SkillBranch({
             >?</a>
           </div>
           <span>
-            {skill.tier === null ? skill.classification : `Tier ${skill.tier}`}
+            {getSkillTierLabel(skill)}
+            {skill.manaCost !== null && skill.manaCost !== undefined ? ` · ${displayNumber(skill.manaCost)} Mana` : ""}
             {attributeKey ? ` · ${attributeKey}` : ""}
+            {racialGrant.granted
+              ? racialGrant.minimum > 0
+                ? ` · Racial +${displayNumber(racialGrant.minimum)}`
+                : " · Racially granted"
+              : ""}
           </span>
         </div>
         <label>
-          <span>Points</span>
+          <span>{racialGrant.granted ? "Total Points" : "Points"}</span>
           <input
             aria-label={`${skill.name} Points Invested`}
             type="number"
-            min="0"
-            max={maxAllocation}
+            min={racialGrant.minimum}
+            max={maxTotal}
             step="1"
-            disabled={isLocked}
-            value={points}
+            value={effectivePoints}
             onChange={(event) => onPointsChange(
               skill.id,
               parentDraftId,
-              numericValue(event.target.value),
+              Math.max(0, numericValue(event.target.value) - racialGrant.minimum),
             )}
           />
+          {racialGrant.granted ? <small>{displayNumber(points)} purchased</small> : null}
         </label>
         <div><span>Rank</span><strong>{displayNumber(rank)}</strong></div>
         <div>
           <span>Roll Target</span>
-          <strong>{attributeKey ? `${displayNumber(getSkillRollTarget(attributeScore, rank))}%` : "—"}</strong>
+          <strong>{rollTarget === null ? "—" : `${displayNumber(rollTarget)}%`}</strong>
         </div>
       </div>
-      {isLocked ? (
-        <p className="character-skill-row__lock">
-          Parent requires {displayNumber(aggregate.campaign.pointsToUnlockNextTier)} invested points.
-        </p>
-      ) : null}
-      {allocation && children.length > 0 ? (
+      {allocation && visibleChildren.length > 0 ? (
         <div className="character-skill-children">
-          {children.map((child) => (
+          {visibleChildren.map((child) => (
             <SkillBranch
               key={`${allocation.draftId}:${child.id}`}
               skill={child}
@@ -209,11 +259,20 @@ function SkillBranch({
               draft={draft}
               ranks={ranks}
               childrenByParent={childrenByParent}
+              selectedRace={selectedRace}
+              administrativeOverride={administrativeOverride}
+              enforceCampaignTierLimits={enforceCampaignTierLimits}
+              manaProfiles={manaProfiles}
               onPointsChange={onPointsChange}
               onShowDescription={onShowDescription}
             />
           ))}
         </div>
+      ) : null}
+      {allocation && !administrativeOverride && hiddenSpellCount > 0 ? (
+        <p className="character-spell-access-note">
+          Higher-level {magicSystem ?? "supernatural"} spells remain hidden at {spellAccessLevel ?? "Below Apprentice"} spell access.
+        </p>
       ) : null}
     </div>
   );
@@ -223,9 +282,11 @@ export function CharacterCreationPage({
   session,
   campaignId,
   characterId,
+  editorMode,
   onBack,
   onLogout,
 }: Props) {
+  const isGodEditor = editorMode === "god";
   const [aggregate, setAggregate] = useState<CharacterAggregate | null>(null);
   const [draft, setDraft] = useState<CharacterDraft | null>(null);
   const [selectedRace, setSelectedRace] = useState<RaceAggregate | null>(null);
@@ -239,6 +300,7 @@ export function CharacterCreationPage({
   const [confirmCompletion, setConfirmCompletion] = useState(false);
   const [describedSkill, setDescribedSkill] = useState<CharacterSkillReference | null>(null);
   const [equipmentSearch, setEquipmentSearch] = useState("");
+  const [equipmentFilter, setEquipmentFilter] = useState<"all" | "weapon" | "armor" | "general" | "inventory">("all");
   const [activeSkillGroup, setActiveSkillGroup] = useState("STR");
   const nextDraftId = useRef(-1);
 
@@ -246,20 +308,32 @@ export function CharacterCreationPage({
     let current = true;
     setLoading(true);
     setFeedback(null);
-    characterService.getCharacter(characterId, campaignId, session.userId)
+    characterService.getCharacter(characterId, campaignId, session.userId, editorMode)
       .then((loaded) => {
         if (!current) return;
         if (!loaded) {
           setFeedback({
             kind: "error",
-            message: "This Character is not available to the logged-in Player in the selected Campaign.",
+            message: isGodEditor
+              ? "This Character is not available to this G.O.D. profile in the selected Campaign."
+              : "This Character is not available to the logged-in Player in the selected Campaign.",
           });
           return;
         }
+        const loadedDraft = characterAggregateToDraft(loaded);
         setAggregate(loaded);
-        setDraft(characterAggregateToDraft(loaded));
+        setDraft({
+          ...loadedDraft,
+          skillAllocations: reconcileRacialSkillAnchors(
+            loadedDraft.skillAllocations,
+            loaded.selectedRace,
+            loaded.skillRelationships,
+            () => nextDraftId.current--,
+          ),
+        });
         setSelectedRace(loaded.selectedRace);
-        if (loaded.profile.creationCompletedAt) setActiveTab("sheet");
+        if (isGodEditor) setActiveTab("god");
+        else if (loaded.profile.creationCompletedAt) setActiveTab("sheet");
         setDirty(false);
       })
       .catch((error) => {
@@ -278,7 +352,7 @@ export function CharacterCreationPage({
     return () => {
       current = false;
     };
-  }, [campaignId, characterId, session.userId]);
+  }, [campaignId, characterId, editorMode, isGodEditor, session.userId]);
 
   useEffect(() => {
     if (!dirty) return;
@@ -296,8 +370,24 @@ export function CharacterCreationPage({
       : null,
     [aggregate, draft, selectedRace],
   );
-  const creationLocked = aggregate?.profile.creationCompletedAt !== null
+  const manaProfiles = useMemo(
+    () => aggregate && draft
+      ? getCharacterManaProfiles(draft, aggregate.skillCatalog, selectedRace)
+      : [],
+    [aggregate, draft, selectedRace],
+  );
+  const creationLocked = !isGodEditor && aggregate?.profile.creationCompletedAt !== null
     && aggregate?.profile.creationCompletedAt !== undefined;
+  const enforceCampaignTierLimits = !aggregate?.profile.creationCompletedAt;
+
+  const visibleTabs = TABS.filter(([id]) => id !== "god" || isGodEditor);
+
+  function currentFunds(): number {
+    if (!aggregate || !draft) return 0;
+    return isGodEditor || Boolean(aggregate.profile.creationCompletedAt)
+      ? draft.profile.creditsRemaining
+      : getStartingFundsRemaining(draft, aggregate.campaign.startingCreditAmount);
+  }
 
   function campaignMoney(canonicalCredits: number): string {
     if (!aggregate) return "";
@@ -309,9 +399,9 @@ export function CharacterCreationPage({
   }
   const ranks = useMemo(
     () => aggregate && draft
-      ? getCharacterSkillRanks(draft, aggregate.skillCatalog)
+      ? getCharacterSkillRanks(draft, aggregate.skillCatalog, selectedRace)
       : new Map<number, number>(),
-    [aggregate, draft],
+    [aggregate, draft, selectedRace],
   );
   const childrenByParent = useMemo(() => {
     const result = new Map<number, CharacterSkillReference[]>();
@@ -338,11 +428,14 @@ export function CharacterCreationPage({
     const groups = new Map<string, CharacterSkillReference[]>();
     for (const skill of aggregate.skillCatalog) {
       if (childIds.has(skill.id) || (skill.tier !== null && skill.tier > 1)) continue;
-      if (!isSkillAllowedByCampaign(skill, skill, aggregate.campaign.allowedSystems)) continue;
-      const attribute = normalizeSkillAttributeKey(skill.primaryAttribute);
-      const key = skill.classification.toLocaleLowerCase() === "standard" && attribute
-        ? attribute
-        : "SPECIAL";
+      if (!isSkillAllowedByCampaign(
+        skill,
+        skill,
+        aggregate.campaign.allowedSystems,
+        enforceCampaignTierLimits,
+        getRacialSkillGrant(selectedRace, skill.id).granted,
+      )) continue;
+      const key = getCharacterSkillGroupKey(skill);
       const rows = groups.get(key) ?? [];
       rows.push(skill);
       groups.set(key, rows);
@@ -353,10 +446,14 @@ export function CharacterCreationPage({
       skills: (groups.get(key) ?? []).sort((left, right) => left.name.localeCompare(right.name)),
     })), {
       key: "SPECIAL",
-      label: "Special Abilities & Systems",
+      label: "Special Abilities",
       skills: (groups.get("SPECIAL") ?? []).sort((left, right) => left.name.localeCompare(right.name)),
+    }, {
+      key: "OTHER",
+      label: "Other Skills",
+      skills: (groups.get("OTHER") ?? []).sort((left, right) => left.name.localeCompare(right.name)),
     }].filter((group) => group.skills.length > 0);
-  }, [aggregate]);
+  }, [aggregate, enforceCampaignTierLimits, selectedRace]);
 
   function changeDraft(updater: (current: CharacterDraft) => CharacterDraft) {
     if (creationLocked) return;
@@ -407,6 +504,12 @@ export function CharacterCreationPage({
       changeDraft((current) => ({
         ...current,
         profile: { ...current.profile, raceId: null },
+        skillAllocations: reconcileRacialSkillAnchors(
+          current.skillAllocations,
+          null,
+          aggregate.skillRelationships,
+          () => nextDraftId.current--,
+        ),
       }));
       return;
     }
@@ -417,6 +520,7 @@ export function CharacterCreationPage({
         aggregate,
         session.userId,
         Number(value),
+        editorMode,
       );
       if (!race) throw new Error("That Race is not allowed by this Campaign.");
       setSelectedRace(race);
@@ -430,6 +534,12 @@ export function CharacterCreationPage({
           ...current,
           attributes,
           profile: { ...current.profile, raceId: race.race.id },
+          skillAllocations: reconcileRacialSkillAnchors(
+            current.skillAllocations,
+            race,
+            aggregate.skillRelationships,
+            () => nextDraftId.current--,
+          ),
         };
       });
     } catch (error) {
@@ -447,7 +557,9 @@ export function CharacterCreationPage({
     const otherPoints = getAttributePointsUsed(draft) - draft.attributes[key];
     const budgetMaximum = Math.max(0, aggregate.campaign.attributePoints - otherPoints);
     const cap = getRaceAttributeCap(selectedRace, key);
-    const maximum = cap === null ? budgetMaximum : Math.min(budgetMaximum, cap);
+    const maximum = isGodEditor
+      ? Number.MAX_SAFE_INTEGER
+      : cap === null ? budgetMaximum : Math.min(budgetMaximum, cap);
     const value = Math.min(Math.max(0, requested), maximum);
     changeDraft((current) => ({
       ...current,
@@ -476,6 +588,24 @@ export function CharacterCreationPage({
     return allocations.filter((allocation) => !removeIds.has(allocation.draftId));
   }
 
+  function getRootSkillForPath(
+    skillId: number,
+    parentDraftId: number | null,
+  ): CharacterSkillReference | null {
+    if (!aggregate || !draft) return null;
+    let rootSkillId = skillId;
+    let cursor = parentDraftId;
+    const visited = new Set<number>();
+    while (cursor !== null && !visited.has(cursor)) {
+      visited.add(cursor);
+      const parent = draft.skillAllocations.find((allocation) => allocation.draftId === cursor);
+      if (!parent) break;
+      rootSkillId = parent.skillId;
+      cursor = parent.parentDraftId;
+    }
+    return aggregate.skillCatalog.find((skill) => skill.id === rootSkillId) ?? null;
+  }
+
   function setSkillPoints(
     skillId: number,
     parentDraftId: number | null,
@@ -484,19 +614,26 @@ export function CharacterCreationPage({
     if (!aggregate || !draft || creationLocked) return;
     const currentAllocation = allocationFor(draft, skillId, parentDraftId);
     const currentPoints = currentAllocation?.points ?? 0;
+    const racialGrant = getRacialSkillGrant(selectedRace, skillId);
     const remainingWithCurrent = aggregate.campaign.skillPoints
       - getSkillPointsUsed(draft)
       + currentPoints;
     const maximum = Math.min(
-      aggregate.campaign.maxStartingSkill,
-      aggregate.campaign.maxPointsInSkill,
-      Math.max(0, remainingWithCurrent),
+      isGodEditor
+        ? aggregate.campaign.maxPointsInSkill
+        : aggregate.campaign.maxStartingSkill,
+      Math.max(0, aggregate.campaign.maxPointsInSkill - racialGrant.minimum),
+      isGodEditor ? aggregate.campaign.maxPointsInSkill : Math.max(0, remainingWithCurrent),
     );
     const points = Math.min(Math.max(0, requested), maximum);
+    const rootSkill = getRootSkillForPath(skillId, parentDraftId);
+    const unlockThreshold = rootSkill
+      ? getSkillUnlockThreshold(rootSkill, aggregate.campaign.pointsToUnlockNextTier)
+      : aggregate.campaign.pointsToUnlockNextTier;
     changeDraft((current) => {
       let allocations = [...current.skillAllocations];
       const existing = allocationFor(current, skillId, parentDraftId);
-      if (!existing && points > 0) {
+      if (!existing && (points > 0 || racialGrant.minimum > 0)) {
         allocations.push({
           draftId: nextDraftId.current--,
           skillId,
@@ -504,13 +641,24 @@ export function CharacterCreationPage({
           points,
         });
       } else if (existing && points <= 0) {
-        allocations = removeSkillDescendants(allocations, existing.draftId)
-          .filter((allocation) => allocation.draftId !== existing.draftId);
+        if (racialGrant.minimum > 0) {
+          if (racialGrant.minimum < unlockThreshold) {
+            allocations = removeSkillDescendants(allocations, existing.draftId);
+          }
+          allocations = allocations.map((allocation) =>
+            allocation.draftId === existing.draftId
+              ? { ...allocation, points: 0 }
+              : allocation,
+          );
+        } else {
+          allocations = removeSkillDescendants(allocations, existing.draftId)
+            .filter((allocation) => allocation.draftId !== existing.draftId);
+        }
       } else if (existing) {
         allocations = allocations.map((allocation) =>
           allocation.draftId === existing.draftId ? { ...allocation, points } : allocation,
         );
-        if (points < aggregate.campaign.pointsToUnlockNextTier) {
+        if (points + racialGrant.minimum < unlockThreshold) {
           allocations = removeSkillDescendants(allocations, existing.draftId);
         }
       }
@@ -521,14 +669,18 @@ export function CharacterCreationPage({
   function changeItemQuantity(itemId: number, requestedQuantity: number) {
     if (!aggregate || !draft || creationLocked) return;
     const catalogItem = aggregate.authorizedItems.find((item) => item.id === itemId);
-    if (!catalogItem || catalogItem.credits === null || catalogItem.credits < 0) return;
+    if (!catalogItem || (catalogItem.credits !== null && catalogItem.credits < 0)) return;
     const existing = draft.items.find((item) => item.itemId === itemId);
+    const unitCostCredits = catalogItem.credits ?? existing?.unitCostCredits ?? 0;
+    if (!isGodEditor && catalogItem.credits === null) return;
     const spentWithoutItem = draft.items
       .filter((item) => item.itemId !== itemId)
       .reduce((sum, item) => sum + item.quantity * item.unitCostCredits, 0);
-    const maximumQuantity = catalogItem.credits === 0
-      ? 999
-      : Math.floor((aggregate.campaign.startingCreditAmount - spentWithoutItem) / catalogItem.credits);
+    const maximumQuantity = isGodEditor
+      ? Number.MAX_SAFE_INTEGER
+      : catalogItem.credits === 0
+        ? 999
+        : Math.floor((aggregate.campaign.startingCreditAmount - spentWithoutItem) / unitCostCredits);
     const quantity = Math.min(Math.max(0, Math.trunc(requestedQuantity)), maximumQuantity);
     changeDraft((current) => ({
       ...current,
@@ -536,14 +688,47 @@ export function CharacterCreationPage({
         ? current.items.filter((item) => item.itemId !== itemId)
         : existing
           ? current.items.map((item) => item.itemId === itemId
-              ? { ...item, quantity, unitCostCredits: catalogItem.credits as number }
+              ? { ...item, quantity, unitCostCredits }
               : item)
           : [...current.items, {
               itemId,
               quantity,
-              unitCostCredits: catalogItem.credits as number,
+              unitCostCredits,
             }],
     }));
+  }
+
+  function changeAdministrativeNumber(
+    field: "fame" | "experience" | "totalExperience" | "quintessence" | "totalQuintessence" | "creditsRemaining",
+    value: string | number,
+  ) {
+    if (!isGodEditor) return;
+    const number = typeof value === "number" ? value : numericValue(value);
+    changeDraft((current) => ({
+      ...current,
+      profile: {
+        ...current.profile,
+        [field]: Math.max(0, number),
+      },
+    }));
+  }
+
+  function changeDerivedCurrencyQuantity(currencyId: number, requested: number) {
+    if (!aggregate || !draft || !isGodEditor) return;
+    const breakdown = getCampaignMoneyBreakdown(
+      draft.profile.creditsRemaining,
+      aggregate.campaign.currencySystem,
+      aggregate.campaign.derivedCurrencies,
+    );
+    const creditsRemaining = breakdown.entries.reduce((total, currency) => (
+      total + (currency.id === currencyId
+        ? Math.max(0, Math.trunc(requested))
+        : currency.quantity) * currency.creditsPerUnit
+    ), 0);
+    changeAdministrativeNumber(
+      "creditsRemaining",
+      Math.round(creditsRemaining * 1_000_000) / 1_000_000,
+    );
   }
 
   async function saveCharacter(completeCreation = false) {
@@ -556,16 +741,28 @@ export function CharacterCreationPage({
         draft,
         session.userId,
         completeCreation,
+        editorMode,
       );
+      const savedDraft = characterAggregateToDraft(saved);
       setAggregate(saved);
-      setDraft(characterAggregateToDraft(saved));
+      setDraft({
+        ...savedDraft,
+        skillAllocations: reconcileRacialSkillAnchors(
+          savedDraft.skillAllocations,
+          saved.selectedRace,
+          saved.skillRelationships,
+          () => nextDraftId.current--,
+        ),
+      });
       setSelectedRace(saved.selectedRace);
       setDirty(false);
       setFeedback({
         kind: "success",
         message: completeCreation
           ? "Character creation is complete. The creation record is now permanently locked."
-          : "Character draft saved to the local archive.",
+          : isGodEditor
+            ? "G.O.D. changes saved to the Character record."
+            : "Character draft saved to the local archive.",
       });
     } catch (error) {
       setFeedback({
@@ -625,8 +822,8 @@ export function CharacterCreationPage({
           <label><span>Skin Color · Required</span><input value={draft.profile.skinColor} onChange={(event) => changeText("skinColor", event.target.value)} /></label>
           <label><span>Eye Color · Required</span><input value={draft.profile.eyeColor} onChange={(event) => changeText("eyeColor", event.target.value)} /></label>
           <label><span>Hair Color · Required</span><input value={draft.profile.hairColor} onChange={(event) => changeText("hairColor", event.target.value)} /></label>
-          <label><span>Deity · Optional</span><input value={draft.profile.deity} onChange={(event) => changeText("deity", event.target.value)} /></label>
-          <label className="character-field-grid__wide"><span>Defining Marks & Character Quirks · Optional</span><textarea rows={3} value={draft.profile.definingMarks} onChange={(event) => changeText("definingMarks", event.target.value)} /></label>
+          <label><span>Deity · Required</span><input value={draft.profile.deity} placeholder="Enter None if the Character has no deity" onChange={(event) => changeText("deity", event.target.value)} /></label>
+          <label className="character-field-grid__wide"><span>Defining Marks & Character Quirks · Required</span><textarea rows={3} value={draft.profile.definingMarks} placeholder="Enter None if there are no defining marks or quirks" onChange={(event) => changeText("definingMarks", event.target.value)} /></label>
         </div>
         {race ? (
           <div className="character-race-record">
@@ -654,7 +851,7 @@ export function CharacterCreationPage({
       <section className="character-panel" aria-labelledby="character-attributes-title">
         <header className="character-panel__heading">
           <div><p>CAMPAIGN ALLOCATION</p><h2 id="character-attributes-title">Attributes</h2></div>
-          <span>{displayNumber(used)} used · {displayNumber(aggregate.campaign.attributePoints - used)} remaining</span>
+          <span>{isGodEditor ? `${displayNumber(used)} total points` : `${displayNumber(used)} used · ${displayNumber(aggregate.campaign.attributePoints - used)} remaining`}</span>
         </header>
         {!selectedRace ? <p className="character-panel__note">Choose a Race to apply its recorded Attribute caps. Missing Race caps are never replaced with an invented maximum.</p> : null}
         <div className="character-attribute-grid">
@@ -684,19 +881,39 @@ export function CharacterCreationPage({
     const used = getSkillPointsUsed(draft);
     const selectedGroup = skillGroups.find((group) => group.key === activeSkillGroup)
       ?? skillGroups[0];
+    const activeManaProfiles = manaProfiles.filter((profile) =>
+      aggregate.campaign.allowedSystems.includes(profile.system));
     return (
       <section className="character-panel" aria-labelledby="character-skills-title">
         <header className="character-panel__heading">
           <div><p>CURRENT SKILL CATALOG</p><h2 id="character-skills-title">Skills & Abilities</h2></div>
-          <span>{displayNumber(used)} / {displayNumber(aggregate.campaign.skillPoints)} points</span>
+          <span>{isGodEditor ? `${displayNumber(used)} invested points` : `${displayNumber(used)} / ${displayNumber(aggregate.campaign.skillPoints)} points`}</span>
         </header>
         <div className="character-rule-ledger">
           <span>Max Starting Skill <strong>{displayNumber(aggregate.campaign.maxStartingSkill)}</strong></span>
-          <span>Unlock Next Tier <strong>{displayNumber(aggregate.campaign.pointsToUnlockNextTier)}</strong></span>
+          <span>Unlock Next Tier <strong>{displayNumber(aggregate.campaign.pointsToUnlockNextTier)}</strong><small>Spellcraft, Talismanism, Faith, Psyonics, and Bardic Resonance require 1.</small></span>
           <span>Max Points in a Skill <strong>{displayNumber(aggregate.campaign.maxPointsInSkill)}</strong></span>
           <span>Allowed <strong>{aggregate.campaign.allowedSystems.join(" · ") || "None"}</strong></span>
         </div>
         <p className="character-panel__note">A nested Skill appears beneath each valid parent path. Only Campaign-authorized tiers and systems are shown.</p>
+        {activeManaProfiles.length > 0 ? (
+          <section className="character-mana-ledger" aria-label="Character supernatural mana pools">
+            <header><div><p>SUPERNATURAL CAPACITY</p><h3>Mana & Spell Access</h3></div><span>Base Magic {displayNumber(selectedRace?.race.baseMagic ?? 0)}</span></header>
+            <div>
+              {activeManaProfiles.map((profile) => (
+                <article key={profile.system}>
+                  <span>{profile.system}</span>
+                  <strong>{displayNumber(profile.manaPool)} Mana</strong>
+                  <small>{profile.spellAccessLevel ?? "Below Apprentice"} spell access · {displayNumber(profile.sourceSkillPoints)} {profile.sourceSkillName}</small>
+                  {profile.nextLevel && profile.nextRequiredMana !== null ? <em>{displayNumber(profile.nextRequiredMana - profile.manaPool)} more Mana to unlock {profile.nextLevel} spells</em> : <em>All spell levels unlocked</em>}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+        {!aggregate.campaign.allowedSystems.includes("Special Abilities") ? (
+          <p className="character-panel__note">General Special Ability purchasing is disabled by this Campaign. Racially granted Special Abilities still appear and may be improved.</p>
+        ) : null}
         <nav className="character-skill-attribute-tabs" role="tablist" aria-label="Skill Attribute groups">
           {skillGroups.map((group) => (
             <a
@@ -733,6 +950,10 @@ export function CharacterCreationPage({
                     draft={draft}
                     ranks={ranks}
                     childrenByParent={childrenByParent}
+                    selectedRace={selectedRace}
+                    administrativeOverride={isGodEditor}
+                    enforceCampaignTierLimits={enforceCampaignTierLimits}
+                    manaProfiles={manaProfiles}
                     onPointsChange={setSkillPoints}
                     onShowDescription={setDescribedSkill}
                   />
@@ -757,9 +978,9 @@ export function CharacterCreationPage({
     ] as const;
     return (
       <section className="character-panel" aria-labelledby="character-story-title">
-        <header className="character-panel__heading"><div><p>OPTIONAL NARRATIVE RECORD</p><h2 id="character-story-title">Story & Personality</h2></div><span>Write as much or as little as serves the Character.</span></header>
+        <header className="character-panel__heading"><div><p>REQUIRED NARRATIVE RECORD</p><h2 id="character-story-title">Story & Personality</h2></div><span>Every field must contain something before creation can be completed.</span></header>
         <div className="character-story-grid">
-          {fields.map(([field, label]) => <label key={field}><span>{label}</span><textarea rows={field === "backstory" ? 8 : 5} value={draft.profile[field]} onChange={(event) => changeText(field, event.target.value)} /></label>)}
+          {fields.map(([field, label]) => <label key={field}><span>{label} · Required</span><textarea rows={field === "backstory" ? 8 : 5} value={draft.profile[field]} onChange={(event) => changeText(field, event.target.value)} /></label>)}
         </div>
       </section>
     );
@@ -767,19 +988,45 @@ export function CharacterCreationPage({
 
   function renderEquipment() {
     if (!aggregate || !draft) return null;
-    const remaining = getStartingFundsRemaining(draft, aggregate.campaign.startingCreditAmount);
+    const remaining = currentFunds();
     const purse = getCampaignMoneyBreakdown(
       remaining,
       aggregate.campaign.currencySystem,
       aggregate.campaign.derivedCurrencies,
     );
     const search = equipmentSearch.trim().toLocaleLowerCase();
-    const available = aggregate.authorizedItems.filter((item) => !search
-      || [item.name, item.canonicalId, item.category, item.recordType]
-        .some((value) => value.toLocaleLowerCase().includes(search)));
+    const filterOptions = [
+      ["all", "All Items"],
+      ["weapon", "Weapons"],
+      ["armor", "Armor"],
+      ["general", "General Equipment"],
+      ["inventory", "Inventory"],
+    ] as const;
+    const filterCount = (filter: typeof equipmentFilter) => aggregate.authorizedItems.filter((item) =>
+      filter === "all"
+        || (filter === "inventory" && item.catalogScope.toLocaleLowerCase() === "inventory")
+        || item.equipmentGroup?.toLocaleLowerCase() === filter,
+    ).length;
+    const available = aggregate.authorizedItems.filter((item) => {
+      const matchesFilter = equipmentFilter === "all"
+        || (equipmentFilter === "inventory" && item.catalogScope.toLocaleLowerCase() === "inventory")
+        || item.equipmentGroup?.toLocaleLowerCase() === equipmentFilter;
+      return matchesFilter && (!search
+        || [
+          item.name,
+          item.canonicalId,
+          item.category,
+          item.recordType,
+          item.description,
+          item.weaponType,
+          item.damageType,
+          item.armorType,
+          item.coverage,
+        ].some((value) => value?.toLocaleLowerCase().includes(search)));
+    });
     return (
       <section className="character-panel" aria-labelledby="character-equipment-title">
-        <header className="character-panel__heading"><div><p>CAMPAIGN-AUTHORIZED CATALOG</p><h2 id="character-equipment-title">Equipment</h2></div><span>{purse.formatted} remaining</span></header>
+        <header className="character-panel__heading"><div><p>CAMPAIGN-AUTHORIZED CATALOG</p><h2 id="character-equipment-title">Starting Equipment Store</h2></div><span>{purse.formatted} {isGodEditor ? "currently held" : "remaining"}</span></header>
         {aggregate.campaign.currencySystem === "Derived Currency" ? (
           <>
             <div className="character-currency-ledger" aria-label="Current game currency breakdown">
@@ -788,17 +1035,39 @@ export function CharacterCreationPage({
             {!purse.fullyRepresented ? <p className="character-currency-warning">The configured denominations cannot exactly represent this balance. Ask the G.O.D. to add a smaller denomination.</p> : null}
           </>
         ) : null}
-        <label className="character-equipment-search"><span>Search permitted Items</span><input type="search" value={equipmentSearch} onChange={(event) => setEquipmentSearch(event.target.value)} placeholder="Name, ID, category, or type" /></label>
+        <div className="character-equipment-toolbar">
+          <label className="character-equipment-search"><span>Search permitted Items</span><input type="search" value={equipmentSearch} onChange={(event) => setEquipmentSearch(event.target.value)} placeholder="Name, ID, category, damage, armor, or type" /></label>
+          <nav className="character-equipment-filters" aria-label="Equipment store sections">
+            {filterOptions.map(([filter, label]) => <button type="button" className={equipmentFilter === filter ? "is-active" : ""} key={filter} onClick={() => setEquipmentFilter(filter)}><span>{label}</span><strong>{filterCount(filter)}</strong></button>)}
+          </nav>
+        </div>
+        {!isGodEditor && !draft.items.some((owned) => aggregate.authorizedItems.find((item) => item.id === owned.itemId)?.catalogScope.toLocaleLowerCase() === "equipment") ? <p className="character-panel__note">Purchase at least one Equipment item before completing Character creation. Inventory supplies alone do not satisfy starting equipment.</p> : null}
         <div className="character-equipment-list">
           {available.map((item) => {
             const owned = draft.items.find((row) => row.itemId === item.id);
             const quantity = owned?.quantity ?? 0;
+            const details: Array<[string, string]> = [];
+            if (item.weaponType) details.push(["Weapon", item.weaponType]);
+            if (item.handedness) details.push(["Hands", item.handedness]);
+            if (item.damage) details.push(["Damage", `${item.damage}${item.damageType ? ` ${item.damageType}` : ""}`]);
+            if (item.rangeText) details.push(["Range", item.rangeText]);
+            if (item.reachText) details.push(["Reach", item.reachText]);
+            if (item.armorType) details.push(["Armor", item.armorType]);
+            if (item.coverage) details.push(["Coverage", item.coverage]);
+            if (item.baseSoak !== null) details.push(["Base Soak", displayNumber(item.baseSoak)]);
+            if (item.armorDamageModifiers) details.push(["Damage Modifiers", item.armorDamageModifiers]);
+            if (item.weight !== null) details.push(["Weight", `${displayNumber(item.weight)} ${item.weightUnit}`.trim()]);
+            if (item.durability !== null) details.push(["Durability", displayNumber(item.durability)]);
             return (
-              <article key={item.id}>
-                <div><p>{item.canonicalId} · {item.recordType}</p><h3>{item.name}</h3><span>{item.category}{item.equipmentGroup ? ` · ${item.equipmentGroup}` : ""}</span></div>
-                <div className="character-equipment-list__cost"><span>Cost</span><strong>{item.credits === null ? "Not priced" : campaignMoney(item.credits)}</strong><small>{item.priceBasis}</small></div>
-                <label><span>Owned</span><input aria-label={`${item.name} Quantity`} type="number" min="0" step="1" disabled={item.credits === null} value={quantity} onChange={(event) => changeItemQuantity(item.id, numericValue(event.target.value))} /></label>
-                <button type="button" disabled={item.credits === null || (item.credits > remaining && quantity === 0)} onClick={() => changeItemQuantity(item.id, quantity + 1)}>Add One</button>
+              <article className={quantity > 0 ? "is-owned" : ""} key={item.id}>
+                <div className="character-equipment-list__identity"><p>{item.canonicalId} · {item.recordType}</p><h3>{item.name}</h3><span>{item.category}{item.equipmentGroup ? ` · ${item.equipmentGroup}` : " · Inventory"}</span>{item.description ? <small>{item.description}</small> : null}</div>
+                {details.length > 0 ? <dl className="character-equipment-list__details">{details.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : <p className="character-equipment-list__no-details">No additional mechanics recorded.</p>}
+                {(item.weaponRulesText || item.armorRulesText) ? <p className="character-equipment-list__rules">{item.weaponRulesText || item.armorRulesText}</p> : null}
+                <div className="character-equipment-list__purchase">
+                  <div className="character-equipment-list__cost"><span>Cost</span><strong>{item.credits === null ? "Not priced" : campaignMoney(item.credits)}</strong><small>{item.priceBasis}</small></div>
+                  <label><span>Owned</span><input aria-label={`${item.name} Quantity`} type="number" min="0" step="1" disabled={!isGodEditor && item.credits === null} value={quantity} onChange={(event) => changeItemQuantity(item.id, numericValue(event.target.value))} /></label>
+                  <button type="button" disabled={!isGodEditor && (item.credits === null || (item.credits > remaining && quantity === 0))} onClick={() => changeItemQuantity(item.id, quantity + 1)}>Buy One</button>
+                </div>
               </article>
             );
           })}
@@ -808,27 +1077,162 @@ export function CharacterCreationPage({
     );
   }
 
+  function renderGodControls() {
+    if (!aggregate || !draft || !isGodEditor) return null;
+    const purse = getCampaignMoneyBreakdown(
+      draft.profile.creditsRemaining,
+      aggregate.campaign.currencySystem,
+      aggregate.campaign.derivedCurrencies,
+    );
+    const numericFields = [
+      ["fame", "Fame"],
+      ["experience", "Available Experience"],
+      ["totalExperience", "Lifetime Experience"],
+      ["quintessence", "Available Quintessence"],
+      ["totalQuintessence", "Lifetime Quintessence"],
+    ] as const;
+    return (
+      <section className="character-panel character-god-controls" aria-labelledby="character-god-controls-title">
+        <header className="character-panel__heading">
+          <div><p>ADMINISTRATIVE OVERRIDE</p><h2 id="character-god-controls-title">G.O.D. Controls</h2></div>
+          <span>Changes apply directly to this Character's permanent record.</span>
+        </header>
+        <div className="character-god-controls__notice">
+          <strong>Full Character Access</strong>
+          <span>Identity, Attributes, Skills, Story, and Equipment remain editable from their normal tabs—even after Character creation is complete.</span>
+        </div>
+        <div className="character-god-controls__grid">
+          {numericFields.map(([field, label]) => (
+            <label key={field}>
+              <span>{label}</span>
+              <input type="number" min="0" step="1" value={draft.profile[field]} onChange={(event) => changeAdministrativeNumber(field, event.target.value)} />
+            </label>
+          ))}
+        </div>
+        <section className="character-god-currency" aria-labelledby="character-god-currency-title">
+          <header><div><p>CURRENT CAMPAIGN MONEY</p><h3 id="character-god-currency-title">{purse.formatted}</h3></div><span>Saved independently from inventory changes.</span></header>
+          {aggregate.campaign.currencySystem === "Credits" ? (
+            <label><span>Current Credits</span><input type="number" min="0" step="0.01" value={draft.profile.creditsRemaining} onChange={(event) => changeAdministrativeNumber("creditsRemaining", event.target.value)} /></label>
+          ) : purse.entries.length > 0 ? (
+            <div className="character-god-currency__denominations">
+              {purse.entries.map((currency) => (
+                <label key={currency.id}>
+                  <span>{currency.name}</span>
+                  <input aria-label={`${currency.name} held`} type="number" min="0" step="1" value={currency.quantity} onChange={(event) => changeDerivedCurrencyQuantity(currency.id, numericValue(event.target.value))} />
+                  <small>{currency.description || "Campaign currency"}</small>
+                </label>
+              ))}
+            </div>
+          ) : (
+            <label><span>Stored Currency Value</span><input type="number" min="0" step="0.01" value={draft.profile.creditsRemaining} onChange={(event) => changeAdministrativeNumber("creditsRemaining", event.target.value)} /></label>
+          )}
+          {!purse.fullyRepresented ? <p className="character-currency-warning">The Campaign denominations cannot exactly represent the stored balance. Adjust the denominations or update the Campaign currency system.</p> : null}
+        </section>
+      </section>
+    );
+  }
+
   function renderSheet() {
     if (!aggregate || !draft) return null;
     const dexterity = draft.attributes.DEX;
-    const allocatedSkills = draft.skillAllocations.filter((allocation) => allocation.points > 0);
+    const skillById = new Map(aggregate.skillCatalog.map((skill) => [skill.id, skill]));
+    const allocationById = new Map(draft.skillAllocations.map((allocation) => [allocation.draftId, allocation]));
+    const allocatedSkills = draft.skillAllocations.filter((allocation) => {
+      const racialGrant = getRacialSkillGrant(selectedRace, allocation.skillId);
+      return racialGrant.granted
+        || getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId) > 0;
+    });
+    const allocatedSkillIds = new Set(allocatedSkills.map((allocation) => allocation.skillId));
+    const racialOnlySkills = (selectedRace?.skillLinks ?? [])
+      .filter((link) => !allocatedSkillIds.has(link.skillId))
+      .filter((link, index, links) => links.findIndex((candidate) => candidate.skillId === link.skillId) === index);
+    const allocationPath = (allocation: CharacterSkillAllocationDraft): string => {
+      const names: string[] = [];
+      let cursor: CharacterSkillAllocationDraft | undefined = allocation;
+      const visited = new Set<number>();
+      while (cursor && !visited.has(cursor.draftId)) {
+        visited.add(cursor.draftId);
+        names.unshift(skillById.get(cursor.skillId)?.name ?? `Skill ${cursor.skillId}`);
+        cursor = cursor.parentDraftId === null ? undefined : allocationById.get(cursor.parentDraftId);
+      }
+      return names.join(" → ");
+    };
+    const ownedItems = draft.items.filter((item) => item.quantity > 0);
+    const heightInInches = (draft.profile.heightFeet ?? 0) * 12
+      + (draft.profile.heightInches ?? 0);
+    const identityDetails = [
+      ["Age", draft.profile.age === null ? "" : displayNumber(draft.profile.age)],
+      ["Sex", draft.profile.sex.trim()],
+      ["Height", heightInInches > 0 ? `${draft.profile.heightFeet ?? 0} ft ${draft.profile.heightInches ?? 0} in` : ""],
+      ["Weight", draft.profile.weight === null ? "" : displayNumber(draft.profile.weight)],
+      ["Eyes", draft.profile.eyeColor.trim()],
+      ["Hair", draft.profile.hairColor.trim()],
+      ["Skin", draft.profile.skinColor.trim()],
+      ["Deity", draft.profile.deity.trim()],
+    ].filter((detail) => detail[1]);
+    const resourceDetails = [
+      draft.profile.experience > 0 || draft.profile.totalExperience > 0
+        ? ["Experience", `${displayNumber(draft.profile.experience)} available · ${displayNumber(draft.profile.totalExperience)} lifetime`]
+        : null,
+      draft.profile.quintessence > 0 || draft.profile.totalQuintessence > 0
+        ? ["Quintessence", `${displayNumber(draft.profile.quintessence)} available · ${displayNumber(draft.profile.totalQuintessence)} lifetime`]
+        : null,
+      draft.profile.fame > 0
+        ? ["Fame", displayNumber(draft.profile.fame)]
+        : null,
+    ].filter((detail): detail is string[] => detail !== null);
+    const storyDetails = [
+      ["Personality", draft.profile.personality.trim()],
+      ["Goals", draft.profile.goals.trim()],
+      ["Motivations", draft.profile.motivations.trim()],
+      ["Backstory", draft.profile.backstory.trim()],
+      ["Secrets", draft.profile.secrets.trim()],
+    ].filter((detail) => detail[1]);
+    const movementModes = selectedRace?.movementModes ?? [];
+    const ownedManaProfiles = manaProfiles.filter((profile) =>
+      profile.manaPool > 0 && aggregate.campaign.allowedSystems.includes(profile.system));
+    const sheetContext = [
+      selectedRace?.race.name,
+      aggregate.campaign.name,
+      aggregate.character.playerUsername,
+    ].filter(Boolean).join(" · ");
     return (
       <section className="character-sheet" aria-labelledby="character-sheet-title">
-        <header><div><p>SERRIAN TIDE CHARACTER RECORD</p><h2 id="character-sheet-title">{draft.name || "Unnamed Character"}</h2><span>{selectedRace?.race.name ?? "No Race selected"} · {aggregate.campaign.name} · {aggregate.character.playerUsername}</span></div><strong>{readiness?.ready ? "CHARACTER READY" : "DRAFT CHARACTER"}</strong></header>
+        <header><div><p>SERRIAN TIDE CHARACTER RECORD</p><h2 id="character-sheet-title">{draft.name || "Unnamed Character"}</h2><span>{sheetContext}</span></div><strong>{readiness?.ready ? "CHARACTER READY" : "DRAFT CHARACTER"}</strong></header>
         <div className="character-sheet__vitals">
           <div><span>HP</span><strong>{displayNumber(getCharacterHp(draft.attributes.CON))}</strong></div>
           <div><span>Base Initiative</span><strong>{displayNumber(getBaseInitiative(dexterity))}</strong></div>
-          <div><span>Base Magic</span><strong>{selectedRace?.race.baseMagic ?? "—"}</strong></div>
-          <div><span>Currency Remaining</span><strong>{campaignMoney(getStartingFundsRemaining(draft, aggregate.campaign.startingCreditAmount))}</strong></div>
+          {selectedRace?.race.baseMagic !== null && selectedRace?.race.baseMagic !== undefined ? <div><span>Base Magic</span><strong>{selectedRace.race.baseMagic}</strong></div> : null}
+          <div><span>Currency Held</span><strong>{campaignMoney(currentFunds())}</strong></div>
         </div>
         <div className="character-sheet__columns">
-          <section><h3>Identity</h3><dl className="character-sheet__details"><div><dt>Age</dt><dd>{draft.profile.age ?? "—"}</dd></div><div><dt>Sex</dt><dd>{draft.profile.sex || "—"}</dd></div><div><dt>Height</dt><dd>{(draft.profile.heightFeet ?? 0) * 12 + (draft.profile.heightInches ?? 0) > 0 ? `${draft.profile.heightFeet ?? 0} ft ${draft.profile.heightInches ?? 0} in` : "—"}</dd></div><div><dt>Weight</dt><dd>{draft.profile.weight ?? "—"}</dd></div><div><dt>Eyes</dt><dd>{draft.profile.eyeColor || "—"}</dd></div><div><dt>Hair</dt><dd>{draft.profile.hairColor || "—"}</dd></div><div><dt>Skin</dt><dd>{draft.profile.skinColor || "—"}</dd></div><div><dt>Deity</dt><dd>{draft.profile.deity || "—"}</dd></div></dl></section>
+          {identityDetails.length > 0 ? <section><h3>Identity</h3><dl className="character-sheet__details">{identityDetails.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section> : null}
           <section><h3>Attributes</h3><div className="character-sheet__attributes">{CHARACTER_ATTRIBUTE_KEYS.map((key) => <div key={key}><span>{key}</span><strong>{displayNumber(draft.attributes[key])}</strong><small>{signedNumber(getAttributeModifier(draft.attributes[key]))} · {displayNumber(getAttributeRollTarget(draft.attributes[key]))}%</small></div>)}</div></section>
         </div>
-        <section className="character-sheet__section"><h3>Movement</h3><div className="character-sheet__movement">{selectedRace?.movementModes.length ? selectedRace.movementModes.map((mode) => <div key={mode.id}><span>{mode.movementMode}</span><strong>{displayNumber(getMovementInitiative(dexterity, mode.baseValue))} Initiative</strong><small>Race base {displayNumber(mode.baseValue)}</small></div>) : <p>No Race movement modes recorded.</p>}</div></section>
-        <section className="character-sheet__section"><h3>Skills & Abilities</h3><div className="character-sheet__skills">{allocatedSkills.map((allocation) => { const skill = aggregate.skillCatalog.find((candidate) => candidate.id === allocation.skillId); const attributeKey = normalizeSkillAttributeKey(skill?.primaryAttribute ?? null); const rank = ranks.get(allocation.draftId) ?? 0; return <div key={allocation.draftId}><strong>{skill?.name ?? `Skill ${allocation.skillId}`}</strong><span>{displayNumber(allocation.points)} points · Rank {displayNumber(rank)}{attributeKey ? ` · ${displayNumber(getSkillRollTarget(draft.attributes[attributeKey], rank))}%` : ""}</span></div>; })}{allocatedSkills.length === 0 ? <p>No Skill points allocated.</p> : null}</div></section>
-        <section className="character-sheet__section"><h3>Story</h3><div className="character-sheet__story"><div><strong>Personality</strong><p>{draft.profile.personality || "Not recorded."}</p></div><div><strong>Goals</strong><p>{draft.profile.goals || "Not recorded."}</p></div><div><strong>Motivations</strong><p>{draft.profile.motivations || "Not recorded."}</p></div><div><strong>Backstory</strong><p>{draft.profile.backstory || "Not recorded."}</p></div><div><strong>Secrets</strong><p>{draft.profile.secrets || "Not recorded."}</p></div></div></section>
-        <section className="character-sheet__section"><h3>Equipment & Inventory</h3><div className="character-sheet__items">{draft.items.map((owned) => { const item = aggregate.authorizedItems.find((candidate) => candidate.id === owned.itemId); return <div key={owned.itemId}><strong>{item?.name ?? `Item ${owned.itemId}`}</strong><span>× {owned.quantity}</span><small>{campaignMoney(owned.quantity * owned.unitCostCredits)}</small></div>; })}{draft.items.length === 0 ? <p>No starting possessions selected.</p> : null}</div></section>
+        {movementModes.length > 0 ? <section className="character-sheet__section"><h3>Movement</h3><div className="character-sheet__movement">{movementModes.map((mode) => <div key={mode.id}><span>{mode.movementMode}</span><strong>{displayNumber(getMovementInitiative(dexterity, mode.baseValue))} Initiative</strong><small>Race base {displayNumber(mode.baseValue)}</small></div>)}</div></section> : null}
+        {ownedManaProfiles.length > 0 ? <section className="character-sheet__section"><h3>Mana & Spell Access</h3><div className="character-sheet__skills">{ownedManaProfiles.map((profile) => <div key={profile.system}><strong>{profile.system}</strong><span>{displayNumber(profile.manaPool)} Mana · {profile.spellAccessLevel ?? "Below Apprentice"} spell access · {displayNumber(profile.sourceSkillPoints)} {profile.sourceSkillName}</span></div>)}</div></section> : null}
+        {allocatedSkills.length > 0 || racialOnlySkills.length > 0 ? <section className="character-sheet__section"><h3>Skills & Abilities</h3><div className="character-sheet__skills">
+          {allocatedSkills.map((allocation) => {
+            const skill = skillById.get(allocation.skillId);
+            const attributeKey = normalizeSkillAttributeKey(skill?.primaryAttribute ?? null);
+            const racialGrant = getRacialSkillGrant(selectedRace, allocation.skillId);
+            const effectivePoints = getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId);
+            const rank = ranks.get(allocation.draftId) ?? 0;
+            const target = attributeKey
+              ? getSkillRollTarget(draft.attributes[attributeKey], rank)
+              : skill && isSpecialAbilitySkill(skill)
+                ? getSpecialAbilityRollTarget(rank)
+                : null;
+            const pointSummary = racialGrant.minimum > 0
+              ? `${displayNumber(effectivePoints)} total (${displayNumber(racialGrant.minimum)} racial + ${displayNumber(allocation.points)} purchased)`
+              : `${displayNumber(allocation.points)} points`;
+            return <div key={allocation.draftId}><strong>{allocationPath(allocation)}</strong><span>{pointSummary}{skill ? ` · ${getSkillTierLabel(skill)}` : ""} · Rank {displayNumber(rank)}{target === null ? "" : ` · ${displayNumber(target)}%`}</span></div>;
+          })}
+          {racialOnlySkills.map((link) => <div key={`racial-${link.skillId}`}><strong>{link.skillName}</strong><span>Racially granted · No starting value recorded</span></div>)}
+        </div></section> : null}
+        {resourceDetails.length > 0 ? <section className="character-sheet__section"><h3>Advancement & Resources</h3><div className="character-sheet__skills">{resourceDetails.map(([label, value]) => <div key={label}><strong>{label}</strong><span>{value}</span></div>)}</div></section> : null}
+        {storyDetails.length > 0 ? <section className="character-sheet__section"><h3>Story</h3><div className="character-sheet__story">{storyDetails.map(([label, value]) => <div key={label} className={label === "Backstory" ? "character-sheet__story--wide" : undefined}><strong>{label}</strong><p>{value}</p></div>)}</div></section> : null}
+        {ownedItems.length > 0 ? <section className="character-sheet__section"><h3>Equipment & Inventory</h3><div className="character-sheet__items">{ownedItems.map((owned) => { const item = aggregate.authorizedItems.find((candidate) => candidate.id === owned.itemId); return <div key={owned.itemId}><strong>{item?.name ?? `Item ${owned.itemId}`}</strong><span>× {owned.quantity}</span><small>{campaignMoney(owned.quantity * owned.unitCostCredits)}</small></div>; })}</div></section> : null}
       </section>
     );
   }
@@ -837,7 +1241,8 @@ export function CharacterCreationPage({
     : activeTab === "attributes" ? renderAttributes()
       : activeTab === "skills" ? renderSkills()
         : activeTab === "story" ? renderStory()
-          : activeTab === "equipment" ? renderEquipment()
+        : activeTab === "equipment" ? renderEquipment()
+          : activeTab === "god" ? renderGodControls()
             : renderSheet();
 
   return (
@@ -845,8 +1250,8 @@ export function CharacterCreationPage({
       <div className="character-creation-page__texture" aria-hidden="true" />
       <header className="character-creation-header">
         <div className="character-creation-header__brand"><BrandLogo /></div>
-        <div className="character-creation-header__title"><p>THE REALMS / CHARACTER CREATION</p><h1>Character Creation</h1><span>Campaign: {aggregate?.campaign.name ?? campaignId} · Player: {session.username} · Character: {draft?.name ?? "Loading…"}</span></div>
-        <div className="character-creation-header__actions"><button type="button" onClick={() => requestExit("back")}>Back to The Realms</button><button type="button" onClick={() => requestExit("logout")}>Log Out</button></div>
+        <div className="character-creation-header__title"><p>{isGodEditor ? "THE HEAVENS / CHARACTER ADMINISTRATION" : "THE REALMS / CHARACTER CREATION"}</p><h1>{isGodEditor ? "Edit Character" : "Character Creation"}</h1><span>Campaign: {aggregate?.campaign.name ?? campaignId} · Player: {aggregate?.character.playerUsername ?? session.username} · Character: {draft?.name ?? "Loading…"}</span></div>
+        <div className="character-creation-header__actions"><button type="button" onClick={() => requestExit("back")}>Back to {isGodEditor ? "The Heavens" : "The Realms"}</button><button type="button" onClick={() => requestExit("logout")}>Log Out</button></div>
       </header>
 
       {aggregate && draft && readiness ? (
@@ -855,16 +1260,18 @@ export function CharacterCreationPage({
             <span>Attributes <strong>{displayNumber(readiness.attributesUsed)} / {displayNumber(aggregate.campaign.attributePoints)}</strong></span>
             <span>Skills <strong>{displayNumber(readiness.skillPointsUsed)} / {displayNumber(aggregate.campaign.skillPoints)}</strong></span>
             <span>Race <strong>{readiness.raceComplete ? "✓" : "—"}</strong></span>
-            <span>Starting Funds <strong>{campaignMoney(readiness.fundsRemaining)} remaining</strong></span>
+            <span>Story <strong>{readiness.storyComplete ? "✓" : "—"}</strong></span>
+            <span>Equipment <strong>{readiness.equipmentComplete ? "✓" : "—"}</strong></span>
+            <span>{isGodEditor ? "Current Funds" : "Starting Funds"} <strong>{campaignMoney(isGodEditor ? draft.profile.creditsRemaining : readiness.fundsRemaining)} {isGodEditor ? "held" : "remaining"}</strong></span>
           </div>
-          <div className={`character-status__readiness${readiness.ready || creationLocked ? " is-ready" : ""}`}>
-            <strong>{creationLocked ? "Creation Complete" : readiness.ready ? "Character Ready" : "Character Draft"}</strong>
-            <span>{creationLocked ? "Permanent creation record" : dirty ? "Unsaved changes" : "Saved draft"}</span>
+          <div className={`character-status__readiness${isGodEditor || readiness.ready || creationLocked ? " is-ready" : ""}`}>
+            <strong>{isGodEditor ? "G.O.D. Full Access" : creationLocked ? "Creation Complete" : readiness.ready ? "Character Ready" : "Character Draft"}</strong>
+            <span>{dirty ? "Unsaved changes" : isGodEditor ? (aggregate.profile.creationCompletedAt ? "Completed Character" : "Draft Character") : creationLocked ? "Permanent creation record" : "Saved draft"}</span>
           </div>
           {!creationLocked ? (
             <div className="character-status__actions">
               <button type="button" disabled={saving || !dirty} onClick={() => void saveCharacter()}>{saving ? "Saving…" : "Save Character"}</button>
-              {readiness.ready ? <button className="character-status__complete" type="button" disabled={saving} onClick={() => setConfirmCompletion(true)}>Complete Character</button> : null}
+              {readiness.ready && !aggregate.profile.creationCompletedAt ? <button className="character-status__complete" type="button" disabled={saving} onClick={() => setConfirmCompletion(true)}>Complete Character</button> : null}
             </div>
           ) : null}
         </div>
@@ -875,16 +1282,16 @@ export function CharacterCreationPage({
         {loading ? <section className="character-loading"><p>READING CHARACTER RECORD</p><h2>Opening the local archive…</h2></section> : null}
         {!loading && aggregate && draft ? (
           <>
-            <nav className="character-tabs" aria-label="Character creation sections">{TABS.map(([id, label]) => <button key={id} type="button" className={activeTab === id ? "is-active" : ""} aria-current={activeTab === id ? "page" : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}</nav>
-            {creationLocked ? <aside className="character-locked-notice"><strong>Character creation is complete.</strong><span>Identity, Attributes, starting Skills, Story, and starting Equipment are now read-only. Advancement and later purchases use their own controlled workflows.</span></aside> : null}
+            <nav className="character-tabs" aria-label="Character creation sections">{visibleTabs.map(([id, label]) => <button key={id} type="button" className={activeTab === id ? "is-active" : ""} aria-current={activeTab === id ? "page" : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}</nav>
+            {isGodEditor ? <aside className="character-god-notice"><strong>G.O.D. administrative access is active.</strong><span>You may edit this entire Character record regardless of its creation status. The Player's own completed-character lock remains unchanged.</span></aside> : creationLocked ? <aside className="character-locked-notice"><strong>Character creation is complete.</strong><span>Identity, Attributes, starting Skills, Story, and starting Equipment are now read-only. Advancement and later purchases use their own controlled workflows.</span></aside> : null}
             <fieldset className="character-creation-lockable" disabled={creationLocked}>{content}</fieldset>
-            {!creationLocked && !readiness?.ready && readiness?.issues.length ? <aside className="character-readiness"><strong>Before this Character is ready</strong><ul>{readiness.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></aside> : null}
+            {!isGodEditor && !creationLocked && !readiness?.ready && readiness?.issues.length ? <aside className="character-readiness"><strong>Before this Character is ready</strong><ul>{readiness.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></aside> : null}
           </>
         ) : null}
       </div>
 
       {pendingExit ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-character-title"><div><p id="discard-character-title">Unsaved changes</p><span>Leave this Character and discard the changes you have not saved?</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setPendingExit(null)}>Keep Editing</button><button className="skills-danger-button" type="button" onClick={discardAndExit}>Discard Changes</button></div></div> : null}
-      {confirmCompletion ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="complete-character-title"><div><p id="complete-character-title">Complete this Character?</p><span>This permanently locks Character creation. Later XP, Quintessence, inventory, and equipment changes must use their separate controlled workflows.</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setConfirmCompletion(false)}>Keep Editing</button><button className="character-complete-confirm" type="button" disabled={saving} onClick={() => { setConfirmCompletion(false); void saveCharacter(true); }}>Complete Character</button></div></div> : null}
+      {confirmCompletion ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="complete-character-title"><div><p id="complete-character-title">Complete this Character?</p><span>Identity, Story, Attributes, Skills, and starting Equipment are complete. This permanently locks Character creation; later changes use their controlled workflows.</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setConfirmCompletion(false)}>Keep Editing</button><button className="character-complete-confirm" type="button" disabled={saving} onClick={() => { setConfirmCompletion(false); void saveCharacter(true); }}>Complete Character</button></div></div> : null}
       {describedSkill ? (
         <div className="character-skill-description-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setDescribedSkill(null); }}>
           <section id={`skill-description-${describedSkill.id}`} className="character-skill-description" role="dialog" aria-modal="true" aria-labelledby="character-skill-description-title">
@@ -893,9 +1300,11 @@ export function CharacterCreationPage({
               <button type="button" aria-label="Close Skill description" onClick={() => setDescribedSkill(null)}>×</button>
             </header>
             <div className="character-skill-description__details">
-              <span>{describedSkill.tier === null ? describedSkill.classification : `Tier ${describedSkill.tier}`}</span>
+              <span>{getSkillTierLabel(describedSkill)}</span>
               {describedSkill.primaryAttribute ? <span>Primary: {normalizeSkillAttributeKey(describedSkill.primaryAttribute) ?? describedSkill.primaryAttribute}</span> : null}
               {describedSkill.secondaryAttribute ? <span>Secondary: {normalizeSkillAttributeKey(describedSkill.secondaryAttribute) ?? describedSkill.secondaryAttribute}</span> : null}
+              {describedSkill.spellLevel ? <span>Spell Level: {describedSkill.spellLevel}</span> : null}
+              {describedSkill.manaCost !== null && describedSkill.manaCost !== undefined ? <span>Mana Cost: {displayNumber(describedSkill.manaCost)}</span> : null}
             </div>
             <p className="character-skill-description__definition">{describedSkill.definition.trim() || "No description is currently recorded for this Skill."}</p>
             <footer><button type="button" onClick={() => setDescribedSkill(null)}>Close</button></footer>

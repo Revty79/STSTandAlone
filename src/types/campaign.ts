@@ -58,6 +58,8 @@ export type CampaignInventoryItemReference = {
   recordType: string;
   family: string;
   category: string;
+  catalogScope: "equipment" | "inventory";
+  equipmentGroup: "general" | "weapon" | "armor" | null;
   tags: string[];
 };
 

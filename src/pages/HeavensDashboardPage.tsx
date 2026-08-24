@@ -31,6 +31,7 @@ type HeavensDashboardPageProps = {
   onOpenCreatures: () => void;
   onOpenEquipment: () => void;
   onOpenInventory: () => void;
+  onOpenCharacter: (campaignId: number, characterId: number) => void;
   onReturn: () => void;
   onLogout: () => void;
 };
@@ -49,6 +50,7 @@ export function HeavensDashboardPage({
   onOpenCreatures,
   onOpenEquipment,
   onOpenInventory,
+  onOpenCharacter,
   onReturn,
   onLogout,
 }: HeavensDashboardPageProps) {
@@ -438,7 +440,10 @@ export function HeavensDashboardPage({
                 <button
                   type="button"
                   disabled={!selectedCharacterId}
-                  onClick={() => showComingSoon("Edit Character")}
+                  onClick={() => onOpenCharacter(
+                    Number(selectedCampaignId),
+                    Number(selectedCharacterId),
+                  )}
                 >
                   Edit Character
                 </button>

@@ -2510,7 +2510,7 @@
           "skillName": "Harbinger Elf Berserker Rage",
           "skillClassification": "special ability",
           "linkType": "granted",
-          "value": null,
+          "value": 10,
           "sourceSkillName": "Harbinger Elf Breserker Rage",
           "resolution": "approved-mapping",
           "sortOrder": 0
@@ -2883,7 +2883,7 @@
           "skillName": "Moonshadow Omen",
           "skillClassification": "special ability",
           "linkType": "granted",
-          "value": null,
+          "value": 10,
           "sourceSkillName": "Moonshadow Omen",
           "resolution": "exact-match",
           "sortOrder": 0
@@ -3337,7 +3337,7 @@
           "skillName": "Glamour Shift",
           "skillClassification": "special ability",
           "linkType": "granted",
-          "value": null,
+          "value": 10,
           "sourceSkillName": "Glamour Shift",
           "resolution": "exact-match",
           "sortOrder": 0

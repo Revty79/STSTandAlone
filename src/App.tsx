@@ -22,6 +22,7 @@ import type {
   AuthenticatedDestination,
 } from "./types/navigation";
 import type { AuthSession } from "./types/user";
+import type { CharacterEditorMode } from "./types/character";
 import "./styles/app-shell.css";
 
 type DatabaseState = "initializing" | "ready" | "error";
@@ -34,6 +35,7 @@ function App() {
   const [characterContext, setCharacterContext] = useState<{
     campaignId: number;
     characterId: number;
+    editorMode: CharacterEditorMode;
   } | null>(null);
 
   useEffect(() => {
@@ -116,6 +118,10 @@ function App() {
             onOpenCreatures={() => navigateAuthenticated("creatures")}
             onOpenEquipment={() => navigateAuthenticated("equipment")}
             onOpenInventory={() => navigateAuthenticated("inventory")}
+            onOpenCharacter={(campaignId, characterId) => {
+              setCharacterContext({ campaignId, characterId, editorMode: "god" });
+              navigateAuthenticated("character-create");
+            }}
             onReturn={() => navigateAuthenticated("access-choice")}
             onLogout={logout}
           />
@@ -179,7 +185,7 @@ function App() {
             }
             onLogout={logout}
             onOpenCharacter={(campaignId, characterId) => {
-              setCharacterContext({ campaignId, characterId });
+              setCharacterContext({ campaignId, characterId, editorMode: "player" });
               navigateAuthenticated("character-create");
             }}
           />
@@ -196,7 +202,7 @@ function App() {
               }
               onLogout={logout}
               onOpenCharacter={(campaignId, characterId) => {
-                setCharacterContext({ campaignId, characterId });
+                setCharacterContext({ campaignId, characterId, editorMode: "player" });
                 navigateAuthenticated("character-create");
               }}
             />
@@ -207,9 +213,13 @@ function App() {
             session={session}
             campaignId={characterContext.campaignId}
             characterId={characterContext.characterId}
+            editorMode={characterContext.editorMode}
             onBack={() => {
+              const returnDestination = characterContext.editorMode === "god"
+                ? "heavens"
+                : "realms";
               setCharacterContext(null);
-              navigateAuthenticated("realms");
+              navigateAuthenticated(returnDestination);
             }}
             onLogout={logout}
           />

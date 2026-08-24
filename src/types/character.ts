@@ -17,6 +17,8 @@ export const CHARACTER_ATTRIBUTE_KEYS = [
 
 export type CharacterAttributeKey = (typeof CHARACTER_ATTRIBUTE_KEYS)[number];
 
+export type CharacterEditorMode = "player" | "god";
+
 export const CHARACTER_ATTRIBUTE_LABELS: Record<CharacterAttributeKey, string> = {
   STR: "Strength",
   DEX: "Dexterity",
@@ -122,6 +124,8 @@ export type CharacterSkillReference = {
   primaryAttribute: string | null;
   secondaryAttribute: string | null;
   definition: string;
+  spellLevel?: string | null;
+  manaCost?: number | null;
 };
 
 export type CharacterSkillRelationship = {
@@ -141,6 +145,23 @@ export type CharacterAuthorizedItem = {
   category: string;
   credits: number | null;
   priceBasis: string;
+  description: string;
+  weight: number | null;
+  weightUnit: string;
+  size: string;
+  durability: number | null;
+  weaponType: string | null;
+  handedness: string | null;
+  damage: string | null;
+  damageType: string | null;
+  rangeText: string | null;
+  reachText: string | null;
+  weaponRulesText: string | null;
+  armorType: string | null;
+  coverage: string | null;
+  baseSoak: number | null;
+  armorDamageModifiers: string | null;
+  armorRulesText: string | null;
 };
 
 export type CharacterAggregate = {
@@ -159,7 +180,7 @@ export type CharacterAggregate = {
 
 export type CharacterProfileDraft = Omit<
   CharacterProfile,
-  "characterId" | "creditsRemaining" | "creationCompletedAt" | "createdAt" | "updatedAt"
+  "characterId" | "creationCompletedAt" | "createdAt" | "updatedAt"
 >;
 
 export type CharacterSkillAllocationInput = {
@@ -172,6 +193,7 @@ export type SaveCharacterAggregate = {
   characterId: number;
   campaignId: number;
   requestingUserId: number;
+  administrativeOverride: boolean;
   completeCreation: boolean;
   name: string;
   profile: CharacterProfileDraft;

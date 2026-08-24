@@ -437,6 +437,30 @@
   border-top: 1px solid rgb(132 158 158 / 14%);
 }
 
+.campaign-inventory__catalog-tabs {
+  display: flex;
+  margin: -4px 0 14px;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.campaign-inventory__catalog-tabs button {
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid rgb(120 158 158 / 24%);
+  border-radius: 4px;
+  color: rgb(224 219 205 / 62%);
+  background: rgb(3 10 14 / 42%);
+  font-size: 0.67rem;
+  cursor: pointer;
+}
+
+.campaign-inventory__catalog-tabs button.is-active {
+  border-color: rgb(197 172 114 / 58%);
+  color: #ead9af;
+  background: rgb(74 60 34 / 42%);
+}
+
 .campaign-inventory__transfer {
   display: grid;
   margin-top: 14px;

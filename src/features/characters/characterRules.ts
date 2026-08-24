@@ -12,6 +12,41 @@ import type { RaceAggregate } from "../../types/race";
 
 const EPSILON = 0.000_001;
 
+export const CHARACTER_SPELL_ACCESS_LEVELS = [
+  { name: "Apprentice", minimumMana: 1, midpointMana: 6, twoSpellUnlockMana: 12 },
+  { name: "Novice", minimumMana: 12, midpointMana: 16, twoSpellUnlockMana: 32 },
+  { name: "Master", minimumMana: 32, midpointMana: 36, twoSpellUnlockMana: 72 },
+  { name: "High Master", minimumMana: 72, midpointMana: 71, twoSpellUnlockMana: 142 },
+  { name: "Grand Master", minimumMana: 142, midpointMana: null, twoSpellUnlockMana: null },
+] as const;
+
+export type CharacterSpellAccessLevel = (typeof CHARACTER_SPELL_ACCESS_LEVELS)[number]["name"];
+export type CharacterMagicSystem =
+  | "Spellcraft"
+  | "Talismanism"
+  | "Faith"
+  | "Psyonics"
+  | "Bardic Resonance";
+
+export type CharacterManaProfile = {
+  system: CharacterMagicSystem;
+  sourceSkillName: string;
+  sourceSkillPoints: number;
+  baseMagic: number;
+  manaPool: number;
+  spellAccessLevel: CharacterSpellAccessLevel | null;
+  nextLevel: CharacterSpellAccessLevel | null;
+  nextRequiredMana: number | null;
+};
+
+const MAGIC_SYSTEM_MANA_SKILLS: Record<CharacterMagicSystem, string> = {
+  Spellcraft: "Channeling",
+  Talismanism: "Channeling",
+  Faith: "Devotion",
+  Psyonics: "Psionic Channeling",
+  "Bardic Resonance": "Resonance Attunement",
+};
+
 export function getAttributeModifier(score: number): number {
   if (score <= 1) return -5;
   if (score <= 5) return -4;
@@ -49,6 +84,215 @@ export function normalizeSkillAttributeKey(
   return CHARACTER_ATTRIBUTE_KEYS.includes(key as CharacterAttributeKey)
     ? key as CharacterAttributeKey
     : null;
+}
+
+export function isSpecialAbilitySkill(skill: CharacterSkillReference): boolean {
+  const classification = skill.classification.trim().toLocaleLowerCase();
+  return classification === "special ability" || classification === "special abilities";
+}
+
+export function isSpellSkill(skill: CharacterSkillReference): boolean {
+  const classification = skill.classification.trim().toLocaleLowerCase();
+  return classification === "spell"
+    || classification === "psionic skill"
+    || classification === "reverberation";
+}
+
+export function getRecordedSpellLevel(
+  skill: CharacterSkillReference,
+): CharacterSpellAccessLevel | null {
+  const level = skill.spellLevel?.trim().toLocaleLowerCase();
+  return CHARACTER_SPELL_ACCESS_LEVELS.find(
+    (candidate) => candidate.name.toLocaleLowerCase() === level,
+  )?.name ?? null;
+}
+
+export type CharacterSkillGroupKey = CharacterAttributeKey | "SPECIAL" | "OTHER";
+
+export function getCharacterSkillGroupKey(
+  skill: CharacterSkillReference,
+): CharacterSkillGroupKey {
+  if (isSpecialAbilitySkill(skill)) return "SPECIAL";
+  return normalizeSkillAttributeKey(skill.primaryAttribute) ?? "OTHER";
+}
+
+function titleCaseSkillClassification(value: string): string {
+  return value.trim().replace(/\b\w/g, (letter) => letter.toLocaleUpperCase());
+}
+
+export function getSkillTierLabel(skill: CharacterSkillReference): string {
+  const classification = titleCaseSkillClassification(skill.classification);
+  const spellLevel = getRecordedSpellLevel(skill);
+  if (spellLevel) return `${spellLevel} ${classification || "Spell"} · Tier ${skill.tier ?? "—"}`;
+  if (skill.tier === null) return classification || "Unclassified Skill";
+  return skill.classification.trim().toLocaleLowerCase() === "standard"
+    ? `Tier ${skill.tier}`
+    : `${classification || "Skill"} · Tier ${skill.tier}`;
+}
+
+export function getSpellAccessLevelForManaPool(manaPool: number): CharacterSpellAccessLevel | null {
+  let result: CharacterSpellAccessLevel | null = null;
+  for (const level of CHARACTER_SPELL_ACCESS_LEVELS) {
+    if (manaPool + EPSILON < level.minimumMana) break;
+    result = level.name;
+  }
+  return result;
+}
+
+export function getCharacterMagicSystem(
+  rootSkill: CharacterSkillReference,
+): CharacterMagicSystem | null {
+  const name = rootSkill.name.trim().toLocaleLowerCase();
+  if (name === "spellcraft") return "Spellcraft";
+  if (name === "talismanism") return "Talismanism";
+  if (["faith", "prayer"].includes(name)) return "Faith";
+  if (name === "psionic focus") return "Psyonics";
+  if (name === "resonant performance") return "Bardic Resonance";
+  return null;
+}
+
+export function canAccessSpellAtLevel(
+  skill: CharacterSkillReference,
+  spellAccessLevel: CharacterSpellAccessLevel | null,
+): boolean {
+  if (!isSpellSkill(skill)) return true;
+  const spellLevel = getRecordedSpellLevel(skill);
+  if (!spellLevel || !spellAccessLevel) return false;
+  const spellIndex = CHARACTER_SPELL_ACCESS_LEVELS.findIndex((level) => level.name === spellLevel);
+  const accessIndex = CHARACTER_SPELL_ACCESS_LEVELS.findIndex(
+    (level) => level.name === spellAccessLevel,
+  );
+  return spellIndex >= 0 && accessIndex >= spellIndex;
+}
+
+export type RacialSkillGrant = {
+  granted: boolean;
+  minimum: number;
+};
+
+export function getRacialSkillGrant(
+  race: RaceAggregate | null,
+  skillId: number,
+): RacialSkillGrant {
+  const links = race?.skillLinks.filter((link) => link.skillId === skillId) ?? [];
+  return {
+    granted: links.length > 0,
+    minimum: links.reduce((total, link) => total + Math.max(0, link.value ?? 0), 0),
+  };
+}
+
+export function getEffectiveSkillPoints(
+  purchasedPoints: number,
+  race: RaceAggregate | null,
+  skillId: number,
+): number {
+  return purchasedPoints + getRacialSkillGrant(race, skillId).minimum;
+}
+
+export function getCharacterManaProfiles(
+  draft: CharacterDraft,
+  skillCatalog: readonly CharacterSkillReference[],
+  race: RaceAggregate | null,
+): CharacterManaProfile[] {
+  const baseMagic = Math.max(0, race?.race.baseMagic ?? 0);
+  return (Object.entries(MAGIC_SYSTEM_MANA_SKILLS) as Array<[
+    CharacterMagicSystem,
+    string,
+  ]>).map(([system, sourceSkillName]) => {
+    const sourceSkill = skillCatalog.find(
+      (skill) => skill.name.trim().toLocaleLowerCase() === sourceSkillName.toLocaleLowerCase(),
+    );
+    const allocations = sourceSkill
+      ? draft.skillAllocations.filter((allocation) => allocation.skillId === sourceSkill.id)
+      : [];
+    const sourceSkillPoints = sourceSkill
+      ? allocations.reduce((maximum, allocation) => Math.max(
+          maximum,
+          getEffectiveSkillPoints(allocation.points, race, sourceSkill.id),
+        ), getRacialSkillGrant(race, sourceSkill.id).minimum)
+      : 0;
+    const manaPool = sourceSkillPoints * baseMagic;
+    const spellAccessLevel = getSpellAccessLevelForManaPool(manaPool);
+    const next = CHARACTER_SPELL_ACCESS_LEVELS.find(
+      (level) => level.minimumMana > manaPool + EPSILON,
+    );
+    return {
+      system,
+      sourceSkillName,
+      sourceSkillPoints,
+      baseMagic,
+      manaPool,
+      spellAccessLevel,
+      nextLevel: next?.name ?? null,
+      nextRequiredMana: next?.minimumMana ?? null,
+    };
+  });
+}
+
+export function getSpecialAbilityRollTarget(rank: number): number {
+  return 100 - rank;
+}
+
+export function reconcileRacialSkillAnchors(
+  allocations: readonly CharacterSkillAllocationDraft[],
+  race: RaceAggregate | null,
+  relationships: ReadonlyArray<CharacterAggregate["skillRelationships"][number]>,
+  createDraftId: () => number,
+): CharacterSkillAllocationDraft[] {
+  let result = allocations.map((allocation) => ({ ...allocation }));
+  const required = new Set<number>();
+  const parentsBySkill = new Map<number, number[]>();
+  for (const relationship of relationships) {
+    if (relationship.relationshipType.trim().toLocaleLowerCase() !== "parent") continue;
+    const parents = parentsBySkill.get(relationship.skillId) ?? [];
+    if (!parents.includes(relationship.relatedSkillId)) parents.push(relationship.relatedSkillId);
+    parentsBySkill.set(relationship.skillId, parents);
+  }
+
+  function ensurePath(skillId: number, visiting = new Set<number>()): CharacterSkillAllocationDraft | null {
+    if (visiting.has(skillId)) return null;
+    const parents = parentsBySkill.get(skillId) ?? [];
+    if (parents.length > 1) return null;
+    const nextVisiting = new Set(visiting).add(skillId);
+    const parent = parents.length === 1
+      ? ensurePath(parents[0], nextVisiting)
+      : null;
+    if (parents.length === 1 && !parent) return null;
+    const parentDraftId = parent?.draftId ?? null;
+    let allocation = result.find((candidate) =>
+      candidate.skillId === skillId && candidate.parentDraftId === parentDraftId,
+    );
+    if (!allocation) {
+      allocation = {
+        draftId: createDraftId(),
+        skillId,
+        parentDraftId,
+        points: 0,
+      };
+      result.push(allocation);
+    }
+    required.add(allocation.draftId);
+    return allocation;
+  }
+
+  for (const link of race?.skillLinks ?? []) {
+    if ((link.value ?? 0) > 0) ensurePath(link.skillId);
+  }
+
+  let removed = true;
+  while (removed) {
+    removed = false;
+    const parentIds = new Set(result.map((allocation) => allocation.parentDraftId));
+    const filtered = result.filter((allocation) => {
+      const removable = allocation.points === 0
+        && !required.has(allocation.draftId)
+        && !parentIds.has(allocation.draftId);
+      if (removable) removed = true;
+      return !removable;
+    });
+    result = filtered;
+  }
+  return result;
 }
 
 export function getSkillRank(
@@ -105,7 +349,7 @@ function rootSystems(skill: CharacterSkillReference): CampaignSystemOption[] | n
   const name = skill.name.trim().toLocaleLowerCase();
   const classification = skill.classification.trim().toLocaleLowerCase();
   if (classification === "standard") return [];
-  if (classification === "special ability") return ["Special Abilities"];
+  if (isSpecialAbilitySkill(skill)) return ["Special Abilities"];
   if (name === "spellcraft") return ["Spellcraft"];
   if (name === "talismanism") return ["Talismanism"];
   if (["faith", "prayer", "devotion"].includes(name)) return ["Faith"];
@@ -121,12 +365,35 @@ function rootSystems(skill: CharacterSkillReference): CampaignSystemOption[] | n
   return null;
 }
 
+const ONE_POINT_UNLOCK_SYSTEMS = new Set<CampaignSystemOption>([
+  "Spellcraft",
+  "Talismanism",
+  "Faith",
+  "Psyonics",
+  "Bardic Resonance",
+]);
+
+export function getSkillUnlockThreshold(
+  rootSkill: CharacterSkillReference,
+  campaignThreshold: number,
+): number {
+  const systems = rootSystems(rootSkill);
+  return systems?.some((system) => ONE_POINT_UNLOCK_SYSTEMS.has(system))
+    ? 1
+    : campaignThreshold;
+}
+
 export function isSkillAllowedByCampaign(
   skill: CharacterSkillReference,
   rootSkill: CharacterSkillReference,
   allowedSystems: readonly CampaignSystemOption[],
+  enforceCampaignTierLimits = true,
+  raciallyGranted = false,
 ): boolean {
-  if (skill.tier !== null && !allowedSystems.includes(`Tier ${skill.tier}` as CampaignSystemOption)) {
+  if (raciallyGranted) return true;
+  if (enforceCampaignTierLimits
+    && skill.tier !== null
+    && !allowedSystems.includes(`Tier ${skill.tier}` as CampaignSystemOption)) {
     return false;
   }
   const systems = rootSystems(rootSkill);
@@ -137,6 +404,7 @@ export function isSkillAllowedByCampaign(
 export function getCharacterSkillRanks(
   draft: CharacterDraft,
   skillCatalog: readonly CharacterSkillReference[],
+  race: RaceAggregate | null = null,
 ): Map<number, number> {
   const skills = new Map(skillCatalog.map((skill) => [skill.id, skill]));
   const allocations = new Map(draft.skillAllocations.map((allocation) => [
@@ -163,7 +431,7 @@ export function getCharacterSkillRanks(
       : allocations.get(allocation.parentDraftId) ?? null;
     const parentRank = parent ? resolve(parent) : null;
     const rank = getSkillRank(
-      allocation.points,
+      getEffectiveSkillPoints(allocation.points, race, allocation.skillId),
       attributeKey ? getAttributeModifier(attributeScore) : 0,
       parentRank,
       skill.tier,
@@ -181,7 +449,7 @@ export function buildSkillAllocationTree(
   allocations: readonly CharacterSkillAllocationDraft[],
 ): CharacterSkillAllocationInput[] {
   const children = new Map<number | null, CharacterSkillAllocationDraft[]>();
-  for (const allocation of allocations.filter((row) => row.points > 0)) {
+  for (const allocation of allocations) {
     const siblings = children.get(allocation.parentDraftId) ?? [];
     siblings.push(allocation);
     children.set(allocation.parentDraftId, siblings);
@@ -203,6 +471,8 @@ export type CharacterReadiness = {
   raceComplete: boolean;
   attributesComplete: boolean;
   skillsComplete: boolean;
+  storyComplete: boolean;
+  equipmentComplete: boolean;
   attributesUsed: number;
   skillPointsUsed: number;
   fundsRemaining: number;
@@ -226,7 +496,9 @@ export function evaluateCharacterReadiness(
       && draft.profile.weight > 0
       && draft.profile.skinColor.trim()
       && draft.profile.eyeColor.trim()
-      && draft.profile.hairColor.trim(),
+      && draft.profile.hairColor.trim()
+      && draft.profile.deity.trim()
+      && draft.profile.definingMarks.trim(),
   );
   if (!identityComplete) issues.push("Required Identity fields are incomplete.");
   const raceComplete = draft.profile.raceId !== null && race !== null;
@@ -249,6 +521,7 @@ export function evaluateCharacterReadiness(
 
   const skillPointsUsed = getSkillPointsUsed(draft);
   const skillCatalog = new Map(aggregate.skillCatalog.map((skill) => [skill.id, skill]));
+  const manaProfiles = getCharacterManaProfiles(draft, aggregate.skillCatalog, race);
   const allocationMap = new Map(draft.skillAllocations.map((allocation) => [
     allocation.draftId,
     allocation,
@@ -258,14 +531,30 @@ export function evaluateCharacterReadiness(
     .map((relationship) => `${relationship.skillId}:${relationship.relatedSkillId}`));
   let skillRulesValid = true;
   const allocationPathKeys = new Set<string>();
+  const childAllocationCounts = new Map<number, number>();
+  for (const allocation of draft.skillAllocations) {
+    if (allocation.parentDraftId !== null) {
+      childAllocationCounts.set(
+        allocation.parentDraftId,
+        (childAllocationCounts.get(allocation.parentDraftId) ?? 0) + 1,
+      );
+    }
+  }
   for (const allocation of draft.skillAllocations) {
     const skill = skillCatalog.get(allocation.skillId);
+    const racialGrant = getRacialSkillGrant(race, allocation.skillId);
     const pathKey = `${allocation.parentDraftId ?? "root"}:${allocation.skillId}`;
     if (!skill
       || allocationPathKeys.has(pathKey)
       || allocation.points < 0
       || allocation.points > aggregate.campaign.maxStartingSkill + EPSILON
-      || allocation.points > aggregate.campaign.maxPointsInSkill + EPSILON) {
+      || allocation.points > Math.max(
+        0,
+        aggregate.campaign.maxPointsInSkill - racialGrant.minimum,
+      ) + EPSILON
+      || (allocation.points <= EPSILON
+        && !racialGrant.granted
+        && !childAllocationCounts.has(allocation.draftId))) {
       skillRulesValid = false;
       continue;
     }
@@ -276,6 +565,10 @@ export function evaluateCharacterReadiness(
       skillRulesValid = false;
     }
     let rootSkill = skill;
+    const parentEdges: Array<{
+      child: CharacterSkillAllocationDraft;
+      parent: CharacterSkillAllocationDraft;
+    }> = [];
     let cursor = allocation;
     const visited = new Set<number>();
     while (cursor.parentDraftId !== null) {
@@ -289,9 +582,7 @@ export function evaluateCharacterReadiness(
         skillRulesValid = false;
         break;
       }
-      if (parent.points + EPSILON < aggregate.campaign.pointsToUnlockNextTier) {
-        skillRulesValid = false;
-      }
+      parentEdges.push({ child: cursor, parent });
       const parentSkill = skillCatalog.get(parent.skillId);
       const cursorSkill = skillCatalog.get(cursor.skillId);
       if (parentSkill?.tier !== null
@@ -304,7 +595,32 @@ export function evaluateCharacterReadiness(
       cursor = parent;
       rootSkill = skillCatalog.get(parent.skillId) ?? rootSkill;
     }
-    if (!isSkillAllowedByCampaign(skill, rootSkill, aggregate.campaign.allowedSystems)) {
+    if (isSpellSkill(skill)) {
+      const magicSystem = getCharacterMagicSystem(rootSkill);
+      const spellAccessLevel = magicSystem
+        ? manaProfiles.find((profile) => profile.system === magicSystem)?.spellAccessLevel ?? null
+        : null;
+      if (!magicSystem || !canAccessSpellAtLevel(skill, spellAccessLevel)) {
+        skillRulesValid = false;
+      }
+    }
+    const unlockThreshold = getSkillUnlockThreshold(
+      rootSkill,
+      aggregate.campaign.pointsToUnlockNextTier,
+    );
+    if (parentEdges.some(({ child, parent }) =>
+      !getRacialSkillGrant(race, child.skillId).granted
+        && getEffectiveSkillPoints(parent.points, race, parent.skillId) + EPSILON < unlockThreshold,
+    )) {
+      skillRulesValid = false;
+    }
+    if (!isSkillAllowedByCampaign(
+      skill,
+      rootSkill,
+      aggregate.campaign.allowedSystems,
+      true,
+      racialGrant.granted,
+    )) {
       skillRulesValid = false;
     }
   }
@@ -314,6 +630,15 @@ export function evaluateCharacterReadiness(
     issues.push("Allocate the exact Campaign Skill Point budget.");
   }
   if (!skillRulesValid) issues.push("One or more Skill allocations violate Campaign rules.");
+
+  const storyComplete = Boolean(
+    draft.profile.personality.trim()
+      && draft.profile.goals.trim()
+      && draft.profile.secrets.trim()
+      && draft.profile.backstory.trim()
+      && draft.profile.motivations.trim(),
+  );
+  if (!storyComplete) issues.push("Complete every Story & Personality field.");
 
   const fundsRemaining = getStartingFundsRemaining(
     draft,
@@ -340,14 +665,22 @@ export function evaluateCharacterReadiness(
   if (!equipmentRulesValid) {
     issues.push("Starting possessions must be priced and authorized by this Campaign.");
   }
+  const equipmentComplete = equipmentRulesValid && draft.items.some((item) =>
+    authorizedItems.get(item.itemId)?.catalogScope.toLocaleLowerCase() === "equipment",
+  );
+  if (!equipmentComplete) {
+    issues.push("Purchase at least one Campaign-authorized Equipment item.");
+  }
 
   return {
     ready: identityComplete && raceComplete && attributesComplete && skillsComplete
-      && equipmentRulesValid,
+      && storyComplete && equipmentComplete,
     identityComplete,
     raceComplete,
     attributesComplete,
     skillsComplete,
+    storyComplete,
+    equipmentComplete,
     attributesUsed,
     skillPointsUsed,
     fundsRemaining,

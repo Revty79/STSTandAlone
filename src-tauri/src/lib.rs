@@ -39,6 +39,16 @@ const LOCK_COMPLETED_CHARACTER_CREATION_MIGRATION: &str =
     include_str!("../migrations/0019_lock_completed_character_creation.sql");
 const CHARACTER_HEIGHT_UNITS_MIGRATION: &str =
     include_str!("../migrations/0020_add_character_height_units.sql");
+const CORRECT_SPELL_TIER_MIGRATION: &str =
+    include_str!("../migrations/0021_correct_spell_tier.sql");
+const LINK_SPHERES_TO_MAGIC_ACCESS_MIGRATION: &str =
+    include_str!("../migrations/0022_link_spheres_to_magic_access.sql");
+const ALLOW_RACIAL_SKILL_ANCHORS_MIGRATION: &str =
+    include_str!("../migrations/0023_allow_racial_skill_anchors.sql");
+const BACKFILL_CAMPAIGN_EQUIPMENT_MIGRATION: &str =
+    include_str!("../migrations/0024_backfill_campaign_equipment.sql");
+const REOPEN_INCOMPLETE_CHARACTERS_MIGRATION: &str =
+    include_str!("../migrations/0025_reopen_incomplete_characters.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -163,6 +173,36 @@ pub fn run() {
             sql: CHARACTER_HEIGHT_UNITS_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 21,
+            description: "correct_spell_tier",
+            sql: CORRECT_SPELL_TIER_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 22,
+            description: "link_spheres_to_magic_access",
+            sql: LINK_SPHERES_TO_MAGIC_ACCESS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 23,
+            description: "allow_racial_skill_anchors",
+            sql: ALLOW_RACIAL_SKILL_ANCHORS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 24,
+            description: "backfill_campaign_equipment",
+            sql: BACKFILL_CAMPAIGN_EQUIPMENT_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 25,
+            description: "reopen_incomplete_characters",
+            sql: REOPEN_INCOMPLETE_CHARACTERS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -189,9 +229,10 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        CAT_AND_FALCON_MIGRATION, CREATURES_MIGRATION, CREATURE_CATALOG_MIGRATION,
-        DERIVED_CREATURES_AND_CR_MIGRATION, DROP_CREATURE_IP_PROVENANCE_MIGRATION,
-        INITIAL_ACCOUNT_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION,
+        CAT_AND_FALCON_MIGRATION, CORRECT_SPELL_TIER_MIGRATION, CREATURES_MIGRATION,
+        CREATURE_CATALOG_MIGRATION, DERIVED_CREATURES_AND_CR_MIGRATION,
+        DROP_CREATURE_IP_PROVENANCE_MIGRATION, INITIAL_ACCOUNT_MIGRATION,
+        LINK_SPHERES_TO_MAGIC_ACCESS_MIGRATION, RACES_MIGRATION, RACE_CATALOG_MIGRATION,
         REMOVE_CREATURE_REVIEW_NOTES_MIGRATION, SKILLS_MIGRATION, SKILL_CATALOG_MIGRATION,
         SPELL_CONSTRUCTION_MIGRATION,
     };
@@ -450,6 +491,9 @@ mod tests {
         connection
             .execute_batch(SKILL_CATALOG_MIGRATION)
             .expect("seed canonical Skill catalog");
+        connection
+            .execute_batch(CORRECT_SPELL_TIER_MIGRATION)
+            .expect("correct canonical Spell tier");
 
         let canonical_skills: i64 = connection
             .query_row(
@@ -502,6 +546,34 @@ mod tests {
             duplicate_display_names, 2,
             "canonical seeding must not overwrite a user-authored Skill"
         );
+
+        connection
+            .execute_batch(LINK_SPHERES_TO_MAGIC_ACCESS_MIGRATION)
+            .expect("link canonical Spheres to all three magic access roots");
+        let shared_sphere_relationships: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM skill_relationships relationship
+                 JOIN skills sphere ON sphere.id=relationship.skill_id
+                 JOIN skills access_skill ON access_skill.id=relationship.related_skill_id
+                 WHERE sphere.source_system='serrian-tide-core'
+                   AND sphere.classification='sphere' COLLATE NOCASE
+                   AND access_skill.name IN ('Spellcraft','Talismanism','Faith')",
+                [],
+                |row| row.get(0),
+            )
+            .expect("count shared Sphere relationships");
+        assert_eq!(shared_sphere_relationships, 48);
+
+        let eternal_black_sun_tier: i64 = connection
+            .query_row(
+                "SELECT tier FROM skills
+                 WHERE source_system='serrian-tide-core'
+                   AND source_external_id='skill-386c592f2009be1807e6645fb730ea2f21c4b607fa0b9e21473bec9603863ca7'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("load corrected Eternal Black Sun tier");
+        assert_eq!(eternal_black_sun_tier, 3);
 
         let charm_parent: String = connection
             .query_row(
@@ -561,7 +633,7 @@ mod tests {
             )
             .expect("recount canonical relationships");
         assert_eq!(canonical_skills_after_reapply, 1_136);
-        assert_eq!(relationships_after_reapply, 989);
+        assert_eq!(relationships_after_reapply, 1_021);
     }
 
     #[test]
@@ -977,6 +1049,30 @@ mod tests {
             )
             .expect("reload Mer-Folk movement modes");
         assert_eq!((land, swim), (2.0, 4.0));
+
+        let permanent_granted_values: (f64, f64, f64) = connection
+            .query_row(
+                "SELECT
+                   (SELECT link.value FROM race_skill_links link
+                    JOIN races race ON race.id=link.race_id
+                    JOIN skills skill ON skill.id=link.skill_id
+                    WHERE race.name='Harbinger Elf' COLLATE NOCASE
+                      AND skill.name='Harbinger Elf Berserker Rage' COLLATE NOCASE),
+                   (SELECT link.value FROM race_skill_links link
+                    JOIN races race ON race.id=link.race_id
+                    JOIN skills skill ON skill.id=link.skill_id
+                    WHERE race.name='Moonshade Elf' COLLATE NOCASE
+                      AND skill.name='Moonshadow Omen' COLLATE NOCASE),
+                   (SELECT link.value FROM race_skill_links link
+                    JOIN races race ON race.id=link.race_id
+                    JOIN skills skill ON skill.id=link.skill_id
+                    WHERE race.name='Changeling' COLLATE NOCASE
+                      AND skill.name='Glamour Shift' COLLATE NOCASE)",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("reload permanent racial grant values");
+        assert_eq!(permanent_granted_values, (10.0, 10.0, 10.0));
 
         let invalid_granted_links: i64 = connection
             .query_row(

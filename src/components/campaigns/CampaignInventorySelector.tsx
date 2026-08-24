@@ -28,6 +28,7 @@ export function CampaignInventorySelector({
   onCampaignItemsChange,
 }: Props) {
   const [search, setSearch] = useState("");
+  const [catalogFilter, setCatalogFilter] = useState<"all" | "weapon" | "armor" | "general" | "inventory">("all");
   const [activeAvailableId, setActiveAvailableId] = useState<number | null>(null);
   const [activeCampaignId, setActiveCampaignId] = useState<number | null>(null);
   const campaignItemIds = useMemo(
@@ -40,12 +41,15 @@ export function CampaignInventorySelector({
   );
   const filteredItems = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
-    if (!query) return unselectedItems;
-    return unselectedItems.filter((item) =>
-      [item.name, item.canonicalId, item.recordType, item.family, item.category]
+    const catalogItems = unselectedItems.filter((item) => catalogFilter === "all"
+      || (catalogFilter === "inventory" && item.catalogScope === "inventory")
+      || (catalogFilter !== "inventory" && item.equipmentGroup === catalogFilter));
+    if (!query) return catalogItems;
+    return catalogItems.filter((item) =>
+      [item.name, item.canonicalId, item.recordType, item.family, item.category, item.equipmentGroup ?? ""]
         .some((value) => value.toLocaleLowerCase().includes(query)),
     );
-  }, [search, unselectedItems]);
+  }, [catalogFilter, search, unselectedItems]);
 
   function addItems(items: readonly CampaignInventoryItem[]) {
     if (items.length === 0) return;
@@ -80,7 +84,7 @@ export function CampaignInventorySelector({
   return (
     <div className="campaign-inventory">
       <div className="campaign-inventory__genre-toolbar">
-        <span>{selectedGenres.length} inventory genres selected</span>
+        <span>{selectedGenres.length} genres selected</span>
         <div>
           <button
             type="button"
@@ -98,11 +102,11 @@ export function CampaignInventorySelector({
           </button>
         </div>
       </div>
-      <div className="campaign-inventory__genres" aria-label="Inventory genres">
-        {genresLoading ? <p>Reading inventory genres…</p> : null}
+      <div className="campaign-inventory__genres" aria-label="Item genres">
+        {genresLoading ? <p>Reading item genres…</p> : null}
         {!genresLoading && genresError ? <p role="status">{genresError}</p> : null}
         {!genresLoading && !genresError && genres.length === 0 ? (
-          <p>No inventory genres are currently available.</p>
+          <p>No item genres are currently available.</p>
         ) : null}
         {!genresLoading && !genresError
           ? genres.map((genre) => {
@@ -125,19 +129,38 @@ export function CampaignInventorySelector({
 
       {selectedGenres.length === 0 ? (
         <p className="campaign-inventory__prompt">
-          Choose one or more inventory genres above to combine their tagged Items.
+          Choose one or more genres above to combine their tagged Equipment and Inventory.
         </p>
       ) : (
         <>
           <label className="campaign-inventory__search">
-            <span>Search Available Items</span>
+            <span>Search Available Equipment & Inventory</span>
             <input
               type="search"
               value={search}
-              placeholder="Search selected inventory genres"
+              placeholder="Search selected genres"
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
+
+          <nav className="campaign-inventory__catalog-tabs" aria-label="Available item type">
+            {([
+              ["all", "All"],
+              ["weapon", "Weapons"],
+              ["armor", "Armor"],
+              ["general", "General Equipment"],
+              ["inventory", "Inventory"],
+            ] as const).map(([value, label]) => (
+              <button
+                type="button"
+                className={catalogFilter === value ? "is-active" : ""}
+                key={value}
+                onClick={() => setCatalogFilter(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
 
           <div className="campaign-inventory__transfer">
             <section aria-labelledby="available-inventory-heading">
@@ -162,7 +185,7 @@ export function CampaignInventorySelector({
                         onDoubleClick={() => addItems([item])}
                       >
                         <strong>{item.name}</strong>
-                        <span>{item.canonicalId} · {item.category}</span>
+                        <span>{item.canonicalId} · {item.equipmentGroup ?? "Inventory"} · {item.category}</span>
                       </button>
                     ))
                   : null}
@@ -221,7 +244,7 @@ export function CampaignInventorySelector({
                     onDoubleClick={() => removeItems([item.id])}
                   >
                     <strong>{item.name}</strong>
-                    <span>{item.canonicalId} · {item.category}</span>
+                    <span>{item.canonicalId} · {item.equipmentGroup ?? "Inventory"} · {item.category}</span>
                   </button>
                 ))}
               </div>

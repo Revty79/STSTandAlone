@@ -48,14 +48,15 @@ class RecordingCharacterRepository implements CharacterRepository {
   aggregate = characterAggregate();
   createdWith: [number, number] | null = null;
   saved: SaveCharacterAggregate | null = null;
-  readWith: [number, number, number] | null = null;
+  readWith: [number, number, number, boolean] | null = null;
 
   async getCharacterAggregate(
     characterId: number,
     campaignId: number,
     requestingUserId: number,
+    administrativeOverride = false,
   ): Promise<CharacterAggregate | null> {
-    this.readWith = [characterId, campaignId, requestingUserId];
+    this.readWith = [characterId, campaignId, requestingUserId, administrativeOverride];
     return this.aggregate;
   }
 
@@ -87,7 +88,7 @@ describe("CharacterService", () => {
     });
     expect(repository.createdWith).toEqual([12, 2]);
     await service.getCharacter(9, 12, 2);
-    expect(repository.readWith).toEqual([9, 12, 2]);
+    expect(repository.readWith).toEqual([9, 12, 2, false]);
     await expect(service.createCharacter(0, 2)).rejects.toBeInstanceOf(CharacterValidationError);
   });
 
@@ -109,6 +110,7 @@ describe("CharacterService", () => {
       characterId: 9,
       campaignId: 12,
       requestingUserId: 2,
+      administrativeOverride: false,
       completeCreation: false,
       name: "Neris",
       skillAllocations: [{
@@ -146,5 +148,23 @@ describe("CharacterService", () => {
       2,
     )).rejects.toThrow(/permanently locked/i);
     expect(repository.saved).toBeNull();
+  });
+
+  it("allows an explicit G.O.D. administrative save for another Player's completed Character", async () => {
+    const repository = new RecordingCharacterRepository();
+    repository.aggregate.profile.creationCompletedAt = "completed";
+    const service = new CharacterService(repository);
+    const draft = characterAggregateToDraft(repository.aggregate);
+    draft.profile.experience = 25;
+    draft.profile.quintessence = 7;
+    draft.profile.creditsRemaining = 333;
+
+    await service.saveCharacter(repository.aggregate, draft, 99, false, "god");
+
+    expect(repository.saved).toMatchObject({
+      requestingUserId: 99,
+      administrativeOverride: true,
+      profile: { experience: 25, quintessence: 7, creditsRemaining: 333 },
+    });
   });
 });

@@ -79,8 +79,12 @@ function databaseFixture() {
       if (/from skill_relationships/i.test(query)) return [] as T;
       if (/from campaign_inventory_items allowed/i.test(query)) return [{
         id: 7, canonicalId: "ITEM-7", name: "Rope", catalogScope: "inventory",
-        equipmentGroup: null, recordType: "Item", category: "Gear", credits: 10,
-        priceBasis: "each",
+         equipmentGroup: null, recordType: "Item", category: "Gear", credits: 10,
+         priceBasis: "each", description: "A rope.", weight: 2, weightUnit: "lb",
+         size: "Small", durability: 10, weaponType: null, handedness: null,
+         damage: null, damageType: null, rangeText: null, reachText: null,
+         weaponRulesText: null, armorType: null, coverage: null, baseSoak: null,
+         armorDamageModifiers: null, armorRulesText: null,
       }] as T;
       if (/select exists/i.test(query)) return [{ allowed: 1 }] as T;
       return [] as T;
@@ -114,9 +118,9 @@ describe("TauriCharacterRepository", () => {
     });
     expect(loaded?.attributes).toHaveLength(6);
     expect(loaded?.attributes[0]).toMatchObject({ attributeKey: "STR", value: 25 });
-    expect(fixture.calls[0]).toMatchObject({ values: [9, 12, 2] });
+    expect(fixture.calls[0]).toMatchObject({ values: [9, 12, 2, 0] });
     expect(fixture.calls[0]?.query).toMatch(
-      /character\.player_user_id=\$3[\s\S]*from campaign_players membership/i,
+      /\$4=0 AND character\.player_user_id=\$3[\s\S]*actor_role\.role='god'/i,
     );
     expect(races.getRaceAggregate).toHaveBeenCalledWith(3);
   });
@@ -134,6 +138,7 @@ describe("TauriCharacterRepository", () => {
     );
     const input = {
       characterId: 9, campaignId: 12, requestingUserId: 2, name: "Neris",
+      administrativeOverride: false,
       completeCreation: false,
       profile: {
         raceId: 3, age: 24, sex: "Female", heightFeet: 5, heightInches: 7,
@@ -141,7 +146,7 @@ describe("TauriCharacterRepository", () => {
         skinColor: "Bronze", eyeColor: "Green", hairColor: "Black", deity: "",
         definingMarks: "", personality: "", goals: "", secrets: "", backstory: "",
         motivations: "", fame: 0, experience: 0, totalExperience: 0,
-        quintessence: 0, totalQuintessence: 0,
+        quintessence: 0, totalQuintessence: 0, creditsRemaining: 80,
       },
       attributes: ["STR", "DEX", "CON", "INT", "WIS", "CHR"].map((attributeKey) => ({
         attributeKey: attributeKey as "STR", value: 25,

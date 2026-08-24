@@ -34,6 +34,8 @@ describe("Campaign prototype window", () => {
             recordType: "Item",
             family: "Pack",
             category: "General Gear",
+            catalogScope: "equipment",
+            equipmentGroup: "general",
             tags: ["Fantasy"],
           },
         ]}
@@ -69,7 +71,7 @@ describe("Campaign prototype window", () => {
       "Merfolk",
       "Select All",
       "Clear All",
-      "CAMPAIGN INVENTORY",
+      "CAMPAIGN ITEM CATALOG",
       "Fantasy",
       "Travel Pack",
       "Move All",
@@ -79,7 +81,7 @@ describe("Campaign prototype window", () => {
       expect(markup).toContain(label);
     }
     expect(markup).not.toContain("<span>Genre</span>");
-    expect(markup).toContain('aria-label="Inventory genres"');
+    expect(markup).toContain('aria-label="Item genres"');
     expect(markup).toContain('type="checkbox" checked=""');
     expect(markup).toContain("every selected linked record");
   });
@@ -165,6 +167,8 @@ describe("Campaign prototype window", () => {
             recordType: "Item",
             family: "Pack",
             category: "General Gear",
+            catalogScope: "equipment",
+            equipmentGroup: "general",
             tags: ["Fantasy"],
           }],
         }}
