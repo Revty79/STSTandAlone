@@ -9,6 +9,7 @@ import {
 } from "./models/rules";
 import {
   SPELL_SCHEMA_VERSION,
+  SPELL_CASTING_SYSTEMS,
   TRADITIONS,
   type ProgressiveChange,
   type ProgressiveMilestone,
@@ -16,6 +17,7 @@ import {
   type ScaledAddOnSelection,
   type SpellContainer,
   type SpellDocument,
+  type SpellCastingSystem,
 } from "./models/spell";
 import { createStableId } from "./utilities/ids";
 
@@ -257,6 +259,20 @@ function normalizeSpell(spell: SpellDocument): SpellDocument {
   )
     ? COMBINED_SPHERE_TRADITION
     : spell.tradition;
+  const persistedCastingSystem = spell.castingSystem as unknown as string | undefined;
+  const castingSystem = SPELL_CASTING_SYSTEMS.includes(
+    persistedCastingSystem as SpellCastingSystem,
+  )
+    ? persistedCastingSystem as SpellCastingSystem
+    : LEGACY_SPHERE_TRADITIONS.includes(
+        persistedTradition as (typeof LEGACY_SPHERE_TRADITIONS)[number],
+      )
+      ? persistedTradition as SpellCastingSystem
+      : tradition === "Psionics"
+        ? "Psyonics"
+        : tradition === "Bardic Resonance"
+          ? "Bardic Resonance"
+          : undefined;
   const frameworkSkillId = Number.isInteger(spell.frameworkSkillId) &&
     Number(spell.frameworkSkillId) > 0
     ? Number(spell.frameworkSkillId)
@@ -266,6 +282,7 @@ function normalizeSpell(spell: SpellDocument): SpellDocument {
     ...spell,
     schemaVersion: SPELL_SCHEMA_VERSION,
     tradition,
+    castingSystem,
     frameworkSkillId,
     sphere: spell.sphere ?? "",
     discipline: spell.discipline ?? "",

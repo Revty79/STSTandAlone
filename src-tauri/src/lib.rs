@@ -2,6 +2,7 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 
 mod campaign_commands;
 mod character_commands;
+mod character_spell_commands;
 mod creature_commands;
 mod creature_npc_commands;
 mod item_commands;
@@ -55,6 +56,8 @@ const STORE_CHARACTER_CURRENCY_HOLDINGS_MIGRATION: &str =
     include_str!("../migrations/0027_store_character_currency_holdings.sql");
 const ADD_FATE_POINTS_MIGRATION: &str = include_str!("../migrations/0028_add_fate_points.sql");
 const ADD_CREATURE_NPCS_MIGRATION: &str = include_str!("../migrations/0029_add_creature_npcs.sql");
+const ADD_CHARACTER_SPELL_DOCUMENTS_MIGRATION: &str =
+    include_str!("../migrations/0030_add_character_spell_documents.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -233,6 +236,12 @@ pub fn run() {
             sql: ADD_CREATURE_NPCS_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 30,
+            description: "add_character_spell_documents",
+            sql: ADD_CHARACTER_SPELL_DOCUMENTS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -242,6 +251,10 @@ pub fn run() {
             character_commands::create_npc_aggregate,
             character_commands::save_character_aggregate,
             character_commands::advance_character_skill,
+            character_commands::spend_character_quintessence,
+            character_spell_commands::save_character_spell,
+            character_spell_commands::set_character_spellbook_status,
+            character_spell_commands::delete_character_spell,
             creature_npc_commands::create_creature_npc,
             creature_npc_commands::save_creature_npc,
             creature_commands::save_creature_aggregate,

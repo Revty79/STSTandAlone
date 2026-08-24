@@ -14,6 +14,7 @@ import {
   type CharacterCampaignRules,
   type CharacterProfile,
   type SaveCharacterAggregate,
+  type SpendCharacterQuintessence,
 } from "../../types/character";
 import type { RaceAggregate } from "../../types/race";
 import { getDatabase } from "../database";
@@ -79,6 +80,7 @@ export interface CharacterRepository {
   ): Promise<CharacterAggregate>;
   saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate>;
   advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate>;
+  spendCharacterQuintessence(input: SpendCharacterQuintessence): Promise<CharacterAggregate>;
   getAllowedRaceForCharacter(
     characterId: number,
     campaignId: number,
@@ -110,6 +112,8 @@ export class TauriCharacterRepository implements CharacterRepository {
       "create_npc_aggregate",
       { input: { campaignId, requestingUserId } },
     ),
+    private readonly spendQuintessenceInvoker: (input: SpendCharacterQuintessence) => Promise<number> =
+      (input) => invoke<number>("spend_character_quintessence", { input }),
   ) {}
 
   async getCharacterAggregate(
@@ -254,7 +258,12 @@ export class TauriCharacterRepository implements CharacterRepository {
             FROM skill_extensions extension
             WHERE extension.skill_id=skills.id
               AND extension.extension_type='spell-import-source'
-            LIMIT 1) AS manaCost
+            LIMIT 1) AS manaCost,
+           (SELECT extension.data_json
+            FROM skill_extensions extension
+            WHERE extension.skill_id=skills.id
+              AND extension.extension_type='spell-construction'
+            LIMIT 1) AS spellDocumentJson
          FROM skills ORDER BY name COLLATE NOCASE,id`,
       ),
       database.select<CharacterAggregate["skillRelationships"]>(
@@ -403,6 +412,18 @@ export class TauriCharacterRepository implements CharacterRepository {
       false,
     );
     if (!aggregate) throw new Error("The advanced Character aggregate could not be reloaded.");
+    return aggregate;
+  }
+
+  async spendCharacterQuintessence(input: SpendCharacterQuintessence): Promise<CharacterAggregate> {
+    const id = await this.spendQuintessenceInvoker(input);
+    const aggregate = await this.getCharacterAggregate(
+      id,
+      input.campaignId,
+      input.requestingUserId,
+      false,
+    );
+    if (!aggregate) throw new Error("The Character could not be reloaded after spending Quintessence.");
     return aggregate;
   }
 

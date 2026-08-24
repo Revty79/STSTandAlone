@@ -100,6 +100,11 @@ export function SpellConstructionEditor({
                 const tradition = event.target.value as SpellDocument["tradition"];
                 update({
                   tradition,
+                  castingSystem: tradition === "Psionics"
+                    ? "Psyonics"
+                    : tradition === "Bardic Resonance"
+                      ? "Bardic Resonance"
+                      : undefined,
                   frameworkSkillId: undefined,
                   sphere: "",
                   discipline: "",

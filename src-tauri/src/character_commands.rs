@@ -51,6 +51,17 @@ pub struct AdvanceCharacterSkillInput {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SpendCharacterQuintessenceInput {
+    character_id: i64,
+    campaign_id: i64,
+    requesting_user_id: i64,
+    purchase_type: String,
+    quantity: i64,
+    attribute_key: Option<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct CharacterProfileInput {
     race_id: Option<i64>,
     age: Option<i64>,
@@ -427,6 +438,15 @@ pub fn advance_character_skill(
 ) -> Result<i64, String> {
     let mut connection = open_database(&app)?;
     advance_character_skill_in_connection(&mut connection, input)
+}
+
+#[tauri::command]
+pub fn spend_character_quintessence(
+    app: AppHandle,
+    input: SpendCharacterQuintessenceInput,
+) -> Result<i64, String> {
+    let mut connection = open_database(&app)?;
+    spend_character_quintessence_in_connection(&mut connection, input)
 }
 
 fn save_character_aggregate_in_connection(
@@ -1193,6 +1213,177 @@ fn advance_character_skill_in_connection(
         .map_err(|error| format!("Character advancement time could not be recorded: {error}"))?;
     transaction.commit().map_err(|error| {
         format!("The Character advancement transaction could not be committed: {error}")
+    })?;
+    Ok(input.character_id)
+}
+
+fn spend_character_quintessence_in_connection(
+    connection: &mut Connection,
+    input: SpendCharacterQuintessenceInput,
+) -> Result<i64, String> {
+    if input.character_id <= 0
+        || input.campaign_id <= 0
+        || input.requesting_user_id <= 0
+        || input.quantity <= 0
+    {
+        return Err(
+            "A Quintessence purchase must reference saved records and a positive quantity."
+                .to_string(),
+        );
+    }
+
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|error| {
+            format!("The Quintessence purchase transaction could not begin: {error}")
+        })?;
+    let context: Option<(f64, f64, f64, Option<i64>, Option<String>, i64, bool)> = transaction
+        .query_row(
+            "SELECT profile.quintessence,profile.total_quintessence,
+                    profile.experience,profile.fate_points,
+                    profile.creation_completed_at,character.player_user_id,
+                    character.is_npc
+             FROM campaign_characters character
+             JOIN campaign_players membership
+               ON membership.campaign_id=character.campaign_id
+              AND membership.user_id=character.player_user_id
+             JOIN campaign_character_profiles profile
+               ON profile.character_id=character.id
+             WHERE character.id=?1 AND character.campaign_id=?2",
+            params![input.character_id, input.campaign_id],
+            |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                    row.get(6)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|error| format!("Quintessence purchase access could not be checked: {error}"))?;
+    let Some((
+        available_quintessence,
+        lifetime_quintessence,
+        available_experience,
+        fate_points,
+        creation_completed_at,
+        character_owner_id,
+        character_is_npc,
+    )) = context
+    else {
+        return Err("The Character does not belong to the requested Campaign.".to_string());
+    };
+    if character_is_npc || character_owner_id != input.requesting_user_id {
+        return Err("A Player may only spend Quintessence for their own Character.".to_string());
+    }
+    if creation_completed_at.is_none() {
+        return Err(
+            "Character creation must be completed before Quintessence can be spent.".to_string(),
+        );
+    }
+
+    let available_quintessence =
+        finite_non_negative(available_quintessence, "Available Quintessence")?;
+    let lifetime_quintessence =
+        finite_non_negative(lifetime_quintessence, "Lifetime Quintessence")?;
+    let available_experience = finite_non_negative(available_experience, "Available Experience")?;
+    let purchase_type = input.purchase_type.trim();
+    let cost_units = match purchase_type {
+        "attribute" => input.quantity.checked_mul(5),
+        "fatePoints" => input.quantity.checked_mul(10),
+        "experience" => Some(input.quantity),
+        _ => {
+            return Err(format!(
+                "Unsupported Quintessence purchase type {:?}.",
+                purchase_type
+            ))
+        }
+    }
+    .ok_or_else(|| "The Quintessence purchase cost is too large.".to_string())?;
+    let quintessence_cost = cost_units as f64;
+    if available_quintessence + 0.000_001 < quintessence_cost {
+        return Err(format!(
+            "This purchase costs {quintessence_cost} Quintessence, but only {available_quintessence} is available."
+        ));
+    }
+
+    let mut next_experience = available_experience;
+    let mut next_fate_points = fate_points;
+    match purchase_type {
+        "attribute" => {
+            let attribute_key = input
+                .attribute_key
+                .as_deref()
+                .map(str::trim)
+                .filter(|key| ATTRIBUTE_KEYS.contains(key))
+                .ok_or_else(|| "Attribute advancement requires one core Attribute.".to_string())?;
+            let rows = transaction
+                .execute(
+                    "UPDATE campaign_character_attributes
+                     SET value=value+?3
+                     WHERE character_id=?1 AND attribute_key=?2",
+                    params![input.character_id, attribute_key, input.quantity as f64],
+                )
+                .map_err(|error| {
+                    format!("The Character Attribute could not be increased: {error}")
+                })?;
+            if rows != 1 {
+                return Err("The selected Character Attribute could not be found.".to_string());
+            }
+        }
+        "fatePoints" => {
+            next_fate_points = Some(
+                fate_points
+                    .unwrap_or(0)
+                    .checked_add(input.quantity)
+                    .ok_or_else(|| "The resulting Fate Point total is too large.".to_string())?,
+            );
+        }
+        "experience" => {
+            let gained_experience = input
+                .quantity
+                .checked_mul(10)
+                .ok_or_else(|| "The Experience conversion is too large.".to_string())?
+                as f64;
+            next_experience = available_experience + gained_experience;
+            if !next_experience.is_finite() {
+                return Err("The resulting Experience total is too large.".to_string());
+            }
+        }
+        _ => unreachable!("purchase type was validated above"),
+    }
+
+    let rows = transaction
+        .execute(
+            "UPDATE campaign_character_profiles
+             SET quintessence=?2,total_quintessence=?3,experience=?4,fate_points=?5,
+                 updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE character_id=?1",
+            params![
+                input.character_id,
+                (available_quintessence - quintessence_cost).max(0.0),
+                lifetime_quintessence + quintessence_cost,
+                next_experience,
+                next_fate_points,
+            ],
+        )
+        .map_err(|error| format!("Character Quintessence could not be spent: {error}"))?;
+    if rows != 1 {
+        return Err("The Character profile could not be updated.".to_string());
+    }
+    transaction
+        .execute(
+            "UPDATE campaign_characters
+             SET updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1",
+            [input.character_id],
+        )
+        .map_err(|error| format!("Character advancement time could not be recorded: {error}"))?;
+    transaction.commit().map_err(|error| {
+        format!("The Quintessence purchase transaction could not be committed: {error}")
     })?;
     Ok(input.character_id)
 }
@@ -3289,6 +3480,118 @@ mod tests {
             god_saved,
             (25.0, 40.0, 7.0, 12.0, 333.0, 45.0, 15, completed_at)
         );
+    }
+
+    #[test]
+    fn quintessence_purchases_update_benefits_and_lifetime_totals_atomically() {
+        let mut fixture = setup();
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let input = save_input(&fixture, character_id);
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("save Character");
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles
+                 SET quintessence=50,total_quintessence=4,
+                     experience=5,total_experience=20,fate_points=2,
+                     creation_completed_at='completed'
+                 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("completed Character with Quintessence");
+
+        spend_character_quintessence_in_connection(
+            &mut fixture.connection,
+            SpendCharacterQuintessenceInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                purchase_type: "attribute".to_string(),
+                quantity: 2,
+                attribute_key: Some("STR".to_string()),
+            },
+        )
+        .expect("buy two Attribute points");
+        spend_character_quintessence_in_connection(
+            &mut fixture.connection,
+            SpendCharacterQuintessenceInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                purchase_type: "fatePoints".to_string(),
+                quantity: 1,
+                attribute_key: None,
+            },
+        )
+        .expect("buy one Fate Point");
+        spend_character_quintessence_in_connection(
+            &mut fixture.connection,
+            SpendCharacterQuintessenceInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                purchase_type: "experience".to_string(),
+                quantity: 3,
+                attribute_key: None,
+            },
+        )
+        .expect("convert three Quintessence to Experience");
+
+        let saved: (f64, f64, f64, f64, Option<i64>, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT profile.quintessence,profile.total_quintessence,
+                        profile.experience,profile.total_experience,profile.fate_points,
+                        (SELECT value FROM campaign_character_attributes
+                         WHERE character_id=?1 AND attribute_key='STR')
+                 FROM campaign_character_profiles profile
+                 WHERE profile.character_id=?1",
+                [character_id],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                    ))
+                },
+            )
+            .expect("advanced Character values");
+        assert_eq!(saved, (27.0, 27.0, 35.0, 20.0, Some(3), 27.0));
+
+        let insufficient = spend_character_quintessence_in_connection(
+            &mut fixture.connection,
+            SpendCharacterQuintessenceInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                purchase_type: "fatePoints".to_string(),
+                quantity: 3,
+                attribute_key: None,
+            },
+        )
+        .expect_err("an unaffordable purchase must fail");
+        assert!(insufficient.contains("only 27"));
+        let unchanged: (f64, f64, Option<i64>) = fixture
+            .connection
+            .query_row(
+                "SELECT quintessence,total_quintessence,fate_points
+                 FROM campaign_character_profiles WHERE character_id=?1",
+                [character_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("unchanged Quintessence totals");
+        assert_eq!(unchanged, (27.0, 27.0, Some(3)));
     }
 
     #[test]

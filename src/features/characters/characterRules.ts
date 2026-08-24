@@ -322,7 +322,7 @@ export function getEffectiveSkillPoints(
 }
 
 export function getCharacterManaProfiles(
-  draft: CharacterDraft,
+  draft: Pick<CharacterDraft, "skillAllocations">,
   skillCatalog: readonly CharacterSkillReference[],
   race: RaceAggregate | null,
 ): CharacterManaProfile[] {
@@ -366,6 +366,23 @@ export function getCharacterManaProfiles(
       nextRequiredMana: next?.minimumMana ?? null,
     }];
   });
+}
+
+export function getCharacterManaProfilesForAggregate(
+  aggregate: CharacterAggregate,
+): CharacterManaProfile[] {
+  return getCharacterManaProfiles(
+    {
+      skillAllocations: aggregate.skillAllocations.map((allocation) => ({
+        draftId: allocation.id,
+        skillId: allocation.skillId,
+        parentDraftId: allocation.parentAllocationId,
+        points: allocation.points,
+      })),
+    },
+    aggregate.skillCatalog,
+    aggregate.selectedRace,
+  );
 }
 
 export function getSpecialAbilityRollTarget(rank: number): number {

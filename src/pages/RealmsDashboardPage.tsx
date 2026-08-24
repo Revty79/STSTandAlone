@@ -23,6 +23,8 @@ type RealmsDashboardPageProps = {
   onLogout: () => void;
   onOpenCharacter?: (campaignId: number, characterId: number) => void;
   onAdvanceCharacter?: (campaignId: number, characterId: number) => void;
+  onOpenSpellbook?: (campaignId: number, characterId: number) => void;
+  onOpenMagicCalculator?: (campaignId: number, characterId: number) => void;
 };
 
 export function RealmsDashboardPage({
@@ -31,6 +33,8 @@ export function RealmsDashboardPage({
   onLogout,
   onOpenCharacter,
   onAdvanceCharacter,
+  onOpenSpellbook,
+  onOpenMagicCalculator,
 }: RealmsDashboardPageProps) {
   const [notice, setNotice] = useState("");
   const [campaigns, setCampaigns] = useState<PlayerCampaignReference[]>([]);
@@ -117,6 +121,18 @@ export function RealmsDashboardPage({
         return;
       }
       onAdvanceCharacter?.(Number(selectedCampaignId), selectedCharacter.id);
+      return;
+    }
+    if (action.id === "spellbook" || action.id === "magic-calculator") {
+      if (!selectedCampaignId || !selectedCharacter) {
+        setNotice(`Select a Campaign and Character before opening the ${action.title}.`);
+        return;
+      }
+      if (action.id === "spellbook") {
+        onOpenSpellbook?.(Number(selectedCampaignId), selectedCharacter.id);
+      } else {
+        onOpenMagicCalculator?.(Number(selectedCampaignId), selectedCharacter.id);
+      }
       return;
     }
     showComingSoon(action.title);

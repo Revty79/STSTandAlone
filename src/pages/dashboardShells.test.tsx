@@ -177,6 +177,13 @@ describe("dashboard shells", () => {
     expect(dashboard).toContain('id="realm-campaign-select"');
     expect(dashboard).toContain('id="realm-character-select" disabled=""');
     expect(dashboard).toContain("Select a Campaign First");
+    expect(dashboard).toContain("Spellbook");
+    expect(dashboard).toContain("Magic Calculator");
+    expect(dashboard).toContain('data-action-id="spellbook"');
+    expect(dashboard).toContain('data-action-id="magic-calculator"');
+    expect(dashboard).not.toContain(">Skills<");
+    expect(dashboard).not.toContain("Inventory &amp; Equipment");
+    expect(dashboard).not.toContain("Magic &amp; Spells");
     expect(dashboard).not.toContain("Open Character");
     expect(dashboard).not.toContain("Return to Paths");
   });

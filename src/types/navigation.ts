@@ -13,6 +13,8 @@ export type AuthenticatedDestination =
   | "creature-npc-edit"
   | "realms"
   | "character-create"
-  | "character-advance";
+  | "character-advance"
+  | "spellbook"
+  | "magic-calculator";
 
 export type AppScreen = PublicScreen | AuthenticatedDestination;

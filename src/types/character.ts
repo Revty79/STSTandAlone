@@ -137,6 +137,7 @@ export type CharacterSkillReference = {
   definition: string;
   spellLevel?: string | null;
   manaCost?: number | null;
+  spellDocumentJson?: string | null;
 };
 
 export type CharacterSkillRelationship = {
@@ -232,6 +233,17 @@ export type AdvanceCharacterSkill = {
   skillId: number;
   parentAllocationId: number | null;
   pointsToAdd: number;
+};
+
+export type CharacterQuintessencePurchaseType = "attribute" | "fatePoints" | "experience";
+
+export type SpendCharacterQuintessence = {
+  characterId: number;
+  campaignId: number;
+  requestingUserId: number;
+  purchaseType: CharacterQuintessencePurchaseType;
+  quantity: number;
+  attributeKey: CharacterAttributeKey | null;
 };
 
 export type CharacterSkillAllocationDraft = {

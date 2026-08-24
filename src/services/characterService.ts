@@ -11,9 +11,11 @@ import {
   type CharacterEditorMode,
   type CharacterProfileDraft,
   type SaveCharacterAggregate,
+  type SpendCharacterQuintessence,
 } from "../types/character";
 import type { RaceAggregate } from "../types/race";
 import { buildSkillAllocationTree } from "../features/characters/characterRules";
+import { getQuintessenceCost } from "../features/characters/characterQuintessenceRules";
 import { getCampaignMoneyBreakdown } from "../features/currency/currencyRules";
 
 export class CharacterValidationError extends Error {
@@ -290,6 +292,47 @@ export class CharacterService {
       pointsToAdd,
     };
     return this.repository.advanceCharacterSkill(input);
+  }
+
+  async spendQuintessence(
+    aggregate: CharacterAggregate,
+    requestingUserId: number,
+    purchaseType: SpendCharacterQuintessence["purchaseType"],
+    quantity: number,
+    attributeKey: CharacterAttributeKey | null = null,
+  ): Promise<CharacterAggregate> {
+    if (aggregate.character.playerUserId !== requestingUserId || aggregate.character.isNpc) {
+      throw new CharacterValidationError("A Player may only advance their own Character.");
+    }
+    if (!aggregate.profile.creationCompletedAt) {
+      throw new CharacterValidationError(
+        "Character creation must be completed before Quintessence can be spent.",
+      );
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      throw new CharacterValidationError("Quintessence purchase quantity must be a positive whole number.");
+    }
+    const normalizedAttribute = purchaseType === "attribute"
+      ? attributeKey
+      : null;
+    if (purchaseType === "attribute"
+      && (!normalizedAttribute || !CHARACTER_ATTRIBUTE_KEYS.includes(normalizedAttribute))) {
+      throw new CharacterValidationError("Attribute advancement requires one core Attribute.");
+    }
+    const cost = getQuintessenceCost(purchaseType, quantity);
+    if (aggregate.profile.quintessence < cost) {
+      throw new CharacterValidationError(
+        `This purchase costs ${cost} Quintessence, but only ${aggregate.profile.quintessence} is available.`,
+      );
+    }
+    return this.repository.spendCharacterQuintessence({
+      characterId: savedId(aggregate.character.id, "Character"),
+      campaignId: savedId(aggregate.campaign.id, "Campaign"),
+      requestingUserId: savedId(requestingUserId, "Player Profile"),
+      purchaseType,
+      quantity,
+      attributeKey: normalizedAttribute,
+    });
   }
 
   async getAllowedRace(

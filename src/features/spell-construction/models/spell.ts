@@ -10,6 +10,16 @@ export const TRADITIONS = [
 
 export type Tradition = (typeof TRADITIONS)[number];
 
+export const SPELL_CASTING_SYSTEMS = [
+  'Spellcraft',
+  'Talismanism',
+  'Faith',
+  'Psyonics',
+  'Bardic Resonance',
+] as const;
+
+export type SpellCastingSystem = (typeof SPELL_CASTING_SYSTEMS)[number];
+
 export interface EffectSelection {
   id: string;
   ruleId: string;
@@ -102,6 +112,7 @@ export interface SpellDocument {
   id: string;
   name: string;
   tradition: Tradition;
+  castingSystem?: SpellCastingSystem;
   frameworkSkillId?: number;
   sphere: string;
   discipline: string;

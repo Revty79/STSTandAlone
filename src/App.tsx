@@ -8,6 +8,8 @@ import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { CharacterCreationPage } from "./pages/CharacterCreationPage";
 import { CharacterAdvancementPage } from "./pages/CharacterAdvancementPage";
+import { SpellbookPage } from "./pages/SpellbookPage";
+import { MagicCalculatorPage } from "./pages/MagicCalculatorPage";
 import { NpcsPage } from "./pages/NpcsPage";
 import { CreatureNpcPage } from "./pages/CreatureNpcPage";
 import { RacesPage } from "./pages/RacesPage";
@@ -109,6 +111,33 @@ function App() {
     }
 
     const destination = authorizeDestination(session, screen);
+    const realmsFallback = (
+      <RealmsDashboardPage
+        session={session}
+        onReturn={
+          canAccessDestination(session, "access-choice")
+            ? () => navigateAuthenticated("access-choice")
+            : undefined
+        }
+        onLogout={logout}
+        onOpenCharacter={(campaignId, characterId) => {
+          setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+          navigateAuthenticated("character-create");
+        }}
+        onAdvanceCharacter={(campaignId, characterId) => {
+          setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+          navigateAuthenticated("character-advance");
+        }}
+        onOpenSpellbook={(campaignId, characterId) => {
+          setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+          navigateAuthenticated("spellbook");
+        }}
+        onOpenMagicCalculator={(campaignId, characterId) => {
+          setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+          navigateAuthenticated("magic-calculator");
+        }}
+      />
+    );
     switch (destination) {
       case "access-choice":
         return (
@@ -255,6 +284,14 @@ function App() {
               setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
               navigateAuthenticated("character-advance");
             }}
+            onOpenSpellbook={(campaignId, characterId) => {
+              setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+              navigateAuthenticated("spellbook");
+            }}
+            onOpenMagicCalculator={(campaignId, characterId) => {
+              setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+              navigateAuthenticated("magic-calculator");
+            }}
           />
         );
       case "character-create":
@@ -275,6 +312,14 @@ function App() {
               onAdvanceCharacter={(campaignId, characterId) => {
                 setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-advance");
+              }}
+              onOpenSpellbook={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+                navigateAuthenticated("spellbook");
+              }}
+              onOpenMagicCalculator={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+                navigateAuthenticated("magic-calculator");
               }}
             />
           );
@@ -312,6 +357,14 @@ function App() {
                 setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-advance");
               }}
+              onOpenSpellbook={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+                navigateAuthenticated("spellbook");
+              }}
+              onOpenMagicCalculator={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+                navigateAuthenticated("magic-calculator");
+              }}
             />
           );
         }
@@ -320,6 +373,40 @@ function App() {
             session={session}
             campaignId={characterContext.campaignId}
             characterId={characterContext.characterId}
+            onBack={() => {
+              setCharacterContext(null);
+              navigateAuthenticated("realms");
+            }}
+            onLogout={logout}
+          />
+        );
+      case "spellbook":
+        if (!characterContext) {
+          return realmsFallback;
+        }
+        return (
+          <SpellbookPage
+            session={session}
+            campaignId={characterContext.campaignId}
+            characterId={characterContext.characterId}
+            onOpenCalculator={() => navigateAuthenticated("magic-calculator")}
+            onBack={() => {
+              setCharacterContext(null);
+              navigateAuthenticated("realms");
+            }}
+            onLogout={logout}
+          />
+        );
+      case "magic-calculator":
+        if (!characterContext) {
+          return realmsFallback;
+        }
+        return (
+          <MagicCalculatorPage
+            session={session}
+            campaignId={characterContext.campaignId}
+            characterId={characterContext.characterId}
+            onOpenSpellbook={() => navigateAuthenticated("spellbook")}
             onBack={() => {
               setCharacterContext(null);
               navigateAuthenticated("realms");

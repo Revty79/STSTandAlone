@@ -58,7 +58,9 @@
 .character-advancement-header button,
 .advancement-placeholder button,
 .advancement-dialog button,
-.experience-skill__purchase button {
+.experience-skill__purchase button,
+.quintessence-purchase > button,
+.quintessence-quantity-picker button {
   min-height: 38px;
   padding: 8px 14px;
   border: 1px solid rgb(190 162 105 / 42%);
@@ -71,7 +73,9 @@
 .character-advancement-header button:hover,
 .advancement-placeholder button:hover,
 .advancement-dialog button:hover:not(:disabled),
-.experience-skill__purchase button:hover:not(:disabled) { border-color: rgb(219 187 123 / 72%); background: linear-gradient(180deg, rgb(49 70 73 / 96%), rgb(22 35 40 / 100%)); }
+.experience-skill__purchase button:hover:not(:disabled),
+.quintessence-purchase > button:hover:not(:disabled),
+.quintessence-quantity-picker button:hover:not(:disabled) { border-color: rgb(219 187 123 / 72%); background: linear-gradient(180deg, rgb(49 70 73 / 96%), rgb(22 35 40 / 100%)); }
 
 .character-advancement-workspace { width: min(100% - clamp(30px, 5vw, 76px), 1380px); margin: 0 auto; padding: 32px 0 60px; }
 .character-advancement-feedback { margin: 0 0 18px; padding: 12px 16px; border: 1px solid rgb(126 166 149 / 42%); border-radius: 5px; color: #b8d5c5; background: rgb(29 65 55 / 42%); font-size: 0.78rem; }
@@ -94,11 +98,16 @@
 .advancement-choice__cards strong + span { max-width: 470px; margin-top: 12px; color: rgb(222 218 207 / 62%); font-size: 0.82rem; line-height: 1.55; }
 .advancement-choice__cards small { margin-top: auto; padding-top: 26px; color: #aa9b74; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
 
-.experience-ledger { display: grid; position: sticky; z-index: 4; top: 0; margin-bottom: 28px; border: 1px solid rgb(190 162 105 / 29%); border-radius: 6px; background: rgb(7 17 22 / 96%); box-shadow: 0 12px 30px rgb(0 0 0 / 32%); grid-template-columns: repeat(4, 1fr); backdrop-filter: blur(8px); }
-.experience-ledger > div { display: flex; min-height: 72px; padding: 13px 22px; border-right: 1px solid rgb(190 162 105 / 17%); flex-direction: column; justify-content: center; }
-.experience-ledger > div:last-child { border-right: 0; }
-.experience-ledger span { color: rgb(219 214 202 / 48%); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.experience-ledger strong { margin-top: 4px; color: #d6c596; font: 400 1.45rem "Palatino Linotype", Georgia, serif; }
+.experience-ledger,
+.quintessence-ledger { display: grid; position: sticky; z-index: 4; top: 0; margin-bottom: 28px; border: 1px solid rgb(190 162 105 / 29%); border-radius: 6px; background: rgb(7 17 22 / 96%); box-shadow: 0 12px 30px rgb(0 0 0 / 32%); grid-template-columns: repeat(4, 1fr); backdrop-filter: blur(8px); }
+.experience-ledger > div,
+.quintessence-ledger > div { display: flex; min-height: 72px; padding: 13px 22px; border-right: 1px solid rgb(190 162 105 / 17%); flex-direction: column; justify-content: center; }
+.experience-ledger > div:last-child,
+.quintessence-ledger > div:last-child { border-right: 0; }
+.experience-ledger span,
+.quintessence-ledger span { color: rgb(219 214 202 / 48%); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.experience-ledger strong,
+.quintessence-ledger strong { margin-top: 4px; color: #d6c596; font: 400 1.45rem "Palatino Linotype", Georgia, serif; }
 .advancement-section-heading--experience { margin-bottom: 18px; }
 .experience-filters { display: grid; margin: 20px 0 14px; grid-template-columns: minmax(260px, 1fr) minmax(190px, 0.3fr); gap: 12px; }
 .experience-filters label { display: flex; flex-direction: column; gap: 6px; }
@@ -126,6 +135,33 @@
 .experience-skill__purchase button { min-width: 160px; }
 .experience-skill__purchase button:disabled { opacity: 0.48; cursor: not-allowed; }
 .experience-skill-list__empty { padding: 40px 20px; border: 1px dashed rgb(190 162 105 / 23%); color: rgb(218 214 204 / 48%); text-align: center; }
+
+.advancement-section-heading--quintessence { margin-bottom: 22px; }
+.quintessence-purchases { display: grid; grid-template-columns: repeat(3, minmax(250px, 1fr)); gap: 16px; }
+.quintessence-purchase { display: flex; min-height: 390px; padding: 22px; border: 1px solid rgb(190 162 105 / 24%); border-radius: 7px; background: linear-gradient(145deg, rgb(16 36 41 / 91%), rgb(7 16 21 / 96%)); box-shadow: 0 16px 38px rgb(0 0 0 / 22%); flex-direction: column; }
+.quintessence-purchase__heading { display: flex; min-height: 52px; align-items: center; gap: 12px; }
+.quintessence-purchase__heading > span { display: grid; width: 44px; height: 44px; border: 1px solid rgb(190 162 105 / 40%); border-radius: 50%; color: #d8c38e; background: rgb(7 15 19 / 52%); place-items: center; font: 400 0.82rem "Palatino Linotype", Georgia, serif; }
+.quintessence-purchase__heading > div { display: flex; flex-direction: column; }
+.quintessence-purchase__heading strong { color: #eee2cc; font: 400 1.08rem "Palatino Linotype", Georgia, serif; }
+.quintessence-purchase__heading small { margin-top: 3px; color: #ad9b70; font-size: 0.61rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+.quintessence-purchase > p { min-height: 58px; margin: 18px 0; color: rgb(220 216 205 / 57%); font-size: 0.73rem; line-height: 1.55; }
+.quintessence-purchase label { display: flex; margin-bottom: 12px; flex-direction: column; gap: 6px; }
+.quintessence-purchase label > span { color: #a79c83; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.quintessence-purchase input,
+.quintessence-purchase select { width: 100%; min-height: 42px; padding: 8px 11px; border: 1px solid rgb(131 170 169 / 26%); border-radius: 4px; color: #e7e0d3; background: rgb(5 13 17 / 78%); }
+.quintessence-purchase input:disabled { opacity: 0.48; }
+.quintessence-quantity-picker { margin-bottom: 12px; }
+.quintessence-quantity-picker > span { display: block; margin-bottom: 6px; color: #a79c83; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.quintessence-quantity-picker > div { display: grid; grid-template-columns: 38px minmax(54px, 1fr) 38px 48px 54px; gap: 5px; }
+.quintessence-quantity-picker input { min-width: 0; text-align: center; }
+.quintessence-quantity-picker button { min-width: 0; min-height: 42px; padding: 7px 8px; }
+.quintessence-quantity-picker button:disabled { opacity: 0.42; cursor: not-allowed; }
+.quintessence-quantity-picker small { display: block; margin-top: 6px; color: rgb(216 212 201 / 44%); font-size: 0.59rem; }
+.quintessence-purchase__result { display: flex; margin-top: auto; padding: 13px 0; border-top: 1px solid rgb(190 162 105 / 16%); justify-content: space-between; align-items: center; gap: 12px; }
+.quintessence-purchase__result span { color: rgb(216 212 201 / 50%); font-size: 0.65rem; }
+.quintessence-purchase__result strong { color: #d9c795; font: 400 0.95rem "Palatino Linotype", Georgia, serif; }
+.quintessence-purchase > button { width: 100%; }
+.quintessence-purchase > button:disabled { opacity: 0.48; cursor: not-allowed; }
 
 .advancement-placeholder { display: flex; min-height: 58vh; padding-top: 60px; flex-direction: column; align-items: center; text-align: center; }
 .advancement-placeholder > span { max-width: 600px; }
@@ -157,14 +193,19 @@
   .character-advancement-header__title { padding-left: 0; border-left: 0; }
   .experience-skill { grid-template-columns: 1fr auto; }
   .experience-skill__numbers { grid-column: 1 / -1; grid-row: 2; }
+  .quintessence-purchases { grid-template-columns: 1fr; }
+  .quintessence-purchase { min-height: 0; }
+  .quintessence-purchase > p { min-height: 0; }
 }
 
 @media (max-width: 700px) {
   .character-advancement-header { grid-template-columns: 1fr; }
   .character-advancement-header__actions { flex-direction: row; flex-wrap: wrap; }
   .advancement-choice__cards { grid-template-columns: 1fr; }
-  .experience-ledger { position: static; grid-template-columns: 1fr; }
-  .experience-ledger > div { border-right: 0; border-bottom: 1px solid rgb(190 162 105 / 17%); }
+  .experience-ledger,
+  .quintessence-ledger { position: static; grid-template-columns: 1fr; }
+  .experience-ledger > div,
+  .quintessence-ledger > div { border-right: 0; border-bottom: 1px solid rgb(190 162 105 / 17%); }
   .experience-filters { grid-template-columns: 1fr; }
   .experience-skill { margin-left: 0; grid-template-columns: 1fr; }
   .experience-skill__numbers { grid-column: auto; grid-row: auto; }

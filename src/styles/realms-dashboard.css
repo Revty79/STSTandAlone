@@ -275,8 +275,21 @@
 
 .realms-actions__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 15px;
+}
+
+.realms-actions__grid > .portal-action-card {
+  grid-column: span 2;
+}
+
+.realms-actions__grid > .portal-action-card--featured {
+  grid-column: span 4;
+}
+
+.realms-actions__grid > [data-action-id="spellbook"],
+.realms-actions__grid > [data-action-id="magic-calculator"] {
+  grid-column: span 3;
 }
 
 .realms-dashboard__notice {
@@ -328,6 +341,13 @@
 @media (max-width: 900px) {
   .realms-actions__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .realms-actions__grid > .portal-action-card,
+  .realms-actions__grid > .portal-action-card--featured,
+  .realms-actions__grid > [data-action-id="spellbook"],
+  .realms-actions__grid > [data-action-id="magic-calculator"] {
+    grid-column: span 1;
   }
 }
 

@@ -130,6 +130,7 @@ export function createEmptySpell(): SpellDocument {
     id: createStableId('spell'),
     name: '',
     tradition: 'Spellcraft/Talismanism/Faith',
+    castingSystem: undefined,
     frameworkSkillId: undefined,
     sphere: '',
     discipline: '',

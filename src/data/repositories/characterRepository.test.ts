@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import type { RaceRepository } from "./raceRepository";
 import type { RaceAggregate } from "../../types/race";
-import type { AdvanceCharacterSkill, SaveCharacterAggregate } from "../../types/character";
+import type {
+  AdvanceCharacterSkill,
+  SaveCharacterAggregate,
+  SpendCharacterQuintessence,
+} from "../../types/character";
 import {
   TauriCharacterRepository,
   type CharacterDatabase,
@@ -137,6 +141,7 @@ describe("TauriCharacterRepository", () => {
     const saveInvoker = vi.fn(async () => 9);
     const advanceSkillInvoker = vi.fn(async () => 9);
     const createNpcInvoker = vi.fn(async () => 9);
+    const spendQuintessenceInvoker = vi.fn(async () => 9);
     const repository = new TauriCharacterRepository(
       async () => fixture.database,
       races,
@@ -144,6 +149,7 @@ describe("TauriCharacterRepository", () => {
       saveInvoker,
       advanceSkillInvoker,
       createNpcInvoker,
+      spendQuintessenceInvoker,
     );
     const input = {
       characterId: 9, campaignId: 12, requestingUserId: 2, name: "Neris",
@@ -190,5 +196,17 @@ describe("TauriCharacterRepository", () => {
       character: { id: 9 },
     });
     expect(advanceSkillInvoker).toHaveBeenCalledWith(advancement);
+    const quintessencePurchase = {
+      characterId: 9,
+      campaignId: 12,
+      requestingUserId: 2,
+      purchaseType: "experience",
+      quantity: 3,
+      attributeKey: null,
+    } satisfies SpendCharacterQuintessence;
+    await expect(repository.spendCharacterQuintessence(quintessencePurchase)).resolves.toMatchObject({
+      character: { id: 9 },
+    });
+    expect(spendQuintessenceInvoker).toHaveBeenCalledWith(quintessencePurchase);
   });
 });

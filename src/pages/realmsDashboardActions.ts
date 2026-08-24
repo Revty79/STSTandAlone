@@ -28,18 +28,13 @@ export const REALMS_DASHBOARD_ACTIONS: readonly PortalActionDefinition[] = [
     description: "Prepare for the next chapter of your journey.",
   },
   {
-    id: "skills",
-    title: "Skills",
-    description: "Review the talents your character brings to the realms.",
+    id: "spellbook",
+    title: "Spellbook",
+    description: "Read the complete details of every Spell this character knows.",
   },
   {
-    id: "inventory-equipment",
-    title: "Inventory & Equipment",
-    description: "Keep track of the tools, treasures, and gear you carry.",
-  },
-  {
-    id: "magic-spells",
-    title: "Magic & Spells",
-    description: "Explore the magic known to your character.",
+    id: "magic-calculator",
+    title: "Magic Calculator",
+    description: "Construct custom Spells and calculate impromptu magical effects.",
   },
 ] as const;

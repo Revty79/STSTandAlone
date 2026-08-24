@@ -27,7 +27,7 @@ export function PortalActionCard({
     .join(" ");
 
   return (
-    <button className={classes} type="button" onClick={() => onSelect(action)}>
+    <button className={classes} data-action-id={action.id} type="button" onClick={() => onSelect(action)}>
       <span className="portal-action-card__ornament" aria-hidden="true">
         ◇
       </span>

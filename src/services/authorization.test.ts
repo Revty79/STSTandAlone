@@ -35,6 +35,8 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "realms")).toBe(true);
     expect(canAccessDestination(session, "character-create")).toBe(true);
     expect(canAccessDestination(session, "character-advance")).toBe(true);
+    expect(canAccessDestination(session, "spellbook")).toBe(true);
+    expect(canAccessDestination(session, "magic-calculator")).toBe(true);
   });
 
   it("routes a Player-only profile directly to Realms", () => {
@@ -54,6 +56,8 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "realms")).toBe(true);
     expect(canAccessDestination(session, "character-create")).toBe(true);
     expect(canAccessDestination(session, "character-advance")).toBe(true);
+    expect(canAccessDestination(session, "spellbook")).toBe(true);
+    expect(canAccessDestination(session, "magic-calculator")).toBe(true);
   });
 
   it("redirects unauthorized G.O.D. destinations through the central guard", () => {

@@ -5,6 +5,7 @@ import type {
   CharacterDraft,
   AdvanceCharacterSkill,
   SaveCharacterAggregate,
+  SpendCharacterQuintessence,
 } from "../types/character";
 import type { RaceAggregate } from "../types/race";
 import {
@@ -52,6 +53,7 @@ class RecordingCharacterRepository implements CharacterRepository {
   saved: SaveCharacterAggregate | null = null;
   readWith: [number, number, number, boolean] | null = null;
   advancedWith: AdvanceCharacterSkill | null = null;
+  quintessenceSpentWith: SpendCharacterQuintessence | null = null;
   npcCreatedWith: [number, number] | null = null;
 
   async getCharacterAggregate(
@@ -87,6 +89,11 @@ class RecordingCharacterRepository implements CharacterRepository {
 
   async advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate> {
     this.advancedWith = structuredClone(input);
+    return this.aggregate;
+  }
+
+  async spendCharacterQuintessence(input: SpendCharacterQuintessence): Promise<CharacterAggregate> {
+    this.quintessenceSpentWith = structuredClone(input);
     return this.aggregate;
   }
 
@@ -204,6 +211,32 @@ describe("CharacterService", () => {
     await expect(service.advanceSkill(repository.aggregate, 2, 17, null))
       .rejects.toThrow(/must be completed/i);
     expect(repository.advancedWith).toBeNull();
+  });
+
+  it("spends Quintessence only on valid purchases for a completed owned Character", async () => {
+    const repository = new RecordingCharacterRepository();
+    repository.aggregate.profile.creationCompletedAt = "completed";
+    repository.aggregate.profile.quintessence = 30;
+    const service = new CharacterService(repository);
+
+    await service.spendQuintessence(repository.aggregate, 2, "attribute", 2, "STR");
+    expect(repository.quintessenceSpentWith).toEqual({
+      characterId: 9,
+      campaignId: 12,
+      requestingUserId: 2,
+      purchaseType: "attribute",
+      quantity: 2,
+      attributeKey: "STR",
+    });
+
+    await service.spendQuintessence(repository.aggregate, 2, "fatePoints", 1, "DEX");
+    expect(repository.quintessenceSpentWith?.attributeKey).toBeNull();
+    await expect(service.spendQuintessence(repository.aggregate, 2, "attribute", 1, null))
+      .rejects.toThrow(/core Attribute/i);
+    await expect(service.spendQuintessence(repository.aggregate, 2, "fatePoints", 4))
+      .rejects.toThrow(/only 30/i);
+    await expect(service.spendQuintessence(repository.aggregate, 99, "experience", 1))
+      .rejects.toThrow(/own Character/i);
   });
 
   it("allows an explicit G.O.D. administrative save for another Player's completed Character", async () => {

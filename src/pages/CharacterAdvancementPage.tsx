@@ -6,7 +6,20 @@ import {
   getSkillAdvancementCost,
   type CharacterAdvancementSkill,
 } from "../features/characters/characterAdvancementRules";
-import { CHARACTER_ATTRIBUTE_LABELS, type CharacterAggregate } from "../types/character";
+import {
+  ATTRIBUTE_QUINTESSENCE_COST,
+  EXPERIENCE_PER_QUINTESSENCE,
+  FATE_POINT_QUINTESSENCE_COST,
+  getExperienceFromQuintessence,
+  getQuintessenceCost,
+} from "../features/characters/characterQuintessenceRules";
+import {
+  CHARACTER_ATTRIBUTE_KEYS,
+  CHARACTER_ATTRIBUTE_LABELS,
+  type CharacterAggregate,
+  type CharacterAttributeKey,
+  type CharacterQuintessencePurchaseType,
+} from "../types/character";
 import { SPECIAL_ABILITY_EFFECTIVE_MAXIMUM } from "../features/characters/characterRules";
 import type { AuthSession } from "../types/user";
 import { characterService } from "../services/characterService";
@@ -23,6 +36,11 @@ type CharacterAdvancementPageProps = {
 type AdvancementMode = "choice" | "experience" | "quintessence";
 type OwnershipFilter = "all" | "owned" | "new";
 type GroupFilter = "ALL" | "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHR" | "SPECIAL" | "OTHER";
+type PendingQuintessencePurchase = {
+  purchaseType: CharacterQuintessencePurchaseType;
+  quantity: number;
+  attributeKey: CharacterAttributeKey | null;
+};
 
 const GROUPS: ReadonlyArray<{ id: GroupFilter; label: string }> = [
   { id: "ALL", label: "All" },
@@ -46,6 +64,46 @@ function errorMessage(error: unknown): string {
     : "Character advancement could not be completed.";
 }
 
+function QuintessenceQuantityPicker({
+  label,
+  value,
+  maximum,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  maximum: number;
+  onChange: (quantity: number) => void;
+}) {
+  const disabled = maximum < 1;
+  const change = (next: number) => {
+    onChange(Math.min(Math.max(1, maximum), Math.max(1, Math.trunc(next || 1))));
+  };
+  return (
+    <div className="quintessence-quantity-picker">
+      <span>{label}</span>
+      <div>
+        <button type="button" aria-label={`Remove one from ${label}`} disabled={disabled || value <= 1} onClick={() => change(value - 1)}>−</button>
+        <input
+          aria-label={label}
+          type="number"
+          min="1"
+          max={Math.max(1, maximum)}
+          step="1"
+          value={value}
+          disabled={disabled}
+          onFocus={(event) => event.currentTarget.select()}
+          onChange={(event) => change(Number(event.target.value))}
+        />
+        <button type="button" aria-label={`Add one to ${label}`} disabled={disabled || value >= maximum} onClick={() => change(value + 1)}>+</button>
+        <button type="button" disabled={disabled || value >= maximum} onClick={() => change(value + 5)}>+5</button>
+        <button type="button" disabled={disabled || value >= maximum} onClick={() => change(maximum)}>Max</button>
+      </div>
+      <small>{disabled ? "Not enough Quintessence for one." : `Choose from 1 to ${maximum}.`}</small>
+    </div>
+  );
+}
+
 export function CharacterAdvancementPage({
   session,
   campaignId,
@@ -61,6 +119,11 @@ export function CharacterAdvancementPage({
   const [group, setGroup] = useState<GroupFilter>("ALL");
   const [pending, setPending] = useState<CharacterAdvancementSkill | null>(null);
   const [purchasePoints, setPurchasePoints] = useState(1);
+  const [quintessenceAttribute, setQuintessenceAttribute] = useState<CharacterAttributeKey>("STR");
+  const [attributePoints, setAttributePoints] = useState(1);
+  const [fatePointQuantity, setFatePointQuantity] = useState(1);
+  const [experienceConversions, setExperienceConversions] = useState(1);
+  const [pendingQuintessence, setPendingQuintessence] = useState<PendingQuintessencePurchase | null>(null);
   const [purchasing, setPurchasing] = useState(false);
   const [describedSkill, setDescribedSkill] = useState<CharacterAdvancementSkill | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
@@ -116,6 +179,13 @@ export function CharacterAdvancementPage({
   const pendingExperienceCost = pending
     ? getSkillAdvancementCost(pending.effectivePoints, purchasePoints)
     : 0;
+  const availableQuintessence = aggregate?.profile.quintessence ?? 0;
+  const maximumAttributePoints = Math.floor(availableQuintessence / ATTRIBUTE_QUINTESSENCE_COST);
+  const maximumFatePoints = Math.floor(availableQuintessence / FATE_POINT_QUINTESSENCE_COST);
+  const maximumExperienceConversions = Math.floor(availableQuintessence);
+  const pendingQuintessenceCost = pendingQuintessence
+    ? getQuintessenceCost(pendingQuintessence.purchaseType, pendingQuintessence.quantity)
+    : 0;
 
   function beginPurchase(entry: CharacterAdvancementSkill) {
     setPurchasePoints(1);
@@ -150,6 +220,49 @@ export function CharacterAdvancementPage({
     } catch (error) {
       setFeedback({ kind: "error", message: errorMessage(error) });
       setPending(null);
+    } finally {
+      setPurchasing(false);
+    }
+  }
+
+  function beginQuintessencePurchase(purchase: PendingQuintessencePurchase) {
+    if (!aggregate || getQuintessenceCost(purchase.purchaseType, purchase.quantity) > availableQuintessence) {
+      return;
+    }
+    setPendingQuintessence(purchase);
+  }
+
+  async function confirmQuintessencePurchase() {
+    if (!aggregate || !pendingQuintessence || purchasing) return;
+    const purchase = pendingQuintessence;
+    const cost = getQuintessenceCost(purchase.purchaseType, purchase.quantity);
+    setPurchasing(true);
+    setFeedback(null);
+    try {
+      const advanced = await characterService.spendQuintessence(
+        aggregate,
+        session.userId,
+        purchase.purchaseType,
+        purchase.quantity,
+        purchase.attributeKey,
+      );
+      setAggregate(advanced);
+      setPendingQuintessence(null);
+      setAttributePoints(1);
+      setFatePointQuantity(1);
+      setExperienceConversions(1);
+      const message = purchase.purchaseType === "attribute"
+        ? `${CHARACTER_ATTRIBUTE_LABELS[purchase.attributeKey!]} increased by ${purchase.quantity}.`
+        : purchase.purchaseType === "fatePoints"
+          ? `${purchase.quantity} ${purchase.quantity === 1 ? "Fate Point was" : "Fate Points were"} added.`
+          : `${getExperienceFromQuintessence(purchase.quantity)} Experience was added.`;
+      setFeedback({
+        kind: "success",
+        message: `${message} ${displayNumber(cost)} Quintessence was added to Lifetime Quintessence.`,
+      });
+    } catch (error) {
+      setFeedback({ kind: "error", message: errorMessage(error) });
+      setPendingQuintessence(null);
     } finally {
       setPurchasing(false);
     }
@@ -210,7 +323,7 @@ export function CharacterAdvancementPage({
                 <button type="button" onClick={() => setMode("quintessence")}>
                   <span className="advancement-choice__ornament" aria-hidden="true">Q</span>
                   <strong>Spend Quintessence</strong>
-                  <span>Enter the future Quintessence advancement store.</span>
+                  <span>Improve an Attribute, gain Fate Points, or convert Quintessence into Experience.</span>
                   <small>{displayNumber(aggregate.profile.quintessence)} Quintessence available</small>
                 </button>
               </div>
@@ -218,12 +331,106 @@ export function CharacterAdvancementPage({
           ) : null}
 
           {mode === "quintessence" ? (
-            <section className="advancement-placeholder">
-              <p>QUINTESSENCE ADVANCEMENT</p>
-              <h2>The Quintessence store is reserved for the next pass.</h2>
-              <span>No Quintessence can be spent from this placeholder, so the Character record remains unchanged.</span>
-              <div><strong>{displayNumber(aggregate.profile.quintessence)}</strong><small>Available Quintessence</small></div>
-              <button type="button" onClick={() => setMode("choice")}>Return to Advancement Paths</button>
+            <section className="quintessence-advancement" aria-labelledby="quintessence-advancement-heading">
+              <div className="quintessence-ledger">
+                <div><span>Available Quintessence</span><strong>{displayNumber(aggregate.profile.quintessence)}</strong></div>
+                <div><span>Lifetime Quintessence</span><strong>{displayNumber(aggregate.profile.totalQuintessence)}</strong></div>
+                <div><span>Available Experience</span><strong>{displayNumber(aggregate.profile.experience)}</strong></div>
+                <div><span>Fate Points</span><strong>{displayNumber(aggregate.profile.fatePoints ?? 0)}</strong></div>
+              </div>
+              <div className="advancement-section-heading advancement-section-heading--quintessence">
+                <p>SPEND QUINTESSENCE</p>
+                <h2 id="quintessence-advancement-heading">Shape the Character's Essence</h2>
+                <span>Choose a permanent benefit. Every purchase is recorded immediately, and the Quintessence spent becomes Lifetime Quintessence.</span>
+              </div>
+              <div className="quintessence-purchases">
+                <article className="quintessence-purchase">
+                  <div className="quintessence-purchase__heading">
+                    <span aria-hidden="true">A</span>
+                    <div><strong>Attribute Enhancement</strong><small>{ATTRIBUTE_QUINTESSENCE_COST} Quintessence per +1</small></div>
+                  </div>
+                  <p>Raise one core Attribute by the selected number of points.</p>
+                  <label>
+                    <span>Attribute</span>
+                    <select value={quintessenceAttribute} onChange={(event) => setQuintessenceAttribute(event.target.value as CharacterAttributeKey)}>
+                      {CHARACTER_ATTRIBUTE_KEYS.map((key) => (
+                        <option key={key} value={key}>{CHARACTER_ATTRIBUTE_LABELS[key]}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <QuintessenceQuantityPicker
+                    label="Attribute points to add"
+                    value={attributePoints}
+                    maximum={maximumAttributePoints}
+                    onChange={setAttributePoints}
+                  />
+                  <div className="quintessence-purchase__result">
+                    <span>{CHARACTER_ATTRIBUTE_LABELS[quintessenceAttribute]}</span>
+                    <strong>
+                      {displayNumber(aggregate.attributes.find(({ attributeKey }) => attributeKey === quintessenceAttribute)?.value ?? 0)}
+                      {" → "}
+                      {displayNumber((aggregate.attributes.find(({ attributeKey }) => attributeKey === quintessenceAttribute)?.value ?? 0) + attributePoints)}
+                    </strong>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={maximumAttributePoints < 1 || getQuintessenceCost("attribute", attributePoints) > availableQuintessence}
+                    onClick={() => beginQuintessencePurchase({ purchaseType: "attribute", quantity: attributePoints, attributeKey: quintessenceAttribute })}
+                  >
+                    {maximumAttributePoints < 1 ? "Not enough Quintessence" : `Review · ${getQuintessenceCost("attribute", attributePoints)} Q`}
+                  </button>
+                </article>
+
+                <article className="quintessence-purchase">
+                  <div className="quintessence-purchase__heading">
+                    <span aria-hidden="true">F</span>
+                    <div><strong>Fate Points</strong><small>{FATE_POINT_QUINTESSENCE_COST} Quintessence per +1</small></div>
+                  </div>
+                  <p>Transmute Quintessence into points that let the Character bargain with destiny.</p>
+                  <QuintessenceQuantityPicker
+                    label="Fate Points to add"
+                    value={fatePointQuantity}
+                    maximum={maximumFatePoints}
+                    onChange={setFatePointQuantity}
+                  />
+                  <div className="quintessence-purchase__result">
+                    <span>Fate Points</span>
+                    <strong>{displayNumber(aggregate.profile.fatePoints ?? 0)} → {displayNumber((aggregate.profile.fatePoints ?? 0) + fatePointQuantity)}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={maximumFatePoints < 1 || getQuintessenceCost("fatePoints", fatePointQuantity) > availableQuintessence}
+                    onClick={() => beginQuintessencePurchase({ purchaseType: "fatePoints", quantity: fatePointQuantity, attributeKey: null })}
+                  >
+                    {maximumFatePoints < 1 ? "Not enough Quintessence" : `Review · ${getQuintessenceCost("fatePoints", fatePointQuantity)} Q`}
+                  </button>
+                </article>
+
+                <article className="quintessence-purchase">
+                  <div className="quintessence-purchase__heading">
+                    <span aria-hidden="true">XP</span>
+                    <div><strong>Translate to Experience</strong><small>1 Quintessence = {EXPERIENCE_PER_QUINTESSENCE} Experience</small></div>
+                  </div>
+                  <p>Convert Quintessence into spendable Experience for Skill and Ability advancement.</p>
+                  <QuintessenceQuantityPicker
+                    label="Quintessence to convert"
+                    value={experienceConversions}
+                    maximum={maximumExperienceConversions}
+                    onChange={setExperienceConversions}
+                  />
+                  <div className="quintessence-purchase__result">
+                    <span>Available Experience</span>
+                    <strong>{displayNumber(aggregate.profile.experience)} → {displayNumber(aggregate.profile.experience + getExperienceFromQuintessence(experienceConversions))}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={maximumExperienceConversions < 1 || getQuintessenceCost("experience", experienceConversions) > availableQuintessence}
+                    onClick={() => beginQuintessencePurchase({ purchaseType: "experience", quantity: experienceConversions, attributeKey: null })}
+                  >
+                    {maximumExperienceConversions < 1 ? "Not enough Quintessence" : `Review · ${getQuintessenceCost("experience", experienceConversions)} Q`}
+                  </button>
+                </article>
+              </div>
             </section>
           ) : null}
 
@@ -347,6 +554,42 @@ export function CharacterAdvancementPage({
             <div className="advancement-dialog__actions">
               <button type="button" disabled={purchasing} onClick={() => setPending(null)}>Cancel</button>
               <button type="button" disabled={purchasing} onClick={confirmPurchase}>{purchasing ? "Spending Experience…" : "Confirm Purchase"}</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {pendingQuintessence && aggregate ? (
+        <div className="advancement-dialog-backdrop" role="presentation">
+          <section className="advancement-dialog" role="dialog" aria-modal="true" aria-labelledby="quintessence-confirm-title">
+            <p>CONFIRM QUINTESSENCE PURCHASE</p>
+            <h2 id="quintessence-confirm-title">
+              {pendingQuintessence.purchaseType === "attribute"
+                ? `Increase ${CHARACTER_ATTRIBUTE_LABELS[pendingQuintessence.attributeKey!]}`
+                : pendingQuintessence.purchaseType === "fatePoints"
+                  ? "Gain Fate Points"
+                  : "Convert to Experience"}?
+            </h2>
+            <dl>
+              {pendingQuintessence.purchaseType === "attribute" ? (
+                <div><dt>{CHARACTER_ATTRIBUTE_LABELS[pendingQuintessence.attributeKey!]}</dt><dd>
+                  {displayNumber(aggregate.attributes.find(({ attributeKey }) => attributeKey === pendingQuintessence.attributeKey)?.value ?? 0)}
+                  {" → "}
+                  {displayNumber((aggregate.attributes.find(({ attributeKey }) => attributeKey === pendingQuintessence.attributeKey)?.value ?? 0) + pendingQuintessence.quantity)}
+                </dd></div>
+              ) : pendingQuintessence.purchaseType === "fatePoints" ? (
+                <div><dt>Fate Points</dt><dd>{displayNumber(aggregate.profile.fatePoints ?? 0)} → {displayNumber((aggregate.profile.fatePoints ?? 0) + pendingQuintessence.quantity)}</dd></div>
+              ) : (
+                <div><dt>Available Experience</dt><dd>{displayNumber(aggregate.profile.experience)} → {displayNumber(aggregate.profile.experience + getExperienceFromQuintessence(pendingQuintessence.quantity))}</dd></div>
+              )}
+              <div><dt>Quintessence cost</dt><dd>{displayNumber(pendingQuintessenceCost)}</dd></div>
+              <div><dt>Available Quintessence</dt><dd>{displayNumber(aggregate.profile.quintessence)} → {displayNumber(aggregate.profile.quintessence - pendingQuintessenceCost)}</dd></div>
+              <div><dt>Lifetime Quintessence</dt><dd>{displayNumber(aggregate.profile.totalQuintessence)} → {displayNumber(aggregate.profile.totalQuintessence + pendingQuintessenceCost)}</dd></div>
+            </dl>
+            <span>This purchase is permanent and is saved immediately to the Character.</span>
+            <div className="advancement-dialog__actions">
+              <button type="button" disabled={purchasing} onClick={() => setPendingQuintessence(null)}>Cancel</button>
+              <button type="button" disabled={purchasing} onClick={confirmQuintessencePurchase}>{purchasing ? "Spending Quintessence…" : "Confirm Purchase"}</button>
             </div>
           </section>
         </div>

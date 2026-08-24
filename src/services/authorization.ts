@@ -28,6 +28,8 @@ export function canAccessDestination(
     case "realms":
     case "character-create":
     case "character-advance":
+    case "spellbook":
+    case "magic-calculator":
       return (
         hasRole(session, USER_ROLE.GOD) ||
         hasRole(session, USER_ROLE.PLAYER)
