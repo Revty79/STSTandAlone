@@ -259,9 +259,14 @@ export class TauriCampaignRepository implements CampaignRepository {
     return database.select<CampaignNpcReference[]>(
       `SELECT character.id,character.campaign_id AS campaignId,character.name,
          character.created_at AS createdAt,character.updated_at AS updatedAt,
-         profile.creation_completed_at AS creationCompletedAt
+         profile.creation_completed_at AS creationCompletedAt,
+         character.npc_kind AS npcKind,
+         creature.canonical_name AS creatureTemplateName
        FROM campaign_characters character
        LEFT JOIN campaign_character_profiles profile ON profile.character_id=character.id
+       LEFT JOIN campaign_creature_npc_profiles creature_profile
+         ON creature_profile.character_id=character.id
+       LEFT JOIN creatures creature ON creature.id=creature_profile.creature_id
        WHERE character.campaign_id=$1 AND character.is_npc=1
        ORDER BY character.name COLLATE NOCASE,character.id`,
       [campaignId],

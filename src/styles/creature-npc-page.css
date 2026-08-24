@@ -1,0 +1,21 @@
+.creature-npc-page { overflow-y: auto; }
+.creature-npc-workspace { width: min(100% - clamp(28px, 5vw, 76px), 1500px); margin: 0 auto; padding: 28px 0 70px; }
+.creature-npc-editor { min-height: 660px; }
+.creature-npc-editor__template-note { display: flex; margin: 0 20px 16px; padding: 12px 14px; border: 1px solid rgb(190 162 105 / 25%); border-radius: 4px; background: rgb(57 49 31 / 28%); flex-direction: column; gap: 4px; }
+.creature-npc-editor__template-note strong { color: #dfcfaa; font: 400 .9rem "Palatino Linotype", Georgia, serif; }
+.creature-npc-editor__template-note span { color: rgb(219 215 202 / 54%); font-size: .69rem; line-height: 1.4; }
+.creature-npc-editor__identity-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.creature-npc-inventory__search { display: grid; max-width: 520px; gap: 6px; }
+.creature-npc-inventory__search span { color: rgb(220 214 199 / 58%); font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.creature-npc-inventory__search input { min-height: 40px; padding: 8px 10px; border: 1px solid rgb(129 163 161 / 26%); border-radius: 4px; color: #e7e0d3; background: rgb(5 13 17 / 74%); }
+.creature-npc-inventory__columns { display: grid; margin-top: 15px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.creature-npc-inventory__columns > div { display: grid; align-content: start; gap: 8px; }
+.creature-npc-inventory__columns h4 { margin: 0 0 4px; color: #d9c9a2; font: 400 1rem "Palatino Linotype", Georgia, serif; }
+.creature-npc-inventory__columns > div > button, .creature-npc-inventory__columns > div > div { display: grid; min-height: 58px; padding: 10px 12px; border: 1px solid rgb(129 163 161 / 20%); border-radius: 4px; color: #e8dfcf; text-align: left; background: rgb(6 16 20 / 64%); grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; }
+.creature-npc-inventory__columns > div > button { cursor: pointer; grid-template-columns: 1fr; }
+.creature-npc-inventory__columns strong { font: 400 .84rem "Palatino Linotype", Georgia, serif; }
+.creature-npc-inventory__columns span, .creature-npc-inventory__columns p { color: rgb(219 215 202 / 50%); font-size: .66rem; }
+.creature-npc-inventory__columns label { display: flex; align-items: center; gap: 6px; }
+.creature-npc-inventory__columns input { width: 66px; min-height: 34px; }
+.creature-npc-inventory__columns button { min-height: 34px; padding: 6px 9px; border: 1px solid rgb(190 162 105 / 31%); border-radius: 3px; color: #ded3bd; background: rgb(24 39 42 / 80%); }
+@media (max-width: 900px) { .creature-npc-editor__identity-grid, .creature-npc-inventory__columns { grid-template-columns: 1fr; } }

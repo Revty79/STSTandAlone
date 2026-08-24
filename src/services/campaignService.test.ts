@@ -198,10 +198,12 @@ describe("CampaignService", () => {
       {
         id: 31, campaignId: 12, name: "Harbormaster Vey",
         createdAt: "created", updatedAt: "updated", creationCompletedAt: null,
+        npcKind: "race", creatureTemplateName: null,
       },
       {
         id: 32, campaignId: 13, name: "The Other Captain",
         createdAt: "created", updatedAt: "updated", creationCompletedAt: null,
+        npcKind: "race", creatureTemplateName: null,
       },
     );
 

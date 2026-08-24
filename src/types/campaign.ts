@@ -96,6 +96,8 @@ export type CampaignNpcReference = {
   createdAt: string;
   updatedAt: string;
   creationCompletedAt: string | null;
+  npcKind: "race" | "creature";
+  creatureTemplateName: string | null;
 };
 
 export type PlayerCampaignReference = Pick<CampaignCore, "id" | "name">;

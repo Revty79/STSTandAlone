@@ -31,6 +31,26 @@
 .npcs-control label span, .npcs-master__heading label span { color: #a79c83; font-size: .62rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
 .npcs-control select, .npcs-master__heading input { min-height: 42px; padding: 8px 11px; border: 1px solid rgb(131 170 169 / 26%); border-radius: 4px; color: #e7e0d3; background: rgb(5 13 17 / 78%); }
 .npcs-control button:disabled, .npcs-selection button:disabled { opacity: .43; cursor: not-allowed; }
+.npcs-control__creation-actions { display: grid; gap: 8px; }
+.npcs-creature-creator { margin-top: 16px; padding: 20px; border: 1px solid rgb(190 162 105 / 32%); border-radius: 7px; background: linear-gradient(145deg, rgb(20 39 42 / 94%), rgb(7 16 20 / 97%)); }
+.npcs-creature-creator > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.npcs-creature-creator header p { margin: 0 0 6px; color: #bda978; font-size: .6rem; font-weight: 700; letter-spacing: .2em; }
+.npcs-creature-creator h2 { margin: 0; color: #eee3cf; font: 400 1.4rem "Palatino Linotype", Georgia, serif; }
+.npcs-creature-creator header span { display: block; margin-top: 7px; color: rgb(220 216 205 / 54%); font-size: .7rem; }
+.npcs-creature-creator button { min-height: 36px; padding: 7px 12px; border: 1px solid rgb(190 162 105 / 36%); border-radius: 4px; color: #e7ddc9; background: rgb(21 39 43 / 92%); cursor: pointer; }
+.npcs-creature-creator button:disabled { opacity: .42; cursor: not-allowed; }
+.npcs-creature-creator > label { display: grid; margin-top: 18px; gap: 6px; }
+.npcs-creature-creator > label span { color: #a79c83; font-size: .62rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+.npcs-creature-creator > label input { min-height: 42px; padding: 8px 11px; border: 1px solid rgb(131 170 169 / 26%); border-radius: 4px; color: #e7e0d3; background: rgb(5 13 17 / 78%); }
+.npcs-creature-creator__catalog { display: grid; max-height: 360px; margin-top: 13px; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 8px; overflow-y: auto; }
+.npcs-creature-creator__catalog > button { display: flex; min-height: 112px; text-align: left; flex-direction: column; align-items: flex-start; }
+.npcs-creature-creator__catalog > button.is-selected { border-color: #c4aa70; background: rgb(66 58 38 / 72%); }
+.npcs-creature-creator__catalog strong { color: #eadfca; font: 400 .98rem "Palatino Linotype", Georgia, serif; }
+.npcs-creature-creator__catalog span { margin-top: 6px; color: rgb(214 209 196 / 55%); font-size: .64rem; }
+.npcs-creature-creator__catalog small { margin-top: auto; padding-top: 10px; color: rgb(131 170 169 / 75%); font-size: .61rem; }
+.npcs-creature-creator__catalog > p { grid-column: 1 / -1; color: rgb(220 216 205 / 50%); }
+.npcs-creature-creator > footer { display: flex; margin-top: 14px; padding-top: 13px; border-top: 1px solid rgb(190 162 105 / 16%); align-items: center; justify-content: space-between; gap: 18px; }
+.npcs-creature-creator > footer span { color: rgb(220 216 205 / 54%); font-size: .7rem; }
 .npcs-feedback { margin: 14px 0 0; padding: 11px 15px; border: 1px solid rgb(126 166 149 / 42%); border-radius: 5px; color: #b8d5c5; background: rgb(29 65 55 / 42%); font-size: .76rem; }
 .npcs-feedback--error { border-color: rgb(184 103 91 / 48%); color: #e0aaa0; background: rgb(80 31 28 / 42%); }
 .npcs-master { margin-top: 20px; padding: 20px; border: 1px solid rgb(128 162 161 / 18%); border-radius: 7px; background: rgb(7 15 20 / 64%); }

@@ -3,6 +3,7 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 mod campaign_commands;
 mod character_commands;
 mod creature_commands;
+mod creature_npc_commands;
 mod item_commands;
 mod race_commands;
 mod skill_commands;
@@ -53,6 +54,7 @@ const ADD_CAMPAIGN_NPCS_MIGRATION: &str = include_str!("../migrations/0026_add_c
 const STORE_CHARACTER_CURRENCY_HOLDINGS_MIGRATION: &str =
     include_str!("../migrations/0027_store_character_currency_holdings.sql");
 const ADD_FATE_POINTS_MIGRATION: &str = include_str!("../migrations/0028_add_fate_points.sql");
+const ADD_CREATURE_NPCS_MIGRATION: &str = include_str!("../migrations/0029_add_creature_npcs.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -225,6 +227,12 @@ pub fn run() {
             sql: ADD_FATE_POINTS_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 29,
+            description: "add_creature_npcs",
+            sql: ADD_CREATURE_NPCS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -234,6 +242,8 @@ pub fn run() {
             character_commands::create_npc_aggregate,
             character_commands::save_character_aggregate,
             character_commands::advance_character_skill,
+            creature_npc_commands::create_creature_npc,
+            creature_npc_commands::save_creature_npc,
             creature_commands::save_creature_aggregate,
             creature_commands::clone_creature_as_variant,
             item_commands::save_item_aggregate,

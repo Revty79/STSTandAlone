@@ -23,6 +23,7 @@ export function canAccessDestination(
     case "equipment":
     case "inventory":
     case "npcs":
+    case "creature-npc-edit":
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
     case "character-create":

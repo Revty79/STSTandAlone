@@ -2,13 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
 import { campaignService } from "../services/campaignService";
 import { characterService } from "../services/characterService";
+import { creatureService } from "../services/creatureService";
+import { creatureNpcService } from "../services/creatureNpcService";
 import type { CampaignNpcReference, CampaignSummary } from "../types/campaign";
+import type { CreatureSummary } from "../types/creature";
 import type { AuthSession } from "../types/user";
 import "../styles/npcs-page.css";
 
 type NpcsPageProps = {
   session: AuthSession;
-  onOpenNpc: (campaignId: number, npcId: number) => void;
+  onOpenNpc: (campaignId: number, npcId: number, npcKind: "race" | "creature") => void;
   onBack: () => void;
   onLogout: () => void;
 };
@@ -27,6 +30,11 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
   const [selectedNpcId, setSelectedNpcId] = useState("");
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
+  const [isCreatureCreatorOpen, setIsCreatureCreatorOpen] = useState(false);
+  const [creatureSearch, setCreatureSearch] = useState("");
+  const [creatures, setCreatures] = useState<CreatureSummary[]>([]);
+  const [creaturesLoading, setCreaturesLoading] = useState(false);
+  const [selectedCreatureId, setSelectedCreatureId] = useState("");
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
@@ -74,6 +82,36 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
     };
   }, [selectedCampaignId]);
 
+  useEffect(() => {
+    let active = true;
+    if (!isCreatureCreatorOpen) {
+      setCreatures([]);
+      setSelectedCreatureId("");
+      setCreaturesLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    setCreaturesLoading(true);
+    const timeout = window.setTimeout(() => {
+      creatureService.listCreatures({
+        search: creatureSearch,
+        page: 1,
+        pageSize: 100,
+      }).then((page) => {
+        if (active) setCreatures(page.items);
+      }).catch(() => {
+        if (active) setFeedback({ kind: "error", message: "The master Creature catalog could not be read." });
+      }).finally(() => {
+        if (active) setCreaturesLoading(false);
+      });
+    }, 160);
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [creatureSearch, isCreatureCreatorOpen]);
+
   const visibleNpcs = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
     return query
@@ -85,7 +123,7 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
   );
   const selectedNpc = npcs.find((npc) => String(npc.id) === selectedNpcId);
 
-  async function createNpc() {
+  async function createRaceNpc() {
     if (!selectedCampaignId || creating) return;
     setCreating(true);
     setFeedback(null);
@@ -105,6 +143,36 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
       setFeedback({
         kind: "error",
         message: error instanceof Error ? error.message : "The NPC could not be created.",
+      });
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function createCreatureNpc() {
+    if (!selectedCampaignId || !selectedCreatureId || creating) return;
+    setCreating(true);
+    setFeedback(null);
+    try {
+      const template = await creatureService.getCreature(Number(selectedCreatureId));
+      if (!template) throw new Error("That master Creature is no longer available.");
+      const created = await creatureNpcService.createCreatureNpc(
+        Number(selectedCampaignId),
+        session.userId,
+        template,
+      );
+      const records = await campaignService.listNpcs(Number(selectedCampaignId));
+      setNpcs(records);
+      setSelectedNpcId(String(created.core.id));
+      setIsCreatureCreatorOpen(false);
+      setFeedback({
+        kind: "success",
+        message: `${created.core.name} was created from ${created.core.creatureName}. The master Creature was not changed.`,
+      });
+    } catch (error) {
+      setFeedback({
+        kind: "error",
+        message: error instanceof Error ? error.message : "The Creature NPC could not be created.",
       });
     } finally {
       setCreating(false);
@@ -144,10 +212,35 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
               {campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
             </select>
           </label>
-          <button type="button" disabled={!selectedCampaignId || creating} onClick={createNpc}>
-            {creating ? "Creating NPC…" : "Create New NPC"}
-          </button>
+          <div className="npcs-control__creation-actions">
+            <button type="button" disabled={!selectedCampaignId || creating} onClick={createRaceNpc}>
+              {creating ? "Creating NPC…" : "Create Race NPC"}
+            </button>
+            <button type="button" disabled={!selectedCampaignId || creating} onClick={() => setIsCreatureCreatorOpen(true)}>
+              Create Creature NPC
+            </button>
+          </div>
         </section>
+
+        {isCreatureCreatorOpen ? (
+          <section className="npcs-creature-creator" aria-labelledby="creature-npc-creator-heading">
+            <header>
+              <div><p>SECOND NPC CREATION PATH</p><h2 id="creature-npc-creator-heading">Create from Master Creature</h2><span>Selecting a template creates an individual NPC copy. The master Creature remains unchanged.</span></div>
+              <button type="button" onClick={() => setIsCreatureCreatorOpen(false)}>Close</button>
+            </header>
+            <label><span>Search Creature Catalog</span><input value={creatureSearch} onChange={(event) => setCreatureSearch(event.target.value)} placeholder="Goblin, animal, undead…" /></label>
+            <div className="npcs-creature-creator__catalog">
+              {creaturesLoading ? <p>Reading Creature catalog…</p> : creatures.length === 0 ? <p>No matching Creatures.</p> : creatures.map((creature) => (
+                <button type="button" key={creature.id} className={selectedCreatureId === String(creature.id) ? "is-selected" : ""} onClick={() => setSelectedCreatureId(String(creature.id))}>
+                  <strong>{creature.canonicalName}</strong>
+                  <span>{creature.canonicalId} · {creature.creatureType || creature.family || "Creature"}</span>
+                  <small>{creature.size}{creature.challengeRating === null ? "" : ` · CR ${creature.challengeRating}`}</small>
+                </button>
+              ))}
+            </div>
+            <footer><span>{selectedCreatureId ? `${creatures.find((creature) => String(creature.id) === selectedCreatureId)?.canonicalName} selected` : "Choose one master Creature."}</span><button type="button" disabled={!selectedCreatureId || creating} onClick={() => void createCreatureNpc()}>{creating ? "Creating Creature NPC…" : "Create Individual NPC"}</button></footer>
+          </section>
+        ) : null}
 
         {feedback ? (
           <p className={`npcs-feedback npcs-feedback--${feedback.kind}`} role={feedback.kind === "error" ? "alert" : "status"}>
@@ -185,7 +278,7 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
                 >
                   <span className="npcs-master__record-id">NPC-{String(npc.id).padStart(4, "0")}</span>
                   <strong>{npc.name}</strong>
-                  <span>{npc.creationCompletedAt ? "Completed Sheet" : "Open G.O.D. Record"}</span>
+                  <span>{npc.npcKind === "creature" ? `Creature NPC · ${npc.creatureTemplateName ?? "Unknown template"}` : npc.creationCompletedAt ? "Completed Race NPC Sheet" : "Race NPC · Open G.O.D. Record"}</span>
                   <small>Updated {displayDate(npc.updatedAt)}</small>
                 </button>
               ))}
@@ -202,7 +295,7 @@ export function NpcsPage({ session, onOpenNpc, onBack, onLogout }: NpcsPageProps
           <button
             type="button"
             disabled={!selectedNpc || !selectedCampaignId}
-            onClick={() => selectedNpc && onOpenNpc(Number(selectedCampaignId), selectedNpc.id)}
+            onClick={() => selectedNpc && onOpenNpc(Number(selectedCampaignId), selectedNpc.id, selectedNpc.npcKind)}
           >
             Edit Full Sheet
           </button>

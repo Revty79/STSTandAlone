@@ -10,6 +10,7 @@ export type AuthenticatedDestination =
   | "equipment"
   | "inventory"
   | "npcs"
+  | "creature-npc-edit"
   | "realms"
   | "character-create"
   | "character-advance";

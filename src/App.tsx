@@ -9,6 +9,7 @@ import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { CharacterCreationPage } from "./pages/CharacterCreationPage";
 import { CharacterAdvancementPage } from "./pages/CharacterAdvancementPage";
 import { NpcsPage } from "./pages/NpcsPage";
+import { CreatureNpcPage } from "./pages/CreatureNpcPage";
 import { RacesPage } from "./pages/RacesPage";
 import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -41,6 +42,10 @@ function App() {
     returnDestination: "heavens" | "realms" | "npcs";
   } | null>(null);
   const [campaignEditId, setCampaignEditId] = useState<number | null>(null);
+  const [creatureNpcContext, setCreatureNpcContext] = useState<{
+    campaignId: number;
+    npcId: number;
+  } | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -79,6 +84,7 @@ function App() {
   function logout() {
     setCharacterContext(null);
     setCampaignEditId(null);
+    setCreatureNpcContext(null);
     setSession(null);
     setScreen("login");
   }
@@ -197,16 +203,37 @@ function App() {
         return (
           <NpcsPage
             session={session}
-            onOpenNpc={(campaignId, characterId) => {
-              setCharacterContext({
-                campaignId,
-                characterId,
-                editorMode: "god",
-                returnDestination: "npcs",
-              });
-              navigateAuthenticated("character-create");
+            onOpenNpc={(campaignId, characterId, npcKind) => {
+              if (npcKind === "creature") {
+                setCreatureNpcContext({ campaignId, npcId: characterId });
+                navigateAuthenticated("creature-npc-edit");
+              } else {
+                setCharacterContext({
+                  campaignId,
+                  characterId,
+                  editorMode: "god",
+                  returnDestination: "npcs",
+                });
+                navigateAuthenticated("character-create");
+              }
             }}
             onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
+      case "creature-npc-edit":
+        if (!creatureNpcContext) {
+          return null;
+        }
+        return (
+          <CreatureNpcPage
+            session={session}
+            campaignId={creatureNpcContext.campaignId}
+            npcId={creatureNpcContext.npcId}
+            onBack={() => {
+              setCreatureNpcContext(null);
+              navigateAuthenticated("npcs");
+            }}
             onLogout={logout}
           />
         );

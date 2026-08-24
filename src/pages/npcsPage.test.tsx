@@ -23,7 +23,8 @@ describe("NPC master sheet", () => {
     expect(page).toContain("NPC Master Sheet");
     expect(page).toContain("MASTER NPC INDEX");
     expect(page).toContain("No Campaign Selected");
-    expect(page).toContain("Create New NPC");
+    expect(page).toContain("Create Race NPC");
+    expect(page).toContain("Create Creature NPC");
     expect(page).toContain("Edit Full Sheet");
   });
 });
