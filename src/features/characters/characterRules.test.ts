@@ -10,6 +10,7 @@ import {
   getAttributeRollTarget,
   getBaseInitiative,
   getCharacterHp,
+  getCharacterHpBreakdown,
   getCharacterMagicSystem,
   getCharacterManaProfiles,
   getCharacterSkillGroupKey,
@@ -25,6 +26,7 @@ import {
   getSkillUnlockThreshold,
   getSpecialAbilityRollTarget,
   getStartingFundsRemaining,
+  hasSkillPoints,
   isSkillAllowedByCampaign,
   isSpecialAbilitySkill,
   normalizeSkillAttributeKey,
@@ -133,8 +135,39 @@ describe("Character rules", () => {
     expect(getMovementInitiative(30, 5)).toBe(35);
     expect(getSkillRank(5, 2, null, 1)).toBe(7);
     expect(getSkillRank(5, 2, 7, 2)).toBe(12);
+    expect(getSkillRank(0, 2, null, 1)).toBe(0);
+    expect(getSkillRank(0, 2, 7, 2)).toBe(0);
+    expect(hasSkillPoints(0)).toBe(false);
+    expect(hasSkillPoints(0.0000001)).toBe(false);
+    expect(hasSkillPoints(1)).toBe(true);
     expect(getSkillRollTarget(35, 12)).toBe(53);
     expect(normalizeSkillAttributeKey("CHA")).toBe("CHR");
+  });
+
+  it("builds the canonical humanoid 0-9 chart from shared rounded-up HP pools", () => {
+    const breakdown = getCharacterHpBreakdown(51);
+    expect(breakdown.pools).toEqual([
+      { key: "head", name: "Head", percentage: 10, hp: 6 },
+      { key: "rightArm", name: "Right Arm", percentage: 15, hp: 8 },
+      { key: "leftArm", name: "Left Arm", percentage: 15, hp: 8 },
+      { key: "rightLeg", name: "Right Leg", percentage: 15, hp: 8 },
+      { key: "leftLeg", name: "Left Leg", percentage: 15, hp: 8 },
+      { key: "torso", name: "Torso", percentage: 30, hp: 16 },
+    ]);
+    expect(breakdown.locations.map(({ result, name, poolName, hp }) => ({
+      result, name, poolName, hp,
+    }))).toEqual([
+      { result: 0, name: "Head", poolName: "Head", hp: 6 },
+      { result: 1, name: "Right Arm", poolName: "Right Arm", hp: 8 },
+      { result: 2, name: "Left Arm", poolName: "Left Arm", hp: 8 },
+      { result: 3, name: "Right Lower Leg", poolName: "Right Leg", hp: 8 },
+      { result: 4, name: "Right Upper Leg", poolName: "Right Leg", hp: 8 },
+      { result: 5, name: "Left Lower Leg", poolName: "Left Leg", hp: 8 },
+      { result: 6, name: "Left Upper Leg", poolName: "Left Leg", hp: 8 },
+      { result: 7, name: "Groin", poolName: "Torso", hp: 16 },
+      { result: 8, name: "Stomach", poolName: "Torso", hp: 16 },
+      { result: 9, name: "Chest", poolName: "Torso", hp: 16 },
+    ]);
   });
 
   it("uses Campaign budgets, Race caps, tier thresholds, and starting funds for readiness", () => {
@@ -233,6 +266,7 @@ describe("Character rules", () => {
       { ...base, id: 12, name: "Psionic Channeling", classification: "psionic stabalization", primaryAttribute: "WIS" },
       { ...base, id: 13, name: "Resonance Attunement", classification: "bardic stabalization", primaryAttribute: "CHA" },
       { ...base, id: 20, name: "Spellcraft", classification: "magic access" },
+      { ...base, id: 24, name: "Talismanism", classification: "magic access" },
       { ...base, id: 21, name: "Faith", classification: "magic access", primaryAttribute: "WIS" },
       { ...base, id: 22, name: "Psionic Focus", classification: "magic access", primaryAttribute: "WIS" },
       { ...base, id: 23, name: "Resonant Performance", classification: "magic access", primaryAttribute: "CHA" },
@@ -245,6 +279,8 @@ describe("Character rules", () => {
     currentDraft.skillAllocations = [
       { draftId: 1, skillId: 10, parentDraftId: null, points: 1 },
       { draftId: 2, skillId: 11, parentDraftId: null, points: 44 },
+      { draftId: 3, skillId: 20, parentDraftId: null, points: 1 },
+      { draftId: 4, skillId: 21, parentDraftId: null, points: 1 },
     ];
 
     const profiles = getCharacterManaProfiles(currentDraft, character.skillCatalog, selectedRace);
@@ -259,23 +295,33 @@ describe("Character rules", () => {
       system, sourceSkillPoints, manaPool, spellAccessLevel,
     }))).toEqual([
       { system: "Spellcraft", sourceSkillPoints: 1, manaPool: 1, spellAccessLevel: "Apprentice" },
-      { system: "Talismanism", sourceSkillPoints: 1, manaPool: 1, spellAccessLevel: "Apprentice" },
       { system: "Faith", sourceSkillPoints: 44, manaPool: 44, spellAccessLevel: "Master" },
-      { system: "Psyonics", sourceSkillPoints: 0, manaPool: 0, spellAccessLevel: null },
-      { system: "Bardic Resonance", sourceSkillPoints: 0, manaPool: 0, spellAccessLevel: null },
     ]);
+    currentDraft.skillAllocations.push({
+      draftId: 5, skillId: 24, parentDraftId: null, points: 1,
+    });
+    expect(getCharacterManaProfiles(currentDraft, character.skillCatalog, selectedRace)
+      .filter((profile) => profile.system === "Spellcraft" || profile.system === "Talismanism")
+      .map(({ system, sourceSkillPoints, manaPool }) => ({
+        system, sourceSkillPoints, manaPool,
+      }))).toEqual([
+        { system: "Spellcraft", sourceSkillPoints: 1, manaPool: 1 },
+        { system: "Talismanism", sourceSkillPoints: 1, manaPool: 1 },
+      ]);
     expect([0, 1, 11, 12, 31, 32, 71, 72, 141, 142]
       .map(getSpellAccessLevelForManaPool))
       .toEqual([
         null, "Apprentice", "Apprentice", "Novice", "Novice", "Master",
         "Master", "High Master", "High Master", "Grand Master",
       ]);
-    expect(getCharacterMagicSystem(character.skillCatalog[4])).toBe("Spellcraft");
-    expect(getCharacterMagicSystem(character.skillCatalog[5])).toBe("Faith");
-    expect(canAccessSpellAtLevel(character.skillCatalog[8], "Apprentice")).toBe(true);
-    expect(canAccessSpellAtLevel(character.skillCatalog[9], "Apprentice")).toBe(false);
-    expect(canAccessSpellAtLevel(character.skillCatalog[9], "Novice")).toBe(true);
-    expect(getSkillTierLabel(character.skillCatalog[8])).toBe("Apprentice Spell · Tier 3");
+    expect(getCharacterMagicSystem(character.skillCatalog.find((skill) => skill.id === 20)!)).toBe("Spellcraft");
+    expect(getCharacterMagicSystem(character.skillCatalog.find((skill) => skill.id === 21)!)).toBe("Faith");
+    const apprenticeSpell = character.skillCatalog.find((skill) => skill.id === 30)!;
+    const noviceSpell = character.skillCatalog.find((skill) => skill.id === 31)!;
+    expect(canAccessSpellAtLevel(apprenticeSpell, "Apprentice")).toBe(true);
+    expect(canAccessSpellAtLevel(noviceSpell, "Apprentice")).toBe(false);
+    expect(canAccessSpellAtLevel(noviceSpell, "Novice")).toBe(true);
+    expect(getSkillTierLabel(apprenticeSpell)).toBe("Apprentice Spell · Tier 3");
   });
 
   it("groups only explicitly tagged Special Abilities and preserves supernatural Attributes and tier names", () => {

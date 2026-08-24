@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
+import { CharacterHitLocationChart } from "../components/characters/CharacterHitLocationChart";
 import {
   formatCampaignMoney,
   getCampaignMoneyBreakdown,
@@ -12,6 +13,7 @@ import {
   getAttributeRollTarget,
   getBaseInitiative,
   getCharacterHp,
+  getCharacterHpBreakdown,
   getCharacterMagicSystem,
   getCharacterManaProfiles,
   getCharacterSkillRanks,
@@ -27,6 +29,7 @@ import {
   getSkillUnlockThreshold,
   getSpecialAbilityRollTarget,
   getStartingFundsRemaining,
+  hasSkillPoints,
   isSkillAllowedByCampaign,
   isSpellSkill,
   isSpecialAbilitySkill,
@@ -153,16 +156,17 @@ function SkillBranch({
   const allocation = allocationFor(draft, skill.id, parentDraftId);
   const points = allocation?.points ?? 0;
   const effectivePoints = getEffectiveSkillPoints(points, selectedRace, skill.id);
+  const hasPoints = hasSkillPoints(effectivePoints);
   const attributeKey = normalizeSkillAttributeKey(skill.primaryAttribute);
   const attributeScore = attributeKey ? draft.attributes[attributeKey] : 0;
-  const rank = allocation
+  const rank = hasPoints && allocation
     ? ranks.get(allocation.draftId) ?? 0
-    : getSkillRank(
+    : hasPoints ? getSkillRank(
         effectivePoints,
         attributeKey ? getAttributeModifier(attributeScore) : 0,
         parentRank,
         skill.tier,
-      );
+      ) : 0;
   const unlockThreshold = getSkillUnlockThreshold(
     rootSkill,
     aggregate.campaign.pointsToUnlockNextTier,
@@ -187,7 +191,9 @@ function SkillBranch({
     Math.max(0, aggregate.campaign.maxPointsInSkill - racialGrant.minimum),
   );
   const maxTotal = racialGrant.minimum + maxPurchased;
-  const rollTarget = attributeKey
+  const rollTarget = !hasPoints
+    ? null
+    : attributeKey
     ? getSkillRollTarget(attributeScore, rank)
     : isSpecialAbilitySkill(skill)
       ? getSpecialAbilityRollTarget(rank)
@@ -241,7 +247,7 @@ function SkillBranch({
         <div><span>Rank</span><strong>{displayNumber(rank)}</strong></div>
         <div>
           <span>Roll Target</span>
-          <strong>{rollTarget === null ? "—" : `${displayNumber(rollTarget)}%`}</strong>
+          <strong>{rollTarget === null ? "N/A" : `${displayNumber(rollTarget)}%`}</strong>
         </div>
       </div>
       {allocation && visibleChildren.length > 0 ? (
@@ -1135,17 +1141,12 @@ export function CharacterCreationPage({
   function renderSheet() {
     if (!aggregate || !draft) return null;
     const dexterity = draft.attributes.DEX;
+    const totalHp = getCharacterHp(draft.attributes.CON);
     const skillById = new Map(aggregate.skillCatalog.map((skill) => [skill.id, skill]));
     const allocationById = new Map(draft.skillAllocations.map((allocation) => [allocation.draftId, allocation]));
-    const allocatedSkills = draft.skillAllocations.filter((allocation) => {
-      const racialGrant = getRacialSkillGrant(selectedRace, allocation.skillId);
-      return racialGrant.granted
-        || getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId) > 0;
-    });
-    const allocatedSkillIds = new Set(allocatedSkills.map((allocation) => allocation.skillId));
-    const racialOnlySkills = (selectedRace?.skillLinks ?? [])
-      .filter((link) => !allocatedSkillIds.has(link.skillId))
-      .filter((link, index, links) => links.findIndex((candidate) => candidate.skillId === link.skillId) === index);
+    const allocatedSkills = draft.skillAllocations.filter((allocation) => hasSkillPoints(
+      getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId),
+    ));
     const allocationPath = (allocation: CharacterSkillAllocationDraft): string => {
       const names: string[] = [];
       let cursor: CharacterSkillAllocationDraft | undefined = allocation;
@@ -1161,6 +1162,10 @@ export function CharacterCreationPage({
     const heightInInches = (draft.profile.heightFeet ?? 0) * 12
       + (draft.profile.heightInches ?? 0);
     const identityDetails = [
+      ["Player", aggregate.character.playerUsername],
+      ["Campaign", aggregate.campaign.name],
+      ["Race", selectedRace?.race.name ?? ""],
+      ["Size", selectedRace?.race.size ?? ""],
       ["Age", draft.profile.age === null ? "" : displayNumber(draft.profile.age)],
       ["Sex", draft.profile.sex.trim()],
       ["Height", heightInInches > 0 ? `${draft.profile.heightFeet ?? 0} ft ${draft.profile.heightInches ?? 0} in` : ""],
@@ -1169,18 +1174,14 @@ export function CharacterCreationPage({
       ["Hair", draft.profile.hairColor.trim()],
       ["Skin", draft.profile.skinColor.trim()],
       ["Deity", draft.profile.deity.trim()],
+      ["Defining Marks & Quirks", draft.profile.definingMarks.trim()],
+      ["Racial Quirk", selectedRace?.race.racialQuirkName.trim() ?? ""],
     ].filter((detail) => detail[1]);
     const resourceDetails = [
-      draft.profile.experience > 0 || draft.profile.totalExperience > 0
-        ? ["Experience", `${displayNumber(draft.profile.experience)} available · ${displayNumber(draft.profile.totalExperience)} lifetime`]
-        : null,
-      draft.profile.quintessence > 0 || draft.profile.totalQuintessence > 0
-        ? ["Quintessence", `${displayNumber(draft.profile.quintessence)} available · ${displayNumber(draft.profile.totalQuintessence)} lifetime`]
-        : null,
-      draft.profile.fame > 0
-        ? ["Fame", displayNumber(draft.profile.fame)]
-        : null,
-    ].filter((detail): detail is string[] => detail !== null);
+      ["Experience", `${displayNumber(draft.profile.experience)} available · ${displayNumber(draft.profile.totalExperience)} lifetime`],
+      ["Quintessence", `${displayNumber(draft.profile.quintessence)} available · ${displayNumber(draft.profile.totalQuintessence)} lifetime`],
+      ["Fame", displayNumber(draft.profile.fame)],
+    ];
     const storyDetails = [
       ["Personality", draft.profile.personality.trim()],
       ["Goals", draft.profile.goals.trim()],
@@ -1191,6 +1192,65 @@ export function CharacterCreationPage({
     const movementModes = selectedRace?.movementModes ?? [];
     const ownedManaProfiles = manaProfiles.filter((profile) =>
       profile.manaPool > 0 && aggregate.campaign.allowedSystems.includes(profile.system));
+    const purse = getCampaignMoneyBreakdown(
+      currentFunds(),
+      aggregate.campaign.currencySystem,
+      aggregate.campaign.derivedCurrencies,
+    );
+    const heldCurrencies = purse.entries.some((entry) => entry.quantity > 0)
+      ? purse.entries.filter((entry) => entry.quantity > 0)
+      : purse.entries.slice(-1);
+    const hpBreakdown = getCharacterHpBreakdown(totalHp);
+    const ownedItemRows = ownedItems.map((owned) => ({
+      owned,
+      item: aggregate.authorizedItems.find((candidate) => candidate.id === owned.itemId),
+    }));
+    const weaponRows = ownedItemRows.filter(({ item }) => item?.equipmentGroup === "weapon");
+    const armorRows = ownedItemRows.filter(({ item }) => item?.equipmentGroup === "armor");
+    const rootSkillFor = (allocation: CharacterSkillAllocationDraft): CharacterSkillReference | null => {
+      let cursor: CharacterSkillAllocationDraft | undefined = allocation;
+      const visited = new Set<number>();
+      while (cursor.parentDraftId !== null && !visited.has(cursor.draftId)) {
+        visited.add(cursor.draftId);
+        cursor = allocationById.get(cursor.parentDraftId);
+        if (!cursor) return null;
+      }
+      return skillById.get(cursor.skillId) ?? null;
+    };
+    const sheetSkillRows = allocatedSkills.map((allocation) => {
+      const skill = skillById.get(allocation.skillId);
+      const attributeKey = normalizeSkillAttributeKey(skill?.primaryAttribute ?? null);
+      const racialGrant = getRacialSkillGrant(selectedRace, allocation.skillId);
+      const effectivePoints = getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId);
+      const rank = ranks.get(allocation.draftId) ?? 0;
+      const target = attributeKey
+        ? getSkillRollTarget(draft.attributes[attributeKey], rank)
+        : skill && isSpecialAbilitySkill(skill)
+          ? getSpecialAbilityRollTarget(rank)
+          : null;
+      const rootSkill = rootSkillFor(allocation);
+      return {
+        id: allocation.draftId,
+        name: allocationPath(allocation),
+        points: effectivePoints,
+        pointNote: racialGrant.minimum > 0
+          ? `${displayNumber(racialGrant.minimum)} racial + ${displayNumber(allocation.points)} purchased`
+          : "",
+        rank,
+        target,
+        system: rootSkill ? getCharacterMagicSystem(rootSkill) : null,
+        special: skill ? isSpecialAbilitySkill(skill) : false,
+      };
+    });
+    const sheetSkillSections = [
+      { key: "core", label: "Core Skills", rows: sheetSkillRows.filter((row) => !row.system && !row.special) },
+      ...(["Spellcraft", "Talismanism", "Faith", "Psyonics", "Bardic Resonance"] as const).map((system) => ({
+        key: system,
+        label: system,
+        rows: sheetSkillRows.filter((row) => row.system === system && !row.special),
+      })),
+      { key: "special", label: "Special Abilities", rows: sheetSkillRows.filter((row) => row.special) },
+    ].filter((section) => section.rows.length > 0);
     const sheetContext = [
       selectedRace?.race.name,
       aggregate.campaign.name,
@@ -1199,40 +1259,57 @@ export function CharacterCreationPage({
     return (
       <section className="character-sheet" aria-labelledby="character-sheet-title">
         <header><div><p>SERRIAN TIDE CHARACTER RECORD</p><h2 id="character-sheet-title">{draft.name || "Unnamed Character"}</h2><span>{sheetContext}</span></div><strong>{readiness?.ready ? "CHARACTER READY" : "DRAFT CHARACTER"}</strong></header>
-        <div className="character-sheet__vitals">
-          <div><span>HP</span><strong>{displayNumber(getCharacterHp(draft.attributes.CON))}</strong></div>
-          <div><span>Base Initiative</span><strong>{displayNumber(getBaseInitiative(dexterity))}</strong></div>
-          {selectedRace?.race.baseMagic !== null && selectedRace?.race.baseMagic !== undefined ? <div><span>Base Magic</span><strong>{selectedRace.race.baseMagic}</strong></div> : null}
-          <div><span>Currency Held</span><strong>{campaignMoney(currentFunds())}</strong></div>
-        </div>
-        <div className="character-sheet__columns">
-          {identityDetails.length > 0 ? <section><h3>Identity</h3><dl className="character-sheet__details">{identityDetails.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section> : null}
-          <section><h3>Attributes</h3><div className="character-sheet__attributes">{CHARACTER_ATTRIBUTE_KEYS.map((key) => <div key={key}><span>{key}</span><strong>{displayNumber(draft.attributes[key])}</strong><small>{signedNumber(getAttributeModifier(draft.attributes[key]))} · {displayNumber(getAttributeRollTarget(draft.attributes[key]))}%</small></div>)}</div></section>
-        </div>
-        {movementModes.length > 0 ? <section className="character-sheet__section"><h3>Movement</h3><div className="character-sheet__movement">{movementModes.map((mode) => <div key={mode.id}><span>{mode.movementMode}</span><strong>{displayNumber(getMovementInitiative(dexterity, mode.baseValue))} Initiative</strong><small>Race base {displayNumber(mode.baseValue)}</small></div>)}</div></section> : null}
-        {ownedManaProfiles.length > 0 ? <section className="character-sheet__section"><h3>Mana & Spell Access</h3><div className="character-sheet__skills">{ownedManaProfiles.map((profile) => <div key={profile.system}><strong>{profile.system}</strong><span>{displayNumber(profile.manaPool)} Mana · {profile.spellAccessLevel ?? "Below Apprentice"} spell access · {displayNumber(profile.sourceSkillPoints)} {profile.sourceSkillName}</span></div>)}</div></section> : null}
-        {allocatedSkills.length > 0 || racialOnlySkills.length > 0 ? <section className="character-sheet__section"><h3>Skills & Abilities</h3><div className="character-sheet__skills">
-          {allocatedSkills.map((allocation) => {
-            const skill = skillById.get(allocation.skillId);
-            const attributeKey = normalizeSkillAttributeKey(skill?.primaryAttribute ?? null);
-            const racialGrant = getRacialSkillGrant(selectedRace, allocation.skillId);
-            const effectivePoints = getEffectiveSkillPoints(allocation.points, selectedRace, allocation.skillId);
-            const rank = ranks.get(allocation.draftId) ?? 0;
-            const target = attributeKey
-              ? getSkillRollTarget(draft.attributes[attributeKey], rank)
-              : skill && isSpecialAbilitySkill(skill)
-                ? getSpecialAbilityRollTarget(rank)
-                : null;
-            const pointSummary = racialGrant.minimum > 0
-              ? `${displayNumber(effectivePoints)} total (${displayNumber(racialGrant.minimum)} racial + ${displayNumber(allocation.points)} purchased)`
-              : `${displayNumber(allocation.points)} points`;
-            return <div key={allocation.draftId}><strong>{allocationPath(allocation)}</strong><span>{pointSummary}{skill ? ` · ${getSkillTierLabel(skill)}` : ""} · Rank {displayNumber(rank)}{target === null ? "" : ` · ${displayNumber(target)}%`}</span></div>;
-          })}
-          {racialOnlySkills.map((link) => <div key={`racial-${link.skillId}`}><strong>{link.skillName}</strong><span>Racially granted · No starting value recorded</span></div>)}
-        </div></section> : null}
-        {resourceDetails.length > 0 ? <section className="character-sheet__section"><h3>Advancement & Resources</h3><div className="character-sheet__skills">{resourceDetails.map(([label, value]) => <div key={label}><strong>{label}</strong><span>{value}</span></div>)}</div></section> : null}
-        {storyDetails.length > 0 ? <section className="character-sheet__section"><h3>Story</h3><div className="character-sheet__story">{storyDetails.map(([label, value]) => <div key={label} className={label === "Backstory" ? "character-sheet__story--wide" : undefined}><strong>{label}</strong><p>{value}</p></div>)}</div></section> : null}
-        {ownedItems.length > 0 ? <section className="character-sheet__section"><h3>Equipment & Inventory</h3><div className="character-sheet__items">{ownedItems.map((owned) => { const item = aggregate.authorizedItems.find((candidate) => candidate.id === owned.itemId); return <div key={owned.itemId}><strong>{item?.name ?? `Item ${owned.itemId}`}</strong><span>× {owned.quantity}</span><small>{campaignMoney(owned.quantity * owned.unitCostCredits)}</small></div>; })}</div></section> : null}
+        <section className="character-sheet__identity" aria-label="Character identity">
+          {identityDetails.map(([label, value]) => <div key={label} className={label === "Defining Marks & Quirks" ? "is-wide" : undefined}><span>{label}</span><strong>{value}</strong></div>)}
+        </section>
+
+        <section className="character-sheet__summary-grid" aria-label="Core character record">
+          <article className="character-sheet__ledger character-sheet__ledger--attributes">
+            <h3>Attributes</h3>
+            <table><thead><tr><th>Attribute</th><th>#</th><th>Mod</th><th>%</th></tr></thead><tbody>{CHARACTER_ATTRIBUTE_KEYS.map((key) => <tr key={key}><th>{CHARACTER_ATTRIBUTE_LABELS[key]}</th><td>{displayNumber(draft.attributes[key])}</td><td>{signedNumber(getAttributeModifier(draft.attributes[key]))}</td><td>{displayNumber(getAttributeRollTarget(draft.attributes[key]))}%+</td></tr>)}</tbody></table>
+          </article>
+          <article className="character-sheet__ledger character-sheet__ledger--health">
+            <h3>Hit Points</h3>
+            <div className="character-sheet__ledger-total"><span>Total HP</span><strong>{displayNumber(totalHp)}</strong></div>
+            <table><tbody>{hpBreakdown.pools.map((pool) => <tr key={pool.key}><th>{pool.name}</th><td>{pool.hp} HP</td><td>{pool.percentage}%</td></tr>)}</tbody></table>
+          </article>
+          <article className="character-sheet__ledger character-sheet__ledger--movement">
+            <h3>Movement & Initiative</h3>
+            <div className="character-sheet__ledger-total"><span>Base Initiative</span><strong>{displayNumber(getBaseInitiative(dexterity))}</strong></div>
+            {movementModes.length > 0 ? <table><tbody>{movementModes.map((mode) => <tr key={mode.id}><th>{mode.movementMode}</th><td>{displayNumber(mode.baseValue)}×</td><td>{displayNumber(getMovementInitiative(dexterity, mode.baseValue))} Init.</td></tr>)}</tbody></table> : <p>No movement modes recorded.</p>}
+          </article>
+          <article className="character-sheet__ledger character-sheet__ledger--mana">
+            <h3>Mana</h3>
+            <div className="character-sheet__ledger-total"><span>Base Magic</span><strong>{displayNumber(selectedRace?.race.baseMagic ?? 0)}</strong></div>
+            {ownedManaProfiles.length > 0 ? <table><tbody>{ownedManaProfiles.map((profile) => <tr key={profile.system}><th>{profile.system}</th><td>{displayNumber(profile.manaPool)}</td><td>{profile.spellAccessLevel ?? "Below Apprentice"}</td></tr>)}</tbody></table> : <p>No active Mana pools.</p>}
+          </article>
+          <article className="character-sheet__ledger character-sheet__ledger--currency">
+            <h3>Currencies</h3>
+            <div className="character-sheet__ledger-total"><span>Total Held</span><strong>{campaignMoney(currentFunds())}</strong></div>
+            <table><tbody>{heldCurrencies.map((entry) => <tr key={entry.id}><th>{entry.name}</th><td>{displayNumber(entry.quantity)}</td><td>{displayNumber(entry.creditsPerUnit)} Credit{entry.creditsPerUnit === 1 ? "" : "s"} each</td></tr>)}</tbody></table>
+            {!purse.fullyRepresented ? <p className="character-currency-warning">This balance cannot be represented exactly by the Campaign denominations.</p> : null}
+          </article>
+          <article className="character-sheet__ledger character-sheet__ledger--advancement">
+            <h3>Advancement Resources</h3>
+            <table><tbody>{resourceDetails.map(([label, value]) => <tr key={label}><th>{label}</th><td>{value}</td></tr>)}</tbody></table>
+          </article>
+        </section>
+
+        <section className="character-sheet__section character-sheet__health"><div className="character-sheet__section-heading"><p>BODY TARGET</p><h3>Health & Hit Locations</h3><span>Total HP = CON {displayNumber(draft.attributes.CON)} × 2 + CON Modifier {signedNumber(getAttributeModifier(draft.attributes.CON))}. Location pools round up.</span></div><CharacterHitLocationChart totalHp={totalHp} /></section>
+
+        <section className="character-sheet__section character-sheet__combat"><div className="character-sheet__section-heading"><p>COMBAT RECORD</p><h3>Weapons & Armor</h3></div>
+          <div className="character-sheet__table-block"><h4>Weapons</h4>{weaponRows.length > 0 ? <div className="character-sheet__table-scroll"><table><thead><tr><th>Weapon</th><th>Qty</th><th>Type</th><th>Range / Reach</th><th>Durability</th><th>Damage</th><th>Damage Type</th></tr></thead><tbody>{weaponRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td>{item?.weaponType || item?.recordType || "—"}</td><td>{item?.rangeText || item?.reachText || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td><td>{item?.damage || "—"}</td><td>{item?.damageType || "—"}</td></tr>)}</tbody></table></div> : <p className="character-empty">No weapons recorded.</p>}</div>
+          <div className="character-sheet__table-block"><h4>Armor</h4>{armorRows.length > 0 ? <div className="character-sheet__table-scroll"><table><thead><tr><th>Armor</th><th>Qty</th><th>Type</th><th>Area Covered</th><th>Durability</th><th>Base Soak</th><th>Special Properties</th></tr></thead><tbody>{armorRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td>{item?.armorType || item?.recordType || "—"}</td><td>{item?.coverage || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td><td>{item?.baseSoak === null || item?.baseSoak === undefined ? "—" : displayNumber(item.baseSoak)}</td><td>{item?.armorRulesText || item?.armorDamageModifiers || "—"}</td></tr>)}</tbody></table></div> : <p className="character-empty">No armor recorded.</p>}</div>
+        </section>
+
+        <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>TRAINING RECORD</p><h3>Skills & Abilities</h3><span>Only Skills and Abilities with actual points are shown.</span></div>{sheetSkillSections.length > 0 ? <div className="character-sheet__skill-ledgers">{sheetSkillSections.map((section) => {
+          const profile = manaProfiles.find((candidate) => candidate.system === section.key);
+          return <article key={section.key} className="character-sheet__skill-ledger"><header><h4>{section.label}</h4>{profile ? <span>{displayNumber(profile.manaPool)} Mana · {profile.spellAccessLevel ?? "Below Apprentice"}</span> : null}</header><table><thead><tr><th>Skill</th><th>#</th><th>Rank</th><th>%</th></tr></thead><tbody>{section.rows.map((row) => <tr key={row.id}><th>{row.name}</th><td title={row.pointNote}>{displayNumber(row.points)}{row.pointNote ? <small>R</small> : null}</td><td>{displayNumber(row.rank)}</td><td>{row.target === null ? "N/A" : `${displayNumber(row.target)}%+`}</td></tr>)}</tbody></table></article>;
+        })}</div> : <p className="character-empty">No Skills or Abilities with points are recorded.</p>}</section>
+
+        <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>POSSESSIONS</p><h3>Inventory & Equipment</h3></div>{ownedItemRows.length > 0 ? <div className="character-sheet__table-scroll"><table className="character-sheet__inventory-table"><thead><tr><th>Item</th><th>Catalog</th><th>Type</th><th>Qty</th><th>Weight</th><th>Unit Cost</th><th>Total Value</th></tr></thead><tbody>{ownedItemRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{item?.equipmentGroup || item?.catalogScope || "Inventory"}</td><td>{item?.recordType || item?.category || "Item"}</td><td>{owned.quantity}</td><td>{item?.weight === null || item?.weight === undefined ? "—" : `${displayNumber(item.weight * owned.quantity)} ${item.weightUnit}`}</td><td>{campaignMoney(owned.unitCostCredits)}</td><td>{campaignMoney(owned.quantity * owned.unitCostCredits)}</td></tr>)}</tbody></table></div> : <p className="character-empty">No Equipment or Inventory is currently recorded.</p>}</section>
+
+        {storyDetails.length > 0 ? <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>CHARACTER NOTES</p><h3>Story & Personality</h3></div><div className="character-sheet__story">{storyDetails.map(([label, value]) => <div key={label} className={label === "Backstory" ? "character-sheet__story--wide" : undefined}><strong>{label}</strong><p>{value}</p></div>)}</div></section> : null}
       </section>
     );
   }
@@ -1284,6 +1361,7 @@ export function CharacterCreationPage({
           <>
             <nav className="character-tabs" aria-label="Character creation sections">{visibleTabs.map(([id, label]) => <button key={id} type="button" className={activeTab === id ? "is-active" : ""} aria-current={activeTab === id ? "page" : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}</nav>
             {isGodEditor ? <aside className="character-god-notice"><strong>G.O.D. administrative access is active.</strong><span>You may edit this entire Character record regardless of its creation status. The Player's own completed-character lock remains unchanged.</span></aside> : creationLocked ? <aside className="character-locked-notice"><strong>Character creation is complete.</strong><span>Identity, Attributes, starting Skills, Story, and starting Equipment are now read-only. Advancement and later purchases use their own controlled workflows.</span></aside> : null}
+            {activeTab === "sheet" ? <div className="character-print-toolbar"><span>Open the system print preview to print this record or save it as a PDF.</span><button type="button" onClick={() => window.print()}>Print Character Sheet</button></div> : null}
             <fieldset className="character-creation-lockable" disabled={creationLocked}>{content}</fieldset>
             {!isGodEditor && !creationLocked && !readiness?.ready && readiness?.issues.length ? <aside className="character-readiness"><strong>Before this Character is ready</strong><ul>{readiness.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></aside> : null}
           </>

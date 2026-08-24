@@ -65,6 +65,83 @@ export function getCharacterHp(constitution: number): number {
   return constitution * 2 + getAttributeModifier(constitution);
 }
 
+export type CharacterHpPoolKey =
+  | "head"
+  | "rightArm"
+  | "leftArm"
+  | "rightLeg"
+  | "leftLeg"
+  | "torso";
+
+export const CHARACTER_HUMANOID_HP_POOLS = [
+  { key: "head", name: "Head", percentage: 10 },
+  { key: "rightArm", name: "Right Arm", percentage: 15 },
+  { key: "leftArm", name: "Left Arm", percentage: 15 },
+  { key: "rightLeg", name: "Right Leg", percentage: 15 },
+  { key: "leftLeg", name: "Left Leg", percentage: 15 },
+  { key: "torso", name: "Torso", percentage: 30 },
+] as const satisfies ReadonlyArray<{
+  key: CharacterHpPoolKey;
+  name: string;
+  percentage: number;
+}>;
+
+export const CHARACTER_HUMANOID_HIT_LOCATIONS = [
+  { result: 0, name: "Head", poolKey: "head" },
+  { result: 1, name: "Right Arm", poolKey: "rightArm" },
+  { result: 2, name: "Left Arm", poolKey: "leftArm" },
+  { result: 3, name: "Right Lower Leg", poolKey: "rightLeg" },
+  { result: 4, name: "Right Upper Leg", poolKey: "rightLeg" },
+  { result: 5, name: "Left Lower Leg", poolKey: "leftLeg" },
+  { result: 6, name: "Left Upper Leg", poolKey: "leftLeg" },
+  { result: 7, name: "Groin", poolKey: "torso" },
+  { result: 8, name: "Stomach", poolKey: "torso" },
+  { result: 9, name: "Chest", poolKey: "torso" },
+] as const satisfies ReadonlyArray<{
+  result: number;
+  name: string;
+  poolKey: CharacterHpPoolKey;
+}>;
+
+export type CharacterHpBreakdown = {
+  totalHp: number;
+  pools: Array<{
+    key: CharacterHpPoolKey;
+    name: string;
+    percentage: number;
+    hp: number;
+  }>;
+  locations: Array<{
+    result: number;
+    name: string;
+    poolKey: CharacterHpPoolKey;
+    poolName: string;
+    hp: number;
+  }>;
+};
+
+export function getCharacterHpBreakdown(totalHp: number): CharacterHpBreakdown {
+  const normalizedTotal = Number.isFinite(totalHp) ? Math.max(0, totalHp) : 0;
+  const pools = CHARACTER_HUMANOID_HP_POOLS.map((pool) => ({
+    ...pool,
+    hp: Math.ceil(normalizedTotal * pool.percentage / 100),
+  }));
+  const poolsByKey = new Map(pools.map((pool) => [pool.key, pool]));
+  return {
+    totalHp: normalizedTotal,
+    pools,
+    locations: CHARACTER_HUMANOID_HIT_LOCATIONS.map((location) => {
+      const pool = poolsByKey.get(location.poolKey);
+      if (!pool) throw new Error(`Missing Character HP Pool ${location.poolKey}.`);
+      return {
+        ...location,
+        poolName: pool.name,
+        hp: pool.hp,
+      };
+    }),
+  };
+}
+
 export function getBaseInitiative(dexterity: number): number {
   return dexterity < 5 ? 1 : 1 + Math.floor(dexterity / 5);
 }
@@ -195,28 +272,35 @@ export function getCharacterManaProfiles(
   race: RaceAggregate | null,
 ): CharacterManaProfile[] {
   const baseMagic = Math.max(0, race?.race.baseMagic ?? 0);
+  const effectivePointsForSkill = (skill: CharacterSkillReference): number =>
+    draft.skillAllocations
+      .filter((allocation) => allocation.skillId === skill.id)
+      .reduce((maximum, allocation) => Math.max(
+        maximum,
+        getEffectiveSkillPoints(allocation.points, race, skill.id),
+      ), getRacialSkillGrant(race, skill.id).minimum);
+
   return (Object.entries(MAGIC_SYSTEM_MANA_SKILLS) as Array<[
     CharacterMagicSystem,
     string,
-  ]>).map(([system, sourceSkillName]) => {
+  ]>).flatMap(([system, sourceSkillName]) => {
+    const accessSkill = skillCatalog.find(
+      (skill) => getCharacterMagicSystem(skill) === system,
+    );
+    if (!accessSkill || !hasSkillPoints(effectivePointsForSkill(accessSkill))) return [];
+
     const sourceSkill = skillCatalog.find(
       (skill) => skill.name.trim().toLocaleLowerCase() === sourceSkillName.toLocaleLowerCase(),
     );
-    const allocations = sourceSkill
-      ? draft.skillAllocations.filter((allocation) => allocation.skillId === sourceSkill.id)
-      : [];
     const sourceSkillPoints = sourceSkill
-      ? allocations.reduce((maximum, allocation) => Math.max(
-          maximum,
-          getEffectiveSkillPoints(allocation.points, race, sourceSkill.id),
-        ), getRacialSkillGrant(race, sourceSkill.id).minimum)
+      ? effectivePointsForSkill(sourceSkill)
       : 0;
     const manaPool = sourceSkillPoints * baseMagic;
     const spellAccessLevel = getSpellAccessLevelForManaPool(manaPool);
     const next = CHARACTER_SPELL_ACCESS_LEVELS.find(
       (level) => level.minimumMana > manaPool + EPSILON,
     );
-    return {
+    return [{
       system,
       sourceSkillName,
       sourceSkillPoints,
@@ -225,7 +309,7 @@ export function getCharacterManaProfiles(
       spellAccessLevel,
       nextLevel: next?.name ?? null,
       nextRequiredMana: next?.minimumMana ?? null,
-    };
+    }];
   });
 }
 
@@ -301,9 +385,14 @@ export function getSkillRank(
   parentRank: number | null,
   tier: number | null,
 ): number {
+  if (!hasSkillPoints(pointsInvested)) return 0;
   return tier !== null && tier > 1
     ? (parentRank ?? 0) + pointsInvested
     : pointsInvested + attributeModifier;
+}
+
+export function hasSkillPoints(points: number): boolean {
+  return Number.isFinite(points) && points > EPSILON;
 }
 
 export function getSkillRollTarget(
