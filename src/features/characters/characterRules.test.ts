@@ -76,17 +76,19 @@ function aggregate(): CharacterAggregate {
       weight: 65, skinColor: "Bronze", eyeColor: "Green", hairColor: "Black",
       deity: "None", definingMarks: "None", personality: "Patient", goals: "Explore", secrets: "None",
       backstory: "A traveler.", motivations: "Discovery", fame: 0, experience: 0, totalExperience: 0,
-      quintessence: 0, totalQuintessence: 0, creditsRemaining: 80,
+      quintessence: 0, totalQuintessence: 0, fatePoints: 3, creditsRemaining: 80,
       creationCompletedAt: null,
       createdAt: "created", updatedAt: "updated",
     },
     attributes: [],
     skillAllocations: [],
     items: [],
+    currencyHoldings: [],
     campaign: {
       id: 12, name: "Tidefall", attributePoints: 150, skillPoints: 10,
       maxStartingSkill: 6, pointsToUnlockNextTier: 5, maxPointsInSkill: 75,
       startingCreditAmount: 100, currencySystem: "Credits",
+      fatePointMethod: "Assigned", assignedFatePoints: 3,
       allowedSystems: ["Tier 1", "Tier 2"], derivedCurrencies: [],
     },
     allowedRaces: [{ id: 3, name: "Human" }],
@@ -118,7 +120,7 @@ function draft(): CharacterDraft {
       skinColor: "Bronze", eyeColor: "Green", hairColor: "Black", deity: "None",
       definingMarks: "None", personality: "Patient", goals: "Explore", secrets: "None", backstory: "A traveler.",
       motivations: "Discovery", fame: 0, experience: 0, totalExperience: 0,
-      quintessence: 0, totalQuintessence: 0, creditsRemaining: 80,
+      quintessence: 0, totalQuintessence: 0, fatePoints: 3, creditsRemaining: 80,
     },
     attributes: { STR: 25, DEX: 25, CON: 25, INT: 25, WIS: 25, CHR: 25 },
     skillAllocations: [
@@ -126,6 +128,7 @@ function draft(): CharacterDraft {
       { draftId: 11, skillId: 2, parentDraftId: 10, points: 5 },
     ],
     items: [{ itemId: 7, quantity: 2, unitCostCredits: 10 }],
+    currencyHoldings: [],
   };
 }
 
@@ -209,6 +212,15 @@ describe("Character rules", () => {
     });
 
     currentDraft.profile.deity = "None";
+    character.campaign.fatePointMethod = "Rolled";
+    character.campaign.assignedFatePoints = null;
+    currentDraft.profile.fatePoints = null;
+    expect(evaluateCharacterReadiness(currentDraft, character, race())).toMatchObject({
+      ready: false,
+      identityComplete: false,
+    });
+
+    currentDraft.profile.fatePoints = 2;
     currentDraft.profile.secrets = "";
     expect(evaluateCharacterReadiness(currentDraft, character, race())).toMatchObject({
       ready: false,

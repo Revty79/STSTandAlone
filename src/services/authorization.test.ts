@@ -30,6 +30,7 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "creatures")).toBe(true);
     expect(canAccessDestination(session, "equipment")).toBe(true);
     expect(canAccessDestination(session, "inventory")).toBe(true);
+    expect(canAccessDestination(session, "npcs")).toBe(true);
     expect(canAccessDestination(session, "realms")).toBe(true);
     expect(canAccessDestination(session, "character-create")).toBe(true);
     expect(canAccessDestination(session, "character-advance")).toBe(true);
@@ -47,6 +48,7 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "creatures")).toBe(false);
     expect(canAccessDestination(session, "equipment")).toBe(false);
     expect(canAccessDestination(session, "inventory")).toBe(false);
+    expect(canAccessDestination(session, "npcs")).toBe(false);
     expect(canAccessDestination(session, "realms")).toBe(true);
     expect(canAccessDestination(session, "character-create")).toBe(true);
     expect(canAccessDestination(session, "character-advance")).toBe(true);
@@ -63,5 +65,6 @@ describe("role authorization", () => {
     expect(authorizeDestination(session, "creatures")).toBe("realms");
     expect(authorizeDestination(session, "equipment")).toBe("realms");
     expect(authorizeDestination(session, "inventory")).toBe("realms");
+    expect(authorizeDestination(session, "npcs")).toBe("realms");
   });
 });

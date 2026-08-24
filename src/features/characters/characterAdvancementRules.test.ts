@@ -42,7 +42,7 @@ function aggregate(): CharacterAggregate {
       personality: "Patient", goals: "Explore", secrets: "None",
       backstory: "A traveler.", motivations: "Discovery", fame: 0,
       experience: 9, totalExperience: 40, quintessence: 2,
-      totalQuintessence: 2, creditsRemaining: 80,
+      totalQuintessence: 2, fatePoints: 3, creditsRemaining: 80,
       creationCompletedAt: "completed", createdAt: "created", updatedAt: "updated",
     },
     attributes: ["STR", "DEX", "CON", "INT", "WIS", "CHR"].map((attributeKey) => ({
@@ -56,10 +56,12 @@ function aggregate(): CharacterAggregate {
       parentAllocationId: null, points: 5, createdAt: "created", updatedAt: "updated",
     }],
     items: [],
+    currencyHoldings: [],
     campaign: {
       id: 12, name: "Tidefall", attributePoints: 150, skillPoints: 10,
       maxStartingSkill: 5, pointsToUnlockNextTier: 5, maxPointsInSkill: 75,
       startingCreditAmount: 100, currencySystem: "Credits",
+      fatePointMethod: "Assigned", assignedFatePoints: 3,
       allowedSystems: ["Tier 1"], derivedCurrencies: [],
     },
     allowedRaces: [{ id: 3, name: "Human" }],

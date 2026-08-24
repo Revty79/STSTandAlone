@@ -1,6 +1,7 @@
 import type {
   CampaignCurrencySystem,
   CampaignDerivedCurrencyRecord,
+  CampaignFatePointMethod,
   CampaignRaceReference,
   CampaignSystemOption,
 } from "./campaign";
@@ -37,6 +38,7 @@ export type CharacterCore = {
   playerUsername: string;
   createdAt: string;
   updatedAt: string;
+  isNpc?: boolean;
 };
 
 export type CharacterProfile = {
@@ -62,6 +64,7 @@ export type CharacterProfile = {
   totalExperience: number;
   quintessence: number;
   totalQuintessence: number;
+  fatePoints: number | null;
   creditsRemaining: number;
   creationCompletedAt: string | null;
   createdAt: string;
@@ -102,6 +105,12 @@ export type CharacterOwnedItem = {
   acquiredAt: string;
 };
 
+export type CharacterCurrencyHolding = {
+  characterId: number;
+  currencyId: number;
+  quantity: number;
+};
+
 export type CharacterCampaignRules = {
   id: number;
   name: string;
@@ -112,6 +121,8 @@ export type CharacterCampaignRules = {
   maxPointsInSkill: number;
   startingCreditAmount: number;
   currencySystem: CampaignCurrencySystem;
+  fatePointMethod: CampaignFatePointMethod;
+  assignedFatePoints: number | null;
   allowedSystems: CampaignSystemOption[];
   derivedCurrencies: CampaignDerivedCurrencyRecord[];
 };
@@ -170,6 +181,7 @@ export type CharacterAggregate = {
   attributes: CharacterAttributeAllocation[];
   skillAllocations: CharacterSkillAllocation[];
   items: CharacterOwnedItem[];
+  currencyHoldings: CharacterCurrencyHolding[];
   campaign: CharacterCampaignRules;
   allowedRaces: CampaignRaceReference[];
   selectedRace: RaceAggregate | null;
@@ -207,6 +219,10 @@ export type SaveCharacterAggregate = {
     quantity: number;
     unitCostCredits: number;
   }>;
+  currencyHoldings: Array<{
+    currencyId: number;
+    quantity: number;
+  }>;
 };
 
 export type AdvanceCharacterSkill = {
@@ -234,5 +250,9 @@ export type CharacterDraft = {
     itemId: number;
     quantity: number;
     unitCostCredits: number;
+  }>;
+  currencyHoldings: Array<{
+    currencyId: number;
+    quantity: number;
   }>;
 };

@@ -45,5 +45,6 @@ describe("Heavens dashboard tools", () => {
     expect(getHeavensToolDestination("creatures")).toBe("creatures");
     expect(getHeavensToolDestination("equipment")).toBe("equipment");
     expect(getHeavensToolDestination("inventory")).toBe("inventory");
+    expect(getHeavensToolDestination("npcs")).toBe("npcs");
   });
 });

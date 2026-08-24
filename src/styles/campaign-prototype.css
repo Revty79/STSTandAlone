@@ -242,6 +242,36 @@
   gap: 9px;
 }
 
+.campaign-prototype__choice-grid--fate {
+  max-width: 820px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.campaign-prototype__choice-grid--fate .campaign-prototype__choice {
+  flex-wrap: wrap;
+}
+
+.campaign-prototype__choice-grid--fate .campaign-prototype__choice em {
+  width: 100%;
+  margin-left: 25px;
+  color: rgb(219 215 202 / 52%);
+  font-size: 0.68rem;
+  font-style: normal;
+  line-height: 1.4;
+}
+
+.campaign-prototype__field-grid--fate {
+  max-width: 320px;
+  margin-top: 14px;
+}
+
+.campaign-prototype__fate-error {
+  display: block;
+  margin-top: 8px;
+  color: #dca79f;
+  font-size: 0.67rem;
+}
+
 .campaign-prototype__choice,
 .campaign-prototype__race {
   display: flex;

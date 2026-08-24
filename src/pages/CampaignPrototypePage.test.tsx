@@ -145,6 +145,8 @@ describe("Campaign prototype window", () => {
           maxPointsInSkill: 75,
           startingCreditAmount: 200,
           currencySystem: "Derived Currency",
+          fatePointMethod: "Assigned",
+          assignedFatePoints: 3,
           derivedCurrencies: [
             {
               name: "Penny",

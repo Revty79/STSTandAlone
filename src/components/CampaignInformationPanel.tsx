@@ -4,6 +4,7 @@ type CampaignInformationPanelProps = {
   campaign: CampaignAggregate | null;
   loading: boolean;
   error: string;
+  onEdit: () => void;
   onClose: () => void;
 };
 
@@ -11,6 +12,7 @@ export function CampaignInformationPanel({
   campaign,
   loading,
   error,
+  onEdit,
   onClose,
 }: CampaignInformationPanelProps) {
   const heading = loading
@@ -28,14 +30,17 @@ export function CampaignInformationPanel({
           <p>CAMPAIGN INFORMATION</p>
           <h4 id="campaign-information-heading">{heading}</h4>
         </div>
-        <button
-          className="campaign-information__close"
-          type="button"
-          onClick={onClose}
-          aria-label="Close campaign information"
-        >
-          Close
-        </button>
+        <div className="campaign-information__header-actions">
+          {campaign ? <button className="campaign-information__edit" type="button" onClick={onEdit}>Edit Campaign</button> : null}
+          <button
+            className="campaign-information__close"
+            type="button"
+            onClick={onClose}
+            aria-label="Close campaign information"
+          >
+            Close
+          </button>
+        </div>
       </header>
       {loading ? (
         <p className="campaign-information__message">Reading the saved Campaign and its linked records…</p>
@@ -52,6 +57,7 @@ export function CampaignInformationPanel({
             <div><dt>Unlock Next Tier</dt><dd>{campaign.campaign.pointsToUnlockNextTier}</dd></div>
             <div><dt>Max Points in a Standard Skill</dt><dd>{campaign.campaign.maxPointsInSkill}</dd></div>
             <div><dt>Starting Credits</dt><dd>{campaign.campaign.startingCreditAmount}</dd></div>
+            <div><dt>Fate Points</dt><dd>{campaign.campaign.fatePointMethod === "Assigned" ? `Assigned · ${campaign.campaign.assignedFatePoints ?? 0}` : "Rolled by each player"}</dd></div>
           </dl>
 
           <div className="campaign-information__columns">

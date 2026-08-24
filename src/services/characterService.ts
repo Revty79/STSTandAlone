@@ -14,6 +14,7 @@ import {
 } from "../types/character";
 import type { RaceAggregate } from "../types/race";
 import { buildSkillAllocationTree } from "../features/characters/characterRules";
+import { getCampaignMoneyBreakdown } from "../features/currency/currencyRules";
 
 export class CharacterValidationError extends Error {
   constructor(message: string) {
@@ -73,6 +74,18 @@ export function characterAggregateToDraft(aggregate: CharacterAggregate): Charac
       aggregate.attributes.find((attribute) => attribute.attributeKey === key)?.value ?? 25,
     ]),
   ) as Record<CharacterAttributeKey, number>;
+  const currencyHoldings = aggregate.currencyHoldings.length > 0
+    ? aggregate.currencyHoldings.map((holding) => ({
+        currencyId: holding.currencyId,
+        quantity: holding.quantity,
+      }))
+    : aggregate.campaign.currencySystem === "Derived Currency"
+      ? getCampaignMoneyBreakdown(
+          aggregate.profile.creditsRemaining,
+          aggregate.campaign.currencySystem,
+          aggregate.campaign.derivedCurrencies,
+        ).entries.map((entry) => ({ currencyId: entry.id, quantity: entry.quantity }))
+      : [];
   return {
     name: aggregate.character.name,
     profile: profileDraft(aggregate),
@@ -88,6 +101,7 @@ export function characterAggregateToDraft(aggregate: CharacterAggregate): Charac
       quantity: item.quantity,
       unitCostCredits: item.unitCostCredits,
     })),
+    currencyHoldings,
   };
 }
 
@@ -122,6 +136,18 @@ function normalizeSave(
       quantity: item.quantity,
       unitCostCredits: nonNegative(item.unitCostCredits, "Item unit cost"),
     };
+  });
+  const seenCurrencies = new Set<number>();
+  const currencyHoldings = draft.currencyHoldings.map((holding) => {
+    const currencyId = savedId(holding.currencyId, "Campaign Currency");
+    if (seenCurrencies.has(currencyId)) {
+      throw new CharacterValidationError("A Campaign Currency can only appear once in a purse.");
+    }
+    seenCurrencies.add(currencyId);
+    if (!Number.isInteger(holding.quantity) || holding.quantity < 0) {
+      throw new CharacterValidationError("Currency quantity must be a whole number zero or greater.");
+    }
+    return { currencyId, quantity: holding.quantity };
   });
   const normalizeText = (value: string) => value.trim();
   return {
@@ -160,11 +186,15 @@ function normalizeSave(
         draft.profile.totalQuintessence,
         "Total Quintessence",
       ),
+      fatePoints: editorMode === "player" && aggregate.campaign.fatePointMethod === "Assigned"
+        ? aggregate.campaign.assignedFatePoints ?? 0
+        : optionalWholeNonNegative(draft.profile.fatePoints, "Fate Points"),
       creditsRemaining: nonNegative(draft.profile.creditsRemaining, "Current funds"),
     },
     attributes,
     skillAllocations: buildSkillAllocationTree(draft.skillAllocations),
     items,
+    currencyHoldings,
   };
 }
 
@@ -178,6 +208,16 @@ export class CharacterService {
     return this.repository.createCharacterAggregate(
       savedId(campaignId, "Campaign"),
       savedId(playerUserId, "Player Profile"),
+    );
+  }
+
+  async createNpc(
+    campaignId: number,
+    requestingUserId: number,
+  ): Promise<CharacterAggregate> {
+    return this.repository.createNpcAggregate(
+      savedId(campaignId, "Campaign"),
+      savedId(requestingUserId, "G.O.D. Profile"),
     );
   }
 

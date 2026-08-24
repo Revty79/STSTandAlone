@@ -40,6 +40,8 @@ struct CampaignCoreInput {
     max_points_in_skill: f64,
     starting_credit_amount: f64,
     currency_system: String,
+    fate_point_method: String,
+    assigned_fate_points: Option<i64>,
     created_by_user_id: i64,
 }
 
@@ -140,6 +142,19 @@ fn save_campaign_aggregate_in_connection(
     ) {
         return Err("Currency System must be Credits or Derived Currency.".to_string());
     }
+    let assigned_fate_points = match input.core.fate_point_method.as_str() {
+        "Assigned" => Some(
+            input
+                .core
+                .assigned_fate_points
+                .filter(|value| *value >= 0)
+                .ok_or_else(|| {
+                    "Assigned Fate Points must be a whole number zero or greater.".to_string()
+                })?,
+        ),
+        "Rolled" => None,
+        _ => return Err("Fate Points must be Assigned or Rolled.".to_string()),
+    };
     if input.core.created_by_user_id <= 0 {
         return Err("Campaign creator must reference a saved user.".to_string());
     }
@@ -202,7 +217,8 @@ fn save_campaign_aggregate_in_connection(
                 "UPDATE campaigns SET name=?1,attribute_points=?2,skill_points=?3,
                  max_starting_skill=?4,points_to_unlock_next_tier=?5,max_points_in_skill=?6,
                  starting_credit_amount=?7,currency_system=?8,
-                 updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?9",
+                 fate_point_method=?9,assigned_fate_points=?10,
+                 updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?11",
                 params![
                     name,
                     attribute_points,
@@ -212,6 +228,8 @@ fn save_campaign_aggregate_in_connection(
                     max_points_in_skill,
                     starting_credit_amount,
                     input.core.currency_system,
+                    input.core.fate_point_method,
+                    assigned_fate_points,
                     campaign_id,
                 ],
             )
@@ -222,7 +240,8 @@ fn save_campaign_aggregate_in_connection(
             .execute(
                 "INSERT INTO campaigns (name,attribute_points,skill_points,max_starting_skill,
                  points_to_unlock_next_tier,max_points_in_skill,starting_credit_amount,
-                 currency_system,created_by_user_id) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)",
+                 currency_system,fate_point_method,assigned_fate_points,created_by_user_id)
+                 VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)",
                 params![
                     name,
                     attribute_points,
@@ -232,6 +251,8 @@ fn save_campaign_aggregate_in_connection(
                     max_points_in_skill,
                     starting_credit_amount,
                     input.core.currency_system,
+                    input.core.fate_point_method,
+                    assigned_fate_points,
                     input.core.created_by_user_id,
                 ],
             )
@@ -240,7 +261,6 @@ fn save_campaign_aggregate_in_connection(
     };
 
     for table in [
-        "campaign_derived_currencies",
         "campaign_allowed_systems",
         "campaign_allowed_races",
         "campaign_inventory_tags",
@@ -256,24 +276,71 @@ fn save_campaign_aggregate_in_connection(
             })?;
     }
 
+    transaction
+        .execute(
+            "UPDATE campaign_derived_currencies
+             SET sort_order=sort_order+1000000
+             WHERE campaign_id=?1",
+            [campaign_id],
+        )
+        .map_err(|error| {
+            format!("Existing Campaign Currency order could not be prepared: {error}")
+        })?;
     for (sort_order, (currency_name, description, credits_per_unit)) in
         normalized_currencies.into_iter().enumerate()
     {
-        transaction
-            .execute(
-                "INSERT INTO campaign_derived_currencies
-                 (campaign_id,name,description,credits_per_unit,sort_order)
-                 VALUES (?1,?2,?3,?4,?5)",
-                params![
-                    campaign_id,
-                    currency_name,
-                    description,
-                    credits_per_unit,
-                    sort_order as i64
-                ],
+        let existing_id: Option<i64> = transaction
+            .query_row(
+                "SELECT id FROM campaign_derived_currencies
+                 WHERE campaign_id=?1 AND name=?2 COLLATE NOCASE LIMIT 1",
+                params![campaign_id, currency_name],
+                |row| row.get(0),
             )
-            .map_err(|error| format!("A Derived Currency could not be saved: {error}"))?;
+            .optional()
+            .map_err(|error| format!("A Derived Currency could not be matched: {error}"))?;
+        if let Some(currency_id) = existing_id {
+            transaction
+                .execute(
+                    "UPDATE campaign_derived_currencies
+                     SET name=?1,description=?2,credits_per_unit=?3,sort_order=?4,
+                         updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                     WHERE id=?5 AND campaign_id=?6",
+                    params![
+                        currency_name,
+                        description,
+                        credits_per_unit,
+                        sort_order as i64,
+                        currency_id,
+                        campaign_id,
+                    ],
+                )
+                .map_err(|error| format!("A Derived Currency could not be updated: {error}"))?;
+        } else {
+            transaction
+                .execute(
+                    "INSERT INTO campaign_derived_currencies
+                     (campaign_id,name,description,credits_per_unit,sort_order)
+                     VALUES (?1,?2,?3,?4,?5)",
+                    params![
+                        campaign_id,
+                        currency_name,
+                        description,
+                        credits_per_unit,
+                        sort_order as i64
+                    ],
+                )
+                .map_err(|error| format!("A Derived Currency could not be saved: {error}"))?;
+        }
     }
+    transaction
+        .execute(
+            "DELETE FROM campaign_derived_currencies
+             WHERE campaign_id=?1 AND sort_order>=1000000",
+            [campaign_id],
+        )
+        .map_err(|_| {
+            "A Campaign Currency held by a Character cannot be removed or renamed.".to_string()
+        })?;
     for (sort_order, system) in input.allowed_systems.into_iter().enumerate() {
         transaction
             .execute(
@@ -333,6 +400,7 @@ mod tests {
     use super::*;
 
     const USERS_MIGRATION: &str = include_str!("../migrations/0001_create_local_accounts.sql");
+    const SKILLS_MIGRATION: &str = include_str!("../migrations/0002_create_skills.sql");
     const RACES_MIGRATION: &str = include_str!("../migrations/0005_create_races.sql");
     const ITEMS_MIGRATION: &str = include_str!("../migrations/0013_create_items.sql");
     const CAMPAIGNS_MIGRATION: &str = include_str!("../migrations/0015_create_campaigns.sql");
@@ -340,12 +408,21 @@ mod tests {
         include_str!("../migrations/0016_create_campaign_players.sql");
     const CAMPAIGN_CHARACTERS_MIGRATION: &str =
         include_str!("../migrations/0017_create_campaign_characters.sql");
+    const CHARACTER_AGGREGATE_MIGRATION: &str =
+        include_str!("../migrations/0018_create_character_aggregate.sql");
+    const CAMPAIGN_NPCS_MIGRATION: &str = include_str!("../migrations/0026_add_campaign_npcs.sql");
+    const CHARACTER_CURRENCY_HOLDINGS_MIGRATION: &str =
+        include_str!("../migrations/0027_store_character_currency_holdings.sql");
+    const FATE_POINTS_MIGRATION: &str = include_str!("../migrations/0028_add_fate_points.sql");
 
     fn setup() -> (Connection, i64, i64, i64) {
         let connection = Connection::open_in_memory().expect("open database");
         connection
             .execute_batch(USERS_MIGRATION)
             .expect("create users");
+        connection
+            .execute_batch(SKILLS_MIGRATION)
+            .expect("create skills");
         connection
             .execute_batch(RACES_MIGRATION)
             .expect("create races");
@@ -361,6 +438,18 @@ mod tests {
         connection
             .execute_batch(CAMPAIGN_CHARACTERS_MIGRATION)
             .expect("create campaign characters");
+        connection
+            .execute_batch(CHARACTER_AGGREGATE_MIGRATION)
+            .expect("create Character aggregate");
+        connection
+            .execute_batch(CAMPAIGN_NPCS_MIGRATION)
+            .expect("add campaign NPCs");
+        connection
+            .execute_batch(CHARACTER_CURRENCY_HOLDINGS_MIGRATION)
+            .expect("add Character currency holdings");
+        connection
+            .execute_batch(FATE_POINTS_MIGRATION)
+            .expect("add Fate Points");
         connection
             .execute(
                 "INSERT INTO users (username,password_hash,password_salt,password_iterations)
@@ -404,6 +493,8 @@ mod tests {
                 max_points_in_skill: 75.0,
                 starting_credit_amount: 200.0,
                 currency_system: "Derived Currency".to_string(),
+                fate_point_method: "Assigned".to_string(),
+                assigned_fate_points: Some(3),
                 created_by_user_id: user_id,
             },
             derived_currencies: vec![
@@ -434,6 +525,15 @@ mod tests {
         )
         .expect("save campaign");
 
+        let fate_rule: (String, Option<i64>) = connection
+            .query_row(
+                "SELECT fate_point_method,assigned_fate_points FROM campaigns WHERE id=?1",
+                [campaign_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .expect("read Campaign Fate Points");
+        assert_eq!(fate_rule, ("Assigned".to_string(), Some(3)));
+
         for (table, expected) in [
             ("campaigns", 1),
             ("campaign_derived_currencies", 2),
@@ -458,6 +558,14 @@ mod tests {
                 .expect("count linked rows");
             assert_eq!(count, expected, "unexpected row count for {table}");
         }
+        let penny_id: i64 = connection
+            .query_row(
+                "SELECT id FROM campaign_derived_currencies
+                 WHERE campaign_id=?1 AND name='Penny'",
+                [campaign_id],
+                |row| row.get(0),
+            )
+            .expect("read stable Currency id");
 
         let mut updated = input(user_id, race_id, item_id);
         updated.id = Some(campaign_id);
@@ -480,8 +588,17 @@ mod tests {
                 |row| row.get(0),
             )
             .expect("count currencies");
+        let updated_penny_id: i64 = connection
+            .query_row(
+                "SELECT id FROM campaign_derived_currencies
+                 WHERE campaign_id=?1 AND name='Penny'",
+                [campaign_id],
+                |row| row.get(0),
+            )
+            .expect("read updated stable Currency id");
         assert_eq!(stored_name, "Tidefall Revised");
         assert_eq!(currency_count, 1);
+        assert_eq!(updated_penny_id, penny_id);
     }
 
     #[test]
@@ -499,6 +616,61 @@ mod tests {
             campaign_count, 0,
             "failed aggregate must be fully rolled back"
         );
+    }
+
+    #[test]
+    fn a_currency_held_by_a_character_cannot_be_removed_or_renamed() {
+        let (mut connection, user_id, race_id, item_id) = setup();
+        let campaign_id = save_campaign_aggregate_in_connection(
+            &mut connection,
+            input(user_id, race_id, item_id),
+        )
+        .expect("save campaign");
+        connection
+            .execute(
+                "INSERT INTO campaign_players (campaign_id,user_id) VALUES (?1,?2)",
+                params![campaign_id, user_id],
+            )
+            .expect("Campaign membership");
+        connection
+            .execute(
+                "INSERT INTO campaign_characters (campaign_id,player_user_id)
+                 VALUES (?1,?2)",
+                params![campaign_id, user_id],
+            )
+            .expect("Character");
+        let character_id = connection.last_insert_rowid();
+        let penny_id: i64 = connection
+            .query_row(
+                "SELECT id FROM campaign_derived_currencies
+                 WHERE campaign_id=?1 AND name='Penny'",
+                [campaign_id],
+                |row| row.get(0),
+            )
+            .expect("Penny");
+        connection
+            .execute(
+                "INSERT INTO campaign_character_currency_holdings
+                 (character_id,currency_id,quantity) VALUES (?1,?2,10)",
+                params![character_id, penny_id],
+            )
+            .expect("held Pennies");
+
+        let mut updated = input(user_id, race_id, item_id);
+        updated.id = Some(campaign_id);
+        updated.core.name = "Should Roll Back".to_string();
+        updated.derived_currencies.remove(0);
+        let error = save_campaign_aggregate_in_connection(&mut connection, updated)
+            .expect_err("held denomination cannot disappear");
+        assert!(error.contains("held by a Character"));
+        let stored_name: String = connection
+            .query_row(
+                "SELECT name FROM campaigns WHERE id=?1",
+                [campaign_id],
+                |row| row.get(0),
+            )
+            .expect("rolled-back Campaign name");
+        assert_eq!(stored_name, "Tidefall");
     }
 
     #[test]

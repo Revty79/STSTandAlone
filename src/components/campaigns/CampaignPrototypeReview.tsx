@@ -50,6 +50,12 @@ export function CampaignPrototypeReview({ campaignId, snapshot, onEdit }: Props)
           <div><dt>Max Starting Points Spent per Skill</dt><dd>{snapshot.maxStartingSkill}</dd></div>
           <div><dt>Needed to Unlock Next Tier</dt><dd>{snapshot.pointsToUnlockNextTier}</dd></div>
           <div><dt>Max Points in a Standard Skill</dt><dd>{snapshot.maxPointsInSkill}</dd></div>
+          <div>
+            <dt>Fate Points</dt>
+            <dd>{snapshot.fatePointMethod === "Assigned"
+              ? `Assigned · ${snapshot.assignedFatePoints ?? 0}`
+              : "Rolled by each player"}</dd>
+          </div>
         </dl>
       </section>
 

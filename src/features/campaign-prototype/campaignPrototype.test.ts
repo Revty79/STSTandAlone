@@ -39,6 +39,7 @@ describe("Campaign prototype completion", () => {
       maxPointsInSkill: "Max Points in a Standard Skill is required.",
       startingCreditAmount: "Starting Credit Amount is required.",
       currencySystem: "Choose Credits or Derived Currency.",
+      fatePointMethod: "Choose Assigned or Rolled Fate Points.",
     });
   });
 
@@ -53,6 +54,8 @@ describe("Campaign prototype completion", () => {
       maxPointsInSkill: "75",
       startingCreditAmount: "200",
       currencySystem: "Credits" as const,
+      fatePointMethod: "Assigned" as const,
+      assignedFatePoints: "3",
     };
 
     const result = completeCampaignPrototype(draft, []);
@@ -76,6 +79,8 @@ describe("Campaign prototype completion", () => {
       maxPointsInSkill: "75",
       startingCreditAmount: "250",
       currencySystem: "Credits" as const,
+      fatePointMethod: "Assigned" as const,
+      assignedFatePoints: "4",
       allowedSystems: ["Tier 1", "Spellcraft", "Faith"] as CampaignSystemOption[],
       allowedRaceIds: [9, 2],
       inventoryGenres: ["Fantasy", "Historical"],
@@ -109,6 +114,8 @@ describe("Campaign prototype completion", () => {
       maxPointsInSkill: 75,
       startingCreditAmount: 250,
       currencySystem: "Credits",
+      fatePointMethod: "Assigned",
+      assignedFatePoints: 4,
       derivedCurrencies: [],
       allowedSystems: ["Tier 1", "Spellcraft", "Faith"],
       allowedRaces: [
@@ -164,6 +171,7 @@ describe("Campaign prototype completion", () => {
       maxPointsInSkill: "80",
       startingCreditAmount: "400",
       currencySystem: "Derived Currency" as const,
+      fatePointMethod: "Rolled" as const,
     };
 
     const incomplete = completeCampaignPrototype(draft, []);
@@ -208,6 +216,38 @@ describe("Campaign prototype completion", () => {
         creditsPerUnit: 5,
       },
     ]);
+  });
+
+  it("stores Assigned Fate Points or leaves each Rolled result for Character Identity", () => {
+    const base = {
+      ...createEmptyCampaignPrototypeDraft(),
+      name: "Tidefall",
+      attributePoints: "50",
+      skillPoints: "100",
+      maxStartingSkill: "10",
+      pointsToUnlockNextTier: "5",
+      maxPointsInSkill: "75",
+      startingCreditAmount: "100",
+      currencySystem: "Credits" as const,
+    };
+    const missingAssigned = completeCampaignPrototype({
+      ...base,
+      fatePointMethod: "Assigned",
+    }, []);
+    expect(missingAssigned.ok).toBe(false);
+    expect(missingAssigned.errors.assignedFatePoints).toContain("required");
+
+    const rolled = completeCampaignPrototype({
+      ...base,
+      fatePointMethod: "Rolled",
+    }, []);
+    expect(rolled.ok).toBe(true);
+    if (rolled.ok) {
+      expect(rolled.snapshot).toMatchObject({
+        fatePointMethod: "Rolled",
+        assignedFatePoints: null,
+      });
+    }
   });
 
   it("converts the shared Credit value into each denomination", () => {

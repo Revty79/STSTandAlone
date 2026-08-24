@@ -16,6 +16,8 @@ function savedCampaignInput(): SaveCampaignAggregate {
       maxPointsInSkill: 75,
       startingCreditAmount: 200,
       currencySystem: "Derived Currency",
+      fatePointMethod: "Assigned",
+      assignedFatePoints: 3,
       createdByUserId: 1,
     },
     derivedCurrencies: [{
@@ -40,6 +42,7 @@ describe("TauriCampaignRepository", () => {
           id: 12, name: "Tidefall", attributePoints: 50, skillPoints: 100,
           maxStartingSkill: 35, pointsToUnlockNextTier: 25, maxPointsInSkill: 75,
           startingCreditAmount: 200, currencySystem: "Derived Currency",
+          fatePointMethod: "Assigned", assignedFatePoints: 3,
           createdByUserId: 1, createdAt: "created", updatedAt: "updated",
         }] as T;
         if (/campaign_derived_currencies/i.test(query)) return [{
@@ -163,7 +166,7 @@ describe("TauriCampaignRepository", () => {
     ]);
     await repository.addCampaignPlayer(12, 2);
     expect(execute).toHaveBeenCalledWith(
-      "INSERT INTO campaign_players (campaign_id,user_id) VALUES ($1,$2)",
+      expect.stringMatching(/INSERT INTO campaign_players[\s\S]*is_npc_controller/i),
       [12, 2],
     );
     await expect(repository.listCampaignPlayers(12)).resolves.toEqual([
@@ -186,6 +189,26 @@ describe("TauriCampaignRepository", () => {
     const repository = new TauriCampaignRepository(async () => database);
 
     await expect(repository.listCampaignCharacters(12, 2)).resolves.toHaveLength(2);
+  });
+
+  it("lists the master NPC records without mixing them into Player Characters", async () => {
+    const npc = {
+      id: 41, campaignId: 12, name: "Harbormaster Vey",
+      createdAt: "created", updatedAt: "updated", creationCompletedAt: null,
+    };
+    const calls: Array<{ query: string; values: unknown[] }> = [];
+    const database: CampaignDatabase = {
+      async select<T>(query: string, values: unknown[] = []): Promise<T> {
+        calls.push({ query, values });
+        return [npc] as T;
+      },
+      async execute() { return { rowsAffected: 0 }; },
+    };
+    const repository = new TauriCampaignRepository(async () => database);
+
+    await expect(repository.listCampaignNpcs(12)).resolves.toEqual([npc]);
+    expect(calls[0]?.values).toEqual([12]);
+    expect(calls[0]?.query).toMatch(/character\.is_npc=1/i);
   });
 
   it("lists every Campaign where the requested Player is a member", async () => {

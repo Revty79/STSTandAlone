@@ -3,7 +3,9 @@ import { BrandLogo } from "../components/BrandLogo";
 import { CharacterHitLocationChart } from "../components/characters/CharacterHitLocationChart";
 import {
   formatCampaignMoney,
+  getCanonicalCreditsFromHoldings,
   getCampaignMoneyBreakdown,
+  getStoredCampaignMoneyBreakdown,
 } from "../features/currency/currencyRules";
 import {
   canAccessSupernaturalSkillAtLevel,
@@ -320,6 +322,7 @@ export function CharacterCreationPage({
   const [equipmentFilter, setEquipmentFilter] = useState<"all" | "weapon" | "armor" | "general" | "inventory">("all");
   const [activeSkillGroup, setActiveSkillGroup] = useState("STR");
   const nextDraftId = useRef(-1);
+  const isNpc = Boolean(aggregate?.character.isNpc);
 
   useEffect(() => {
     let current = true;
@@ -395,7 +398,7 @@ export function CharacterCreationPage({
   );
   const creationLocked = !isGodEditor && aggregate?.profile.creationCompletedAt !== null
     && aggregate?.profile.creationCompletedAt !== undefined;
-  const enforceCampaignTierLimits = !aggregate?.profile.creationCompletedAt;
+  const enforceCampaignTierLimits = !isGodEditor && !aggregate?.profile.creationCompletedAt;
 
   const visibleTabs = TABS.filter(([id]) => id !== "god" || isGodEditor);
 
@@ -413,6 +416,25 @@ export function CharacterCreationPage({
       aggregate.campaign.currencySystem,
       aggregate.campaign.derivedCurrencies,
     );
+  }
+
+  function characterPurse(canonicalCredits = currentFunds()) {
+    if (!aggregate || !draft) {
+      return { entries: [], fullyRepresented: false, formatted: "Currency unavailable" };
+    }
+    const useStoredHoldings = isGodEditor || Boolean(aggregate.profile.creationCompletedAt);
+    return useStoredHoldings
+      ? getStoredCampaignMoneyBreakdown(
+          canonicalCredits,
+          aggregate.campaign.currencySystem,
+          aggregate.campaign.derivedCurrencies,
+          draft.currencyHoldings,
+        )
+      : getCampaignMoneyBreakdown(
+          canonicalCredits,
+          aggregate.campaign.currencySystem,
+          aggregate.campaign.derivedCurrencies,
+        );
   }
   const ranks = useMemo(
     () => aggregate && draft
@@ -495,6 +517,16 @@ export function CharacterCreationPage({
       profile: {
         ...current.profile,
         [field]: value.trim() ? Math.max(0, numericValue(value)) : null,
+      },
+    }));
+  }
+
+  function changeFatePoints(value: string) {
+    changeDraft((current) => ({
+      ...current,
+      profile: {
+        ...current.profile,
+        fatePoints: value.trim() ? Math.max(0, Math.trunc(numericValue(value))) : null,
       },
     }));
   }
@@ -743,20 +775,21 @@ export function CharacterCreationPage({
 
   function changeDerivedCurrencyQuantity(currencyId: number, requested: number) {
     if (!aggregate || !draft || !isGodEditor) return;
-    const breakdown = getCampaignMoneyBreakdown(
-      draft.profile.creditsRemaining,
-      aggregate.campaign.currencySystem,
-      aggregate.campaign.derivedCurrencies,
-    );
-    const creditsRemaining = breakdown.entries.reduce((total, currency) => (
-      total + (currency.id === currencyId
+    const holdings = characterPurse(draft.profile.creditsRemaining).entries.map((currency) => ({
+      currencyId: currency.id,
+      quantity: currency.id === currencyId
         ? Math.max(0, Math.trunc(requested))
-        : currency.quantity) * currency.creditsPerUnit
-    ), 0);
-    changeAdministrativeNumber(
-      "creditsRemaining",
-      Math.round(creditsRemaining * 1_000_000) / 1_000_000,
+        : currency.quantity,
+    }));
+    const creditsRemaining = getCanonicalCreditsFromHoldings(
+      aggregate.campaign.derivedCurrencies,
+      holdings,
     );
+    changeDraft((current) => ({
+      ...current,
+      profile: { ...current.profile, creditsRemaining },
+      currencyHoldings: holdings,
+    }));
   }
 
   async function saveCharacter(completeCreation = false) {
@@ -827,8 +860,8 @@ export function CharacterCreationPage({
           <span>Fields marked Required determine readiness.</span>
         </header>
         <div className="character-field-grid character-field-grid--identity">
-          <label><span>Character Name · Required</span><input value={draft.name} onChange={(event) => changeDraft((current) => ({ ...current, name: event.target.value }))} /></label>
-          <label><span>Player</span><input value={aggregate.character.playerUsername} readOnly /></label>
+          <label><span>{isNpc ? "NPC Name" : "Character Name"} · Required</span><input value={draft.name} onChange={(event) => changeDraft((current) => ({ ...current, name: event.target.value }))} /></label>
+          <label><span>{isNpc ? "Record Type" : "Player"}</span><input value={isNpc ? "Non-Player Character" : aggregate.character.playerUsername} readOnly /></label>
           <label><span>Campaign</span><input value={aggregate.campaign.name} readOnly /></label>
           <label>
             <span>Race · Required</span>
@@ -851,6 +884,20 @@ export function CharacterCreationPage({
           <label><span>Eye Color · Required</span><input value={draft.profile.eyeColor} onChange={(event) => changeText("eyeColor", event.target.value)} /></label>
           <label><span>Hair Color · Required</span><input value={draft.profile.hairColor} onChange={(event) => changeText("hairColor", event.target.value)} /></label>
           <label><span>Deity · Required</span><input value={draft.profile.deity} placeholder="Enter None if the Character has no deity" onChange={(event) => changeText("deity", event.target.value)} /></label>
+          <label>
+            <span>Fate Points{aggregate.campaign.fatePointMethod === "Rolled" && !isGodEditor ? " · Rolled Result · Required" : ""}</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={draft.profile.fatePoints ?? ""}
+              readOnly={!isGodEditor && aggregate.campaign.fatePointMethod === "Assigned"}
+              onChange={(event) => changeFatePoints(event.target.value)}
+            />
+            <small>{aggregate.campaign.fatePointMethod === "Assigned"
+              ? `Assigned by this Campaign${isGodEditor ? "; G.O.D. may override it" : ""}.`
+              : "Enter the result rolled for this character."}</small>
+          </label>
           <label className="character-field-grid__wide"><span>Defining Marks & Character Quirks · Required</span><textarea rows={3} value={draft.profile.definingMarks} placeholder="Enter None if there are no defining marks or quirks" onChange={(event) => changeText("definingMarks", event.target.value)} /></label>
         </div>
         {race ? (
@@ -1018,11 +1065,13 @@ export function CharacterCreationPage({
   function renderEquipment() {
     if (!aggregate || !draft) return null;
     const remaining = currentFunds();
-    const purse = getCampaignMoneyBreakdown(
-      remaining,
-      aggregate.campaign.currencySystem,
-      aggregate.campaign.derivedCurrencies,
-    );
+    const purse = characterPurse(remaining);
+    const creditEquivalent = aggregate.campaign.currencySystem === "Derived Currency"
+      ? getCanonicalCreditsFromHoldings(
+          aggregate.campaign.derivedCurrencies,
+          purse.entries.map((entry) => ({ currencyId: entry.id, quantity: entry.quantity })),
+        )
+      : remaining;
     const search = equipmentSearch.trim().toLocaleLowerCase();
     const filterOptions = [
       ["all", "All Items"],
@@ -1061,6 +1110,7 @@ export function CharacterCreationPage({
             <div className="character-currency-ledger" aria-label="Current game currency breakdown">
               {purse.entries.map((currency) => <div key={currency.id}><strong>{displayNumber(currency.quantity)} {currency.name}</strong><span>{currency.description || "Campaign currency"}</span></div>)}
             </div>
+            <p className="character-panel__note">Credit Equivalent: {displayNumber(creditEquivalent)} Credits</p>
             {!purse.fullyRepresented ? <p className="character-currency-warning">The configured denominations cannot exactly represent this balance. Ask the G.O.D. to add a smaller denomination.</p> : null}
           </>
         ) : null}
@@ -1108,10 +1158,10 @@ export function CharacterCreationPage({
 
   function renderGodControls() {
     if (!aggregate || !draft || !isGodEditor) return null;
-    const purse = getCampaignMoneyBreakdown(
-      draft.profile.creditsRemaining,
-      aggregate.campaign.currencySystem,
+    const purse = characterPurse(draft.profile.creditsRemaining);
+    const creditEquivalent = getCanonicalCreditsFromHoldings(
       aggregate.campaign.derivedCurrencies,
+      purse.entries.map((entry) => ({ currencyId: entry.id, quantity: entry.quantity })),
     );
     const numericFields = [
       ["fame", "Fame"],
@@ -1139,7 +1189,7 @@ export function CharacterCreationPage({
           ))}
         </div>
         <section className="character-god-currency" aria-labelledby="character-god-currency-title">
-          <header><div><p>CURRENT CAMPAIGN MONEY</p><h3 id="character-god-currency-title">{purse.formatted}</h3></div><span>Saved independently from inventory changes.</span></header>
+          <header><div><p>CURRENT CAMPAIGN MONEY</p><h3 id="character-god-currency-title">{purse.formatted}</h3></div><span>{aggregate.campaign.currencySystem === "Derived Currency" ? `Credit Equivalent: ${displayNumber(creditEquivalent)} Credits · ` : ""}Saved independently from inventory changes.</span></header>
           {aggregate.campaign.currencySystem === "Credits" ? (
             <label><span>Current Credits</span><input type="number" min="0" step="0.01" value={draft.profile.creditsRemaining} onChange={(event) => changeAdministrativeNumber("creditsRemaining", event.target.value)} /></label>
           ) : purse.entries.length > 0 ? (
@@ -1185,7 +1235,7 @@ export function CharacterCreationPage({
     const heightInInches = (draft.profile.heightFeet ?? 0) * 12
       + (draft.profile.heightInches ?? 0);
     const identityDetails = [
-      ["Player", aggregate.character.playerUsername],
+      [isNpc ? "Record Type" : "Player", isNpc ? "Non-Player Character" : aggregate.character.playerUsername],
       ["Campaign", aggregate.campaign.name],
       ["Race", selectedRace?.race.name ?? ""],
       ["Size", selectedRace?.race.size ?? ""],
@@ -1204,6 +1254,7 @@ export function CharacterCreationPage({
       ["Experience", `${displayNumber(draft.profile.experience)} available · ${displayNumber(draft.profile.totalExperience)} lifetime`],
       ["Quintessence", `${displayNumber(draft.profile.quintessence)} available · ${displayNumber(draft.profile.totalQuintessence)} lifetime`],
       ["Fame", displayNumber(draft.profile.fame)],
+      ["Fate Points", draft.profile.fatePoints === null ? "Not entered" : displayNumber(draft.profile.fatePoints)],
     ];
     const storyDetails = [
       ["Personality", draft.profile.personality.trim()],
@@ -1215,11 +1266,13 @@ export function CharacterCreationPage({
     const movementModes = selectedRace?.movementModes ?? [];
     const ownedManaProfiles = manaProfiles.filter((profile) =>
       profile.manaPool > 0 && aggregate.campaign.allowedSystems.includes(profile.system));
-    const purse = getCampaignMoneyBreakdown(
-      currentFunds(),
-      aggregate.campaign.currencySystem,
-      aggregate.campaign.derivedCurrencies,
-    );
+    const purse = characterPurse(currentFunds());
+    const purseCreditEquivalent = aggregate.campaign.currencySystem === "Derived Currency"
+      ? getCanonicalCreditsFromHoldings(
+          aggregate.campaign.derivedCurrencies,
+          purse.entries.map((entry) => ({ currencyId: entry.id, quantity: entry.quantity })),
+        )
+      : currentFunds();
     const heldCurrencies = purse.entries.some((entry) => entry.quantity > 0)
       ? purse.entries.filter((entry) => entry.quantity > 0)
       : purse.entries.slice(-1);
@@ -1277,11 +1330,11 @@ export function CharacterCreationPage({
     const sheetContext = [
       selectedRace?.race.name,
       aggregate.campaign.name,
-      aggregate.character.playerUsername,
+      isNpc ? "NPC" : aggregate.character.playerUsername,
     ].filter(Boolean).join(" · ");
     return (
       <section className="character-sheet" aria-labelledby="character-sheet-title">
-        <header><div><p>SERRIAN TIDE CHARACTER RECORD</p><h2 id="character-sheet-title">{draft.name || "Unnamed Character"}</h2><span>{sheetContext}</span></div><strong>{readiness?.ready ? "CHARACTER READY" : "DRAFT CHARACTER"}</strong></header>
+        <header><div><p>{isNpc ? "SERRIAN TIDE NPC RECORD" : "SERRIAN TIDE CHARACTER RECORD"}</p><h2 id="character-sheet-title">{draft.name || (isNpc ? "Unnamed NPC" : "Unnamed Character")}</h2><span>{sheetContext}</span></div><strong>{isNpc ? "NPC RECORD" : readiness?.ready ? "CHARACTER READY" : "DRAFT CHARACTER"}</strong></header>
         <section className="character-sheet__identity" aria-label="Character identity">
           {identityDetails.map(([label, value]) => <div key={label} className={label === "Defining Marks & Quirks" ? "is-wide" : undefined}><span>{label}</span><strong>{value}</strong></div>)}
         </section>
@@ -1308,8 +1361,8 @@ export function CharacterCreationPage({
           </article>
           <article className="character-sheet__ledger character-sheet__ledger--currency">
             <h3>Currencies</h3>
-            <div className="character-sheet__ledger-total"><span>Total Held</span><strong>{campaignMoney(currentFunds())}</strong></div>
-            <table><tbody>{heldCurrencies.map((entry) => <tr key={entry.id}><th>{entry.name}</th><td>{displayNumber(entry.quantity)}</td><td>{displayNumber(entry.creditsPerUnit)} Credit{entry.creditsPerUnit === 1 ? "" : "s"} each</td></tr>)}</tbody></table>
+            <div className="character-sheet__ledger-total"><span>Total Held</span><strong>{purse.formatted}</strong></div>
+            <table><tbody>{aggregate.campaign.currencySystem === "Derived Currency" ? <tr><th>Credit Equivalent</th><td>{displayNumber(purseCreditEquivalent)}</td><td>Credits total</td></tr> : null}{heldCurrencies.map((entry) => <tr key={entry.id}><th>{entry.name}</th><td>{displayNumber(entry.quantity)}</td><td>{displayNumber(entry.creditsPerUnit)} Credit{entry.creditsPerUnit === 1 ? "" : "s"} each</td></tr>)}</tbody></table>
             {!purse.fullyRepresented ? <p className="character-currency-warning">This balance cannot be represented exactly by the Campaign denominations.</p> : null}
           </article>
           <article className="character-sheet__ledger character-sheet__ledger--advancement">
@@ -1344,34 +1397,45 @@ export function CharacterCreationPage({
         : activeTab === "equipment" ? renderEquipment()
           : activeTab === "god" ? renderGodControls()
             : renderSheet();
+  const statusBalance = aggregate && draft && readiness
+    ? (isGodEditor ? draft.profile.creditsRemaining : readiness.fundsRemaining)
+    : 0;
+  const statusPurse = aggregate && draft ? characterPurse(statusBalance) : null;
+  const statusCreditEquivalent = aggregate && statusPurse
+    && aggregate.campaign.currencySystem === "Derived Currency"
+    ? getCanonicalCreditsFromHoldings(
+        aggregate.campaign.derivedCurrencies,
+        statusPurse.entries.map((entry) => ({ currencyId: entry.id, quantity: entry.quantity })),
+      )
+    : statusBalance;
 
   return (
     <main className="character-creation-page">
       <div className="character-creation-page__texture" aria-hidden="true" />
       <header className="character-creation-header">
         <div className="character-creation-header__brand"><BrandLogo /></div>
-        <div className="character-creation-header__title"><p>{isGodEditor ? "THE HEAVENS / CHARACTER ADMINISTRATION" : "THE REALMS / CHARACTER CREATION"}</p><h1>{isGodEditor ? "Edit Character" : "Character Creation"}</h1><span>Campaign: {aggregate?.campaign.name ?? campaignId} · Player: {aggregate?.character.playerUsername ?? session.username} · Character: {draft?.name ?? "Loading…"}</span></div>
-        <div className="character-creation-header__actions"><button type="button" onClick={() => requestExit("back")}>Back to {isGodEditor ? "The Heavens" : "The Realms"}</button><button type="button" onClick={() => requestExit("logout")}>Log Out</button></div>
+        <div className="character-creation-header__title"><p>{isNpc ? "THE HEAVENS / NPC ADMINISTRATION" : isGodEditor ? "THE HEAVENS / CHARACTER ADMINISTRATION" : "THE REALMS / CHARACTER CREATION"}</p><h1>{isNpc ? "Edit NPC" : isGodEditor ? "Edit Character" : "Character Creation"}</h1><span>Campaign: {aggregate?.campaign.name ?? campaignId} · {isNpc ? "Record: NPC" : `Player: ${aggregate?.character.playerUsername ?? session.username}`} · Character: {draft?.name ?? "Loading…"}</span></div>
+        <div className="character-creation-header__actions"><button type="button" onClick={() => requestExit("back")}>Back to {isNpc ? "NPC Master Sheet" : isGodEditor ? "The Heavens" : "The Realms"}</button><button type="button" onClick={() => requestExit("logout")}>Log Out</button></div>
       </header>
 
       {aggregate && draft && readiness ? (
         <div className="character-status" role="status" aria-live="polite">
           <div className="character-status__metrics">
-            <span>Attributes <strong>{displayNumber(readiness.attributesUsed)} / {displayNumber(aggregate.campaign.attributePoints)}</strong></span>
-            <span>Skills <strong>{displayNumber(readiness.skillPointsUsed)} / {displayNumber(aggregate.campaign.skillPoints)}</strong></span>
+            <span>Attributes <strong>{displayNumber(readiness.attributesUsed)}{isNpc ? " total" : ` / ${displayNumber(aggregate.campaign.attributePoints)}`}</strong></span>
+            <span>Skills <strong>{displayNumber(readiness.skillPointsUsed)}{isNpc ? " invested" : ` / ${displayNumber(aggregate.campaign.skillPoints)}`}</strong></span>
             <span>Race <strong>{readiness.raceComplete ? "✓" : "—"}</strong></span>
             <span>Story <strong>{readiness.storyComplete ? "✓" : "—"}</strong></span>
             <span>Equipment <strong>{readiness.equipmentComplete ? "✓" : "—"}</strong></span>
-            <span>{isGodEditor ? "Current Funds" : "Starting Funds"} <strong>{campaignMoney(isGodEditor ? draft.profile.creditsRemaining : readiness.fundsRemaining)} {isGodEditor ? "held" : "remaining"}</strong></span>
+            <span>{isGodEditor ? "Current Funds" : "Starting Funds"} <strong>{statusPurse?.formatted ?? "Currency unavailable"} {isGodEditor ? "held" : "remaining"}</strong>{aggregate.campaign.currencySystem === "Derived Currency" ? <small>Credit Equivalent: {displayNumber(statusCreditEquivalent)} Credits</small> : null}</span>
           </div>
           <div className={`character-status__readiness${isGodEditor || readiness.ready || creationLocked ? " is-ready" : ""}`}>
             <strong>{isGodEditor ? "G.O.D. Full Access" : creationLocked ? "Creation Complete" : readiness.ready ? "Character Ready" : "Character Draft"}</strong>
-            <span>{dirty ? "Unsaved changes" : isGodEditor ? (aggregate.profile.creationCompletedAt ? "Completed Character" : "Draft Character") : creationLocked ? "Permanent creation record" : "Saved draft"}</span>
+            <span>{dirty ? "Unsaved changes" : isNpc ? "NPC record" : isGodEditor ? (aggregate.profile.creationCompletedAt ? "Completed Character" : "Draft Character") : creationLocked ? "Permanent creation record" : "Saved draft"}</span>
           </div>
           {!creationLocked ? (
             <div className="character-status__actions">
-              <button type="button" disabled={saving || !dirty} onClick={() => void saveCharacter()}>{saving ? "Saving…" : "Save Character"}</button>
-              {readiness.ready && !aggregate.profile.creationCompletedAt ? <button className="character-status__complete" type="button" disabled={saving} onClick={() => setConfirmCompletion(true)}>Complete Character</button> : null}
+              <button type="button" disabled={saving || !dirty} onClick={() => void saveCharacter()}>{saving ? "Saving…" : isNpc ? "Save NPC" : "Save Character"}</button>
+              {!isNpc && readiness.ready && !aggregate.profile.creationCompletedAt ? <button className="character-status__complete" type="button" disabled={saving} onClick={() => setConfirmCompletion(true)}>Complete Character</button> : null}
             </div>
           ) : null}
         </div>
@@ -1379,19 +1443,19 @@ export function CharacterCreationPage({
 
       <div className="character-creation-workspace">
         {feedback ? <div className={`character-feedback character-feedback--${feedback.kind}`} role={feedback.kind === "error" ? "alert" : "status"}>{feedback.message}</div> : null}
-        {loading ? <section className="character-loading"><p>READING CHARACTER RECORD</p><h2>Opening the local archive…</h2></section> : null}
+        {loading ? <section className="character-loading"><p>READING {isNpc ? "NPC" : "CHARACTER"} RECORD</p><h2>Opening the local archive…</h2></section> : null}
         {!loading && aggregate && draft ? (
           <>
             <nav className="character-tabs" aria-label="Character creation sections">{visibleTabs.map(([id, label]) => <button key={id} type="button" className={activeTab === id ? "is-active" : ""} aria-current={activeTab === id ? "page" : undefined} onClick={() => setActiveTab(id)}>{label}</button>)}</nav>
-            {isGodEditor ? <aside className="character-god-notice"><strong>G.O.D. administrative access is active.</strong><span>You may edit this entire Character record regardless of its creation status. The Player's own completed-character lock remains unchanged.</span></aside> : creationLocked ? <aside className="character-locked-notice"><strong>Character creation is complete.</strong><span>Identity, Attributes, starting Skills, Story, and starting Equipment are now read-only. Advancement and later purchases use their own controlled workflows.</span></aside> : null}
-            {activeTab === "sheet" ? <div className="character-print-toolbar"><span>Open the system print preview to print this record or save it as a PDF.</span><button type="button" onClick={() => window.print()}>Print Character Sheet</button></div> : null}
+            {isGodEditor ? <aside className="character-god-notice"><strong>G.O.D. administrative access is active.</strong><span>{isNpc ? "You may edit the entire NPC record directly; player starting budgets, Campaign starting-tier limits, and casting-access gates are not applied." : "You may edit this entire Character record regardless of its creation status. The Player's own completed-character lock remains unchanged."}</span></aside> : creationLocked ? <aside className="character-locked-notice"><strong>Character creation is complete.</strong><span>Identity, Attributes, starting Skills, Story, and starting Equipment are now read-only. Advancement and later purchases use their own controlled workflows.</span></aside> : null}
+            {activeTab === "sheet" ? <div className="character-print-toolbar"><span>Open the system print preview to print this record or save it as a PDF.</span><button type="button" onClick={() => window.print()}>Print {isNpc ? "NPC" : "Character"} Sheet</button></div> : null}
             <fieldset className="character-creation-lockable" disabled={creationLocked}>{content}</fieldset>
             {!isGodEditor && !creationLocked && !readiness?.ready && readiness?.issues.length ? <aside className="character-readiness"><strong>Before this Character is ready</strong><ul>{readiness.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul></aside> : null}
           </>
         ) : null}
       </div>
 
-      {pendingExit ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-character-title"><div><p id="discard-character-title">Unsaved changes</p><span>Leave this Character and discard the changes you have not saved?</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setPendingExit(null)}>Keep Editing</button><button className="skills-danger-button" type="button" onClick={discardAndExit}>Discard Changes</button></div></div> : null}
+      {pendingExit ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-character-title"><div><p id="discard-character-title">Unsaved changes</p><span>Leave this {isNpc ? "NPC" : "Character"} and discard the changes you have not saved?</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setPendingExit(null)}>Keep Editing</button><button className="skills-danger-button" type="button" onClick={discardAndExit}>Discard Changes</button></div></div> : null}
       {confirmCompletion ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="complete-character-title"><div><p id="complete-character-title">Complete this Character?</p><span>Identity, Story, Attributes, Skills, and starting Equipment are complete. This permanently locks Character creation; later changes use their controlled workflows.</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setConfirmCompletion(false)}>Keep Editing</button><button className="character-complete-confirm" type="button" disabled={saving} onClick={() => { setConfirmCompletion(false); void saveCharacter(true); }}>Complete Character</button></div></div> : null}
       {describedSkill ? (
         <div className="character-skill-description-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setDescribedSkill(null); }}>

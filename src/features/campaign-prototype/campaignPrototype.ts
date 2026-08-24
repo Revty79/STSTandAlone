@@ -1,6 +1,7 @@
 import {
   CAMPAIGN_SYSTEM_OPTIONS,
   type CampaignCurrencySystem,
+  type CampaignFatePointMethod,
   type CampaignSystemOption,
 } from "../../types/campaign";
 
@@ -45,6 +46,8 @@ export type CampaignPrototypeDraft = {
   maxPointsInSkill: string;
   startingCreditAmount: string;
   currencySystem: CampaignCurrencySystem | "";
+  fatePointMethod: CampaignFatePointMethod | "";
+  assignedFatePoints: string;
   derivedCurrencies: CampaignDerivedCurrencyDraft[];
   allowedSystems: CampaignSystemOption[];
   allowedRaceIds: number[];
@@ -61,6 +64,8 @@ export type CampaignPrototypeSnapshot = {
   maxPointsInSkill: number;
   startingCreditAmount: number;
   currencySystem: CampaignCurrencySystem;
+  fatePointMethod: CampaignFatePointMethod;
+  assignedFatePoints: number | null;
   derivedCurrencies: CampaignDerivedCurrency[];
   allowedSystems: CampaignSystemOption[];
   allowedRaces: CampaignRaceOption[];
@@ -109,6 +114,8 @@ export function createEmptyCampaignPrototypeDraft(): CampaignPrototypeDraft {
     maxPointsInSkill: "",
     startingCreditAmount: "",
     currencySystem: "",
+    fatePointMethod: "",
+    assignedFatePoints: "",
     derivedCurrencies: [],
     allowedSystems: [],
     allowedRaceIds: [],
@@ -166,6 +173,18 @@ export function completeCampaignPrototype(
     errors.currencySystem = "Choose Credits or Derived Currency.";
   }
 
+  if (!draft.fatePointMethod) {
+    errors.fatePointMethod = "Choose Assigned or Rolled Fate Points.";
+  } else if (draft.fatePointMethod === "Assigned") {
+    const text = draft.assignedFatePoints.trim();
+    const value = Number(text);
+    if (!text) {
+      errors.assignedFatePoints = "Assigned Fate Points are required.";
+    } else if (!Number.isInteger(value) || value < 0) {
+      errors.assignedFatePoints = "Assigned Fate Points must be a whole number zero or greater.";
+    }
+  }
+
   const derivedCurrencies: CampaignDerivedCurrency[] = [];
   if (draft.currencySystem === "Derived Currency") {
     if (draft.derivedCurrencies.length === 0) {
@@ -221,6 +240,10 @@ export function completeCampaignPrototype(
       maxPointsInSkill: numericValues.maxPointsInSkill,
       startingCreditAmount: numericValues.startingCreditAmount,
       currencySystem: draft.currencySystem as CampaignCurrencySystem,
+      fatePointMethod: draft.fatePointMethod as CampaignFatePointMethod,
+      assignedFatePoints: draft.fatePointMethod === "Assigned"
+        ? Number(draft.assignedFatePoints)
+        : null,
       derivedCurrencies,
       allowedSystems: [...draft.allowedSystems],
       allowedRaces: raceOptions.filter((race) => selectedRaceIds.has(race.id)),

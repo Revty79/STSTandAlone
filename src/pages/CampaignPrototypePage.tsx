@@ -23,6 +23,7 @@ import "../styles/campaign-prototype.css";
 
 type Props = {
   session: AuthSession;
+  initialCampaignId?: number | null;
   onBack: () => void;
   onLogout: () => void;
 };
@@ -41,6 +42,8 @@ function campaignAggregateToSnapshot(
     maxPointsInSkill: aggregate.campaign.maxPointsInSkill,
     startingCreditAmount: aggregate.campaign.startingCreditAmount,
     currencySystem: aggregate.campaign.currencySystem,
+    fatePointMethod: aggregate.campaign.fatePointMethod,
+    assignedFatePoints: aggregate.campaign.assignedFatePoints,
     derivedCurrencies: aggregate.derivedCurrencies.map((currency) => ({
       name: currency.name,
       description: currency.description,
@@ -48,6 +51,32 @@ function campaignAggregateToSnapshot(
     })),
     allowedSystems: aggregate.allowedSystems,
     allowedRaces: aggregate.allowedRaces,
+    inventoryGenres: aggregate.inventoryGenres.map((genre) => genre.name),
+    inventoryItems: aggregate.inventoryItems,
+  };
+}
+
+function campaignAggregateToDraft(aggregate: CampaignAggregate): CampaignPrototypeDraft {
+  return {
+    name: aggregate.campaign.name,
+    attributePoints: String(aggregate.campaign.attributePoints),
+    skillPoints: String(aggregate.campaign.skillPoints),
+    maxStartingSkill: String(aggregate.campaign.maxStartingSkill),
+    pointsToUnlockNextTier: String(aggregate.campaign.pointsToUnlockNextTier),
+    maxPointsInSkill: String(aggregate.campaign.maxPointsInSkill),
+    startingCreditAmount: String(aggregate.campaign.startingCreditAmount),
+    currencySystem: aggregate.campaign.currencySystem,
+    fatePointMethod: aggregate.campaign.fatePointMethod,
+    assignedFatePoints: aggregate.campaign.assignedFatePoints === null
+      ? ""
+      : String(aggregate.campaign.assignedFatePoints),
+    derivedCurrencies: aggregate.derivedCurrencies.map((currency) => ({
+      name: currency.name,
+      description: currency.description,
+      creditsPerUnit: String(currency.creditsPerUnit),
+    })),
+    allowedSystems: aggregate.allowedSystems,
+    allowedRaceIds: aggregate.allowedRaces.map((race) => race.id),
     inventoryGenres: aggregate.inventoryGenres.map((genre) => genre.name),
     inventoryItems: aggregate.inventoryItems,
   };
@@ -119,13 +148,15 @@ export async function readCampaignInventoryItems(
   ));
 }
 
-export function CampaignPrototypePage({ session, onBack, onLogout }: Props) {
+export function CampaignPrototypePage({ session, initialCampaignId, onBack, onLogout }: Props) {
   const [draft, setDraft] = useState<CampaignPrototypeDraft>(
     createEmptyCampaignPrototypeDraft,
   );
   const [errors, setErrors] = useState<CampaignPrototypeErrors>({});
   const [snapshot, setSnapshot] = useState<CampaignPrototypeSnapshot | null>(null);
-  const [campaignId, setCampaignId] = useState<number | undefined>();
+  const [campaignId, setCampaignId] = useState<number | undefined>(initialCampaignId ?? undefined);
+  const [campaignCreatorId, setCampaignCreatorId] = useState(session.userId);
+  const [campaignLoading, setCampaignLoading] = useState(Boolean(initialCampaignId));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [races, setRaces] = useState<CampaignRaceOption[]>([]);
@@ -139,6 +170,40 @@ export function CampaignPrototypePage({ session, onBack, onLogout }: Props) {
   const [inventoryItemsError, setInventoryItemsError] = useState("");
   const [dirty, setDirty] = useState(false);
   const [pendingExit, setPendingExit] = useState<PendingExit | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    if (!initialCampaignId) {
+      setCampaignLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+    setCampaignLoading(true);
+    setSaveError("");
+    campaignService.getCampaign(initialCampaignId)
+      .then((aggregate) => {
+        if (!active) return;
+        if (!aggregate) {
+          setSaveError("That Campaign is no longer available in the local archive.");
+          return;
+        }
+        setCampaignId(aggregate.campaign.id);
+        setCampaignCreatorId(aggregate.campaign.createdByUserId);
+        setDraft(campaignAggregateToDraft(aggregate));
+        setSnapshot(null);
+        setDirty(false);
+      })
+      .catch(() => {
+        if (active) setSaveError("The saved Campaign could not be loaded for editing.");
+      })
+      .finally(() => {
+        if (active) setCampaignLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [initialCampaignId]);
 
   useEffect(() => {
     let active = true;
@@ -257,7 +322,9 @@ export function CampaignPrototypePage({ session, onBack, onLogout }: Props) {
           maxPointsInSkill: result.snapshot.maxPointsInSkill,
           startingCreditAmount: result.snapshot.startingCreditAmount,
           currencySystem: result.snapshot.currencySystem,
-          createdByUserId: session.userId,
+          fatePointMethod: result.snapshot.fatePointMethod,
+          assignedFatePoints: result.snapshot.assignedFatePoints,
+          createdByUserId: campaignCreatorId,
         },
         derivedCurrencies: result.snapshot.derivedCurrencies,
         allowedSystems: result.snapshot.allowedSystems,
@@ -301,7 +368,7 @@ export function CampaignPrototypePage({ session, onBack, onLogout }: Props) {
         <div className="skills-page__brand"><BrandLogo /></div>
         <div className="skills-page__title">
           <p>THE HEAVENS / CAMPAIGN CREATION</p>
-          <h1>Create Campaign</h1>
+          <h1>{campaignId ? "Edit Campaign" : "Create Campaign"}</h1>
           <span>Permanent Campaign archive · {session.username}</span>
         </div>
         <div className="skills-page__navigation">
@@ -323,7 +390,9 @@ export function CampaignPrototypePage({ session, onBack, onLogout }: Props) {
           </div>
         ) : null}
 
-        {snapshot && campaignId ? (
+        {campaignLoading ? (
+          <div className="campaign-prototype__notice" role="status">Loading the saved Campaign for editing…</div>
+        ) : snapshot && campaignId ? (
           <CampaignPrototypeReview
             campaignId={campaignId}
             snapshot={snapshot}

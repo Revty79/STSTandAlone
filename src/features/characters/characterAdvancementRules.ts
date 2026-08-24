@@ -105,6 +105,7 @@ function aggregateDraft(aggregate: CharacterAggregate): CharacterDraft {
       totalExperience: aggregate.profile.totalExperience,
       quintessence: aggregate.profile.quintessence,
       totalQuintessence: aggregate.profile.totalQuintessence,
+      fatePoints: aggregate.profile.fatePoints,
       creditsRemaining: aggregate.profile.creditsRemaining,
     },
     attributes: Object.fromEntries(
@@ -120,6 +121,10 @@ function aggregateDraft(aggregate: CharacterAggregate): CharacterDraft {
       itemId: item.itemId,
       quantity: item.quantity,
       unitCostCredits: item.unitCostCredits,
+    })),
+    currencyHoldings: aggregate.currencyHoldings.map((holding) => ({
+      currencyId: holding.currencyId,
+      quantity: holding.quantity,
     })),
   };
 }

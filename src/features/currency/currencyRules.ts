@@ -18,6 +18,11 @@ export type CampaignMoneyBreakdown = {
   formatted: string;
 };
 
+export type CampaignCurrencyHolding = {
+  currencyId: number;
+  quantity: number;
+};
+
 const MAX_DECIMAL_PLACES = 6;
 
 function decimalPlaces(value: number): number {
@@ -103,6 +108,63 @@ export function getCampaignMoneyBreakdown(
     formatted: fullyRepresented
       ? formatEntries(entries)
       : `${formatEntries(entries)} · denomination gap`,
+  };
+}
+
+export function getCanonicalCreditsFromHoldings(
+  currencies: readonly CurrencyDefinition[],
+  holdings: readonly CampaignCurrencyHolding[],
+): number {
+  const values = new Map(currencies.map((currency) => [currency.id, currency.creditsPerUnit]));
+  const total = holdings.reduce((sum, holding) => {
+    const unitValue = values.get(holding.currencyId);
+    return unitValue === undefined ? sum : sum + holding.quantity * unitValue;
+  }, 0);
+  return Math.round(total * 1_000_000) / 1_000_000;
+}
+
+export function getStoredCampaignMoneyBreakdown(
+  canonicalCredits: number,
+  currencySystem: CampaignCurrencySystem,
+  currencies: readonly CurrencyDefinition[],
+  holdings: readonly CampaignCurrencyHolding[],
+): CampaignMoneyBreakdown {
+  if (currencySystem === "Credits") {
+    return getCampaignMoneyBreakdown(canonicalCredits, currencySystem, currencies);
+  }
+  if (holdings.length === 0 && canonicalCredits > 0) {
+    return getCampaignMoneyBreakdown(canonicalCredits, currencySystem, currencies);
+  }
+
+  const quantities = new Map<number, number>();
+  let valid = true;
+  for (const holding of holdings) {
+    if (!Number.isInteger(holding.quantity) || holding.quantity < 0
+      || quantities.has(holding.currencyId)) {
+      valid = false;
+      continue;
+    }
+    quantities.set(holding.currencyId, holding.quantity);
+  }
+  const validCurrencies = currencies
+    .filter((currency) => Number.isFinite(currency.creditsPerUnit) && currency.creditsPerUnit > 0)
+    .sort((left, right) => right.creditsPerUnit - left.creditsPerUnit
+      || left.sortOrder - right.sortOrder
+      || left.id - right.id);
+  const currencyIds = new Set(validCurrencies.map((currency) => currency.id));
+  if ([...quantities.keys()].some((currencyId) => !currencyIds.has(currencyId))) valid = false;
+  const entries = validCurrencies.map((currency) => ({
+    ...currency,
+    quantity: quantities.get(currency.id) ?? 0,
+  }));
+  const heldCreditValue = getCanonicalCreditsFromHoldings(validCurrencies, holdings);
+  const matchesCanonicalBalance = Math.abs(heldCreditValue - canonicalCredits) <= 0.000_001;
+  return {
+    entries,
+    fullyRepresented: valid && entries.length > 0 && matchesCanonicalBalance,
+    formatted: valid && entries.length > 0
+      ? formatEntries(entries)
+      : "Currency holdings need attention",
   };
 }
 

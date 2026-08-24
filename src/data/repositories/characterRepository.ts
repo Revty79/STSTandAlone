@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import {
   CAMPAIGN_SYSTEM_OPTIONS,
   type CampaignCurrencySystem,
+  type CampaignFatePointMethod,
   type CampaignSystemOption,
 } from "../../types/campaign";
 import {
@@ -28,9 +29,11 @@ export interface CharacterDatabase {
 
 type CharacterCoreAndCampaignRow = Omit<
   CharacterAggregate["character"],
-  never
-> & Omit<CharacterCampaignRules, "id" | "name" | "currencySystem" | "allowedSystems" | "derivedCurrencies"> & {
+  "isNpc"
+> & Omit<CharacterCampaignRules, "id" | "name" | "currencySystem" | "fatePointMethod" | "allowedSystems" | "derivedCurrencies"> & {
   currencySystem: string;
+  fatePointMethod: string;
+  isNpc: number;
 };
 
 type CharacterSystemRow = { systemName: string };
@@ -38,6 +41,11 @@ type CharacterSystemRow = { systemName: string };
 function currencySystem(value: string): CampaignCurrencySystem {
   if (value === "Credits" || value === "Derived Currency") return value;
   throw new Error(`Stored Character Campaign has unsupported Currency System ${JSON.stringify(value)}.`);
+}
+
+function fatePointMethod(value: string): CampaignFatePointMethod {
+  if (value === "Assigned" || value === "Rolled") return value;
+  throw new Error(`Stored Character Campaign has unsupported Fate Point method ${JSON.stringify(value)}.`);
 }
 
 function campaignSystem(value: string): CampaignSystemOption {
@@ -65,6 +73,10 @@ export interface CharacterRepository {
     campaignId: number,
     playerUserId: number,
   ): Promise<CharacterAggregate>;
+  createNpcAggregate(
+    campaignId: number,
+    requestingUserId: number,
+  ): Promise<CharacterAggregate>;
   saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate>;
   advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate>;
   getAllowedRaceForCharacter(
@@ -91,6 +103,13 @@ export class TauriCharacterRepository implements CharacterRepository {
       (input) => invoke<number>("save_character_aggregate", { input }),
     private readonly advanceSkillInvoker: (input: AdvanceCharacterSkill) => Promise<number> =
       (input) => invoke<number>("advance_character_skill", { input }),
+    private readonly createNpcInvoker: (
+      campaignId: number,
+      requestingUserId: number,
+    ) => Promise<number> = (campaignId, requestingUserId) => invoke<number>(
+      "create_npc_aggregate",
+      { input: { campaignId, requestingUserId } },
+    ),
   ) {}
 
   async getCharacterAggregate(
@@ -103,6 +122,7 @@ export class TauriCharacterRepository implements CharacterRepository {
     const coreRows = await database.select<CharacterCoreAndCampaignRow[]>(
       `SELECT character.id,character.campaign_id AS campaignId,
          character.player_user_id AS playerUserId,character.name,
+         character.is_npc AS isNpc,
          campaign.name AS campaignName,profile.username AS playerUsername,
          character.created_at AS createdAt,character.updated_at AS updatedAt,
          campaign.attribute_points AS attributePoints,
@@ -111,13 +131,15 @@ export class TauriCharacterRepository implements CharacterRepository {
          campaign.points_to_unlock_next_tier AS pointsToUnlockNextTier,
          campaign.max_points_in_skill AS maxPointsInSkill,
          campaign.starting_credit_amount AS startingCreditAmount,
-         campaign.currency_system AS currencySystem
+         campaign.currency_system AS currencySystem,
+         campaign.fate_point_method AS fatePointMethod,
+         campaign.assigned_fate_points AS assignedFatePoints
        FROM campaign_characters character
        JOIN campaigns campaign ON campaign.id=character.campaign_id
        JOIN users profile ON profile.id=character.player_user_id
        WHERE character.id=$1 AND character.campaign_id=$2
          AND (
-           ($4=0 AND character.player_user_id=$3)
+           ($4=0 AND character.is_npc=0 AND character.player_user_id=$3)
            OR ($4=1 AND EXISTS (
              SELECT 1 FROM user_roles actor_role
              WHERE actor_role.user_id=$3 AND actor_role.role='god'
@@ -139,6 +161,7 @@ export class TauriCharacterRepository implements CharacterRepository {
       attributeRows,
       skillAllocations,
       items,
+      currencyHoldings,
       systemRows,
       derivedCurrencies,
       allowedRaces,
@@ -153,6 +176,7 @@ export class TauriCharacterRepository implements CharacterRepository {
            deity,defining_marks AS definingMarks,personality,goals,secrets,
            backstory,motivations,fame,experience,total_experience AS totalExperience,
            quintessence,total_quintessence AS totalQuintessence,
+           fate_points AS fatePoints,
            credits_remaining AS creditsRemaining,
            creation_completed_at AS creationCompletedAt,created_at AS createdAt,
            updated_at AS updatedAt
@@ -191,6 +215,12 @@ export class TauriCharacterRepository implements CharacterRepository {
          JOIN items item ON item.id=owned.item_id
          WHERE owned.character_id=$1
          ORDER BY item.name COLLATE NOCASE,item.id`,
+        [characterId],
+      ),
+      database.select<CharacterAggregate["currencyHoldings"]>(
+        `SELECT character_id AS characterId,currency_id AS currencyId,quantity
+         FROM campaign_character_currency_holdings
+         WHERE character_id=$1 ORDER BY currency_id`,
         [characterId],
       ),
       database.select<CharacterSystemRow[]>(
@@ -256,10 +286,21 @@ export class TauriCharacterRepository implements CharacterRepository {
         [campaignId],
       ),
     ]);
-    const profile = profileRows[0];
-    if (!profile) {
+    const storedProfile = profileRows[0];
+    if (!storedProfile) {
       throw new Error("The Character aggregate is missing its profile row.");
     }
+    const profile = row.currencySystem === "Derived Currency" && currencyHoldings.length > 0
+      ? {
+          ...storedProfile,
+          creditsRemaining: Math.round(currencyHoldings.reduce((total, holding) => (
+            total + holding.quantity * (
+              derivedCurrencies.find((currency) => currency.id === holding.currencyId)
+                ?.creditsPerUnit ?? 0
+            )
+          ), 0) * 1_000_000) / 1_000_000,
+        }
+      : storedProfile;
     const selectedRace = profile.raceId === null
       ? null
       : await this.getAllowedRaceForCharacter(
@@ -283,6 +324,7 @@ export class TauriCharacterRepository implements CharacterRepository {
         playerUsername: row.playerUsername,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
+        isNpc: Boolean(row.isNpc),
       },
       profile,
       attributes: attributeRows.map((attribute) => ({
@@ -291,6 +333,7 @@ export class TauriCharacterRepository implements CharacterRepository {
       })),
       skillAllocations,
       items,
+      currencyHoldings,
       campaign: {
         id: row.campaignId,
         name: row.campaignName,
@@ -301,6 +344,8 @@ export class TauriCharacterRepository implements CharacterRepository {
         maxPointsInSkill: row.maxPointsInSkill,
         startingCreditAmount: row.startingCreditAmount,
         currencySystem: currencySystem(row.currencySystem),
+        fatePointMethod: fatePointMethod(row.fatePointMethod),
+        assignedFatePoints: row.assignedFatePoints,
         allowedSystems: systemRows.map(({ systemName }) => campaignSystem(systemName)),
         derivedCurrencies,
       },
@@ -319,6 +364,21 @@ export class TauriCharacterRepository implements CharacterRepository {
     const id = await this.createInvoker(campaignId, playerUserId);
     const aggregate = await this.getCharacterAggregate(id, campaignId, playerUserId, false);
     if (!aggregate) throw new Error("The new Character aggregate could not be reloaded.");
+    return aggregate;
+  }
+
+  async createNpcAggregate(
+    campaignId: number,
+    requestingUserId: number,
+  ): Promise<CharacterAggregate> {
+    const id = await this.createNpcInvoker(campaignId, requestingUserId);
+    const aggregate = await this.getCharacterAggregate(
+      id,
+      campaignId,
+      requestingUserId,
+      true,
+    );
+    if (!aggregate) throw new Error("The new NPC aggregate could not be reloaded.");
     return aggregate;
   }
 
@@ -362,7 +422,7 @@ export class TauriCharacterRepository implements CharacterRepository {
           AND allowed.race_id=$4
          WHERE character.id=$1 AND character.campaign_id=$2
            AND (
-             ($5=0 AND character.player_user_id=$3)
+             ($5=0 AND character.is_npc=0 AND character.player_user_id=$3)
              OR ($5=1 AND EXISTS (
                SELECT 1 FROM user_roles actor_role
                WHERE actor_role.user_id=$3 AND actor_role.role='god'

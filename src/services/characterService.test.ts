@@ -26,18 +26,19 @@ function characterAggregate(): CharacterAggregate {
       skinColor: "", eyeColor: "", hairColor: "", deity: "", definingMarks: "",
       personality: "", goals: "", secrets: "", backstory: "", motivations: "",
       fame: 0, experience: 0, totalExperience: 0, quintessence: 0,
-      totalQuintessence: 0, creditsRemaining: 100,
+      totalQuintessence: 0, fatePoints: 3, creditsRemaining: 100,
       creationCompletedAt: null,
       createdAt: "created", updatedAt: "updated",
     },
     attributes: ["STR", "DEX", "CON", "INT", "WIS", "CHR"].map((attributeKey) => ({
       characterId: 9, attributeKey: attributeKey as "STR", value: 25,
     })),
-    skillAllocations: [], items: [],
+    skillAllocations: [], items: [], currencyHoldings: [],
     campaign: {
       id: 12, name: "Tidefall", attributePoints: 150, skillPoints: 10,
       maxStartingSkill: 5, pointsToUnlockNextTier: 5, maxPointsInSkill: 75,
       startingCreditAmount: 100, currencySystem: "Credits",
+      fatePointMethod: "Assigned", assignedFatePoints: 3,
       allowedSystems: ["Tier 1", "Tier 2"], derivedCurrencies: [],
     },
     allowedRaces: [{ id: 3, name: "Human" }], selectedRace: null,
@@ -51,6 +52,7 @@ class RecordingCharacterRepository implements CharacterRepository {
   saved: SaveCharacterAggregate | null = null;
   readWith: [number, number, number, boolean] | null = null;
   advancedWith: AdvanceCharacterSkill | null = null;
+  npcCreatedWith: [number, number] | null = null;
 
   async getCharacterAggregate(
     characterId: number,
@@ -68,6 +70,14 @@ class RecordingCharacterRepository implements CharacterRepository {
   ): Promise<CharacterAggregate> {
     this.createdWith = [campaignId, playerUserId];
     return this.aggregate;
+  }
+
+  async createNpcAggregate(
+    campaignId: number,
+    requestingUserId: number,
+  ): Promise<CharacterAggregate> {
+    this.npcCreatedWith = [campaignId, requestingUserId];
+    return { ...this.aggregate, character: { ...this.aggregate.character, isNpc: true } };
   }
 
   async saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate> {
@@ -97,6 +107,18 @@ describe("CharacterService", () => {
     await service.getCharacter(9, 12, 2);
     expect(repository.readWith).toEqual([9, 12, 2, false]);
     await expect(service.createCharacter(0, 2)).rejects.toBeInstanceOf(CharacterValidationError);
+  });
+
+  it("creates an NPC through the selected Campaign and G.O.D. profile", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+
+    await expect(service.createNpc(12, 1)).resolves.toMatchObject({
+      character: { id: 9, isNpc: true },
+    });
+    expect(repository.npcCreatedWith).toEqual([12, 1]);
+    await expect(service.createNpc(0, 1)).rejects.toBeInstanceOf(CharacterValidationError);
+    await expect(service.createNpc(12, 0)).rejects.toBeInstanceOf(CharacterValidationError);
   });
 
   it("normalizes one aggregate save and preserves self-referencing Skill branch context", async () => {
@@ -200,5 +222,56 @@ describe("CharacterService", () => {
       administrativeOverride: true,
       profile: { experience: 25, quintessence: 7, creditsRemaining: 333 },
     });
+  });
+
+  it("keeps Assigned Fate Points fixed for players while allowing G.O.D. overrides", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+    const playerDraft = characterAggregateToDraft(repository.aggregate);
+    playerDraft.profile.fatePoints = 99;
+    await service.saveCharacter(repository.aggregate, playerDraft, 2);
+    expect(repository.saved?.profile.fatePoints).toBe(3);
+
+    const godDraft = characterAggregateToDraft(repository.aggregate);
+    godDraft.profile.fatePoints = 7;
+    await service.saveCharacter(repository.aggregate, godDraft, 1, false, "god");
+    expect(repository.saved?.profile.fatePoints).toBe(7);
+  });
+
+  it("preserves exact denominations while materializing legacy credit-only purses once", async () => {
+    const repository = new RecordingCharacterRepository();
+    repository.aggregate.campaign.currencySystem = "Derived Currency";
+    repository.aggregate.campaign.derivedCurrencies = [
+      {
+        id: 1, campaignId: 12, name: "Gold", description: "A gold coin.",
+        creditsPerUnit: 1, sortOrder: 0,
+      },
+      {
+        id: 2, campaignId: 12, name: "Platinum", description: "A platinum coin.",
+        creditsPerUnit: 5, sortOrder: 1,
+      },
+    ];
+    repository.aggregate.profile.creditsRemaining = 10;
+
+    const legacyDraft = characterAggregateToDraft(repository.aggregate);
+    expect(legacyDraft.currencyHoldings).toEqual([
+      { currencyId: 2, quantity: 2 },
+      { currencyId: 1, quantity: 0 },
+    ]);
+
+    repository.aggregate.currencyHoldings = [
+      { characterId: 9, currencyId: 1, quantity: 10 },
+    ];
+    const exactDraft = characterAggregateToDraft(repository.aggregate);
+    await new CharacterService(repository).saveCharacter(
+      repository.aggregate,
+      exactDraft,
+      1,
+      false,
+      "god",
+    );
+    expect(repository.saved?.currencyHoldings).toEqual([
+      { currencyId: 1, quantity: 10 },
+    ]);
   });
 });

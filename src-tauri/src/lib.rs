@@ -49,6 +49,10 @@ const BACKFILL_CAMPAIGN_EQUIPMENT_MIGRATION: &str =
     include_str!("../migrations/0024_backfill_campaign_equipment.sql");
 const REOPEN_INCOMPLETE_CHARACTERS_MIGRATION: &str =
     include_str!("../migrations/0025_reopen_incomplete_characters.sql");
+const ADD_CAMPAIGN_NPCS_MIGRATION: &str = include_str!("../migrations/0026_add_campaign_npcs.sql");
+const STORE_CHARACTER_CURRENCY_HOLDINGS_MIGRATION: &str =
+    include_str!("../migrations/0027_store_character_currency_holdings.sql");
+const ADD_FATE_POINTS_MIGRATION: &str = include_str!("../migrations/0028_add_fate_points.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -203,12 +207,31 @@ pub fn run() {
             sql: REOPEN_INCOMPLETE_CHARACTERS_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 26,
+            description: "add_campaign_npcs",
+            sql: ADD_CAMPAIGN_NPCS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 27,
+            description: "store_character_currency_holdings",
+            sql: STORE_CHARACTER_CURRENCY_HOLDINGS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 28,
+            description: "add_fate_points",
+            sql: ADD_FATE_POINTS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             campaign_commands::save_campaign_aggregate,
             character_commands::create_character_aggregate,
+            character_commands::create_npc_aggregate,
             character_commands::save_character_aggregate,
             character_commands::advance_character_skill,
             creature_commands::save_creature_aggregate,

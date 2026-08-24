@@ -14,6 +14,7 @@ export const CAMPAIGN_SYSTEM_OPTIONS = [
 
 export type CampaignSystemOption = (typeof CAMPAIGN_SYSTEM_OPTIONS)[number];
 export type CampaignCurrencySystem = "Credits" | "Derived Currency";
+export type CampaignFatePointMethod = "Assigned" | "Rolled";
 
 export type CampaignCore = {
   id: number;
@@ -25,6 +26,8 @@ export type CampaignCore = {
   maxPointsInSkill: number;
   startingCreditAmount: number;
   currencySystem: CampaignCurrencySystem;
+  fatePointMethod: CampaignFatePointMethod;
+  assignedFatePoints: number | null;
   createdByUserId: number;
   createdAt: string;
   updatedAt: string;
@@ -84,6 +87,15 @@ export type CampaignCharacterReference = {
   createdAt: string;
   updatedAt: string;
   creationCompletedAt?: string | null;
+};
+
+export type CampaignNpcReference = {
+  id: number;
+  campaignId: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  creationCompletedAt: string | null;
 };
 
 export type PlayerCampaignReference = Pick<CampaignCore, "id" | "name">;

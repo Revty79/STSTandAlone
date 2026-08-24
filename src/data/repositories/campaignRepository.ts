@@ -5,9 +5,11 @@ import {
   type CampaignCharacterReference,
   type CampaignCore,
   type CampaignCurrencySystem,
+  type CampaignFatePointMethod,
   type CampaignDerivedCurrencyRecord,
   type CampaignInventoryGenreReference,
   type CampaignInventoryItemReference,
+  type CampaignNpcReference,
   type CampaignPlayerReference,
   type CampaignProfileReference,
   type CampaignRaceReference,
@@ -27,8 +29,9 @@ export interface CampaignDatabase {
   ): Promise<{ rowsAffected: number; lastInsertId?: number }>;
 }
 
-type CampaignCoreRow = Omit<CampaignCore, "currencySystem"> & {
+type CampaignCoreRow = Omit<CampaignCore, "currencySystem" | "fatePointMethod"> & {
   currencySystem: string;
+  fatePointMethod: string;
 };
 type CampaignSummaryRow = Omit<CampaignSummary, "currencySystem"> & {
   currencySystem: string;
@@ -45,6 +48,11 @@ type CampaignProfileRow = Omit<CampaignProfileReference, "roles" | "isCampaignPl
 function mapCurrencySystem(value: string): CampaignCurrencySystem {
   if (value === "Credits" || value === "Derived Currency") return value;
   throw new Error(`Stored Campaign has unsupported Currency System ${JSON.stringify(value)}.`);
+}
+
+function mapFatePointMethod(value: string): CampaignFatePointMethod {
+  if (value === "Assigned" || value === "Rolled") return value;
+  throw new Error(`Stored Campaign has unsupported Fate Point method ${JSON.stringify(value)}.`);
 }
 
 function mapSystem(value: string): CampaignSystemOption {
@@ -76,6 +84,7 @@ export interface CampaignRepository {
     campaignId: number,
     playerUserId: number,
   ): Promise<CampaignCharacterReference[]>;
+  listCampaignNpcs(campaignId: number): Promise<CampaignNpcReference[]>;
   listCampaignsForPlayerMembership(
     playerUserId: number,
   ): Promise<PlayerCampaignReference[]>;
@@ -105,7 +114,8 @@ export class TauriCampaignRepository implements CampaignRepository {
          points_to_unlock_next_tier AS pointsToUnlockNextTier,
          max_points_in_skill AS maxPointsInSkill,
          starting_credit_amount AS startingCreditAmount,
-         currency_system AS currencySystem,created_by_user_id AS createdByUserId,
+         currency_system AS currencySystem,fate_point_method AS fatePointMethod,
+         assigned_fate_points AS assignedFatePoints,created_by_user_id AS createdByUserId,
          created_at AS createdAt,updated_at AS updatedAt
        FROM campaigns WHERE id=$1 LIMIT 1`,
       [id],
@@ -159,6 +169,7 @@ export class TauriCampaignRepository implements CampaignRepository {
       campaign: {
         ...campaigns[0],
         currencySystem: mapCurrencySystem(campaigns[0].currencySystem),
+        fatePointMethod: mapFatePointMethod(campaigns[0].fatePointMethod),
       },
       derivedCurrencies,
       allowedSystems: systems.map((row) => mapSystem(row.systemName)),
@@ -189,6 +200,7 @@ export class TauriCampaignRepository implements CampaignRepository {
          EXISTS(
            SELECT 1 FROM campaign_players membership
            WHERE membership.campaign_id=$1 AND membership.user_id=profile.id
+             AND membership.is_npc_controller=0
          ) AS isCampaignPlayer
        FROM users profile
        ORDER BY profile.username COLLATE NOCASE,profile.id`,
@@ -207,7 +219,7 @@ export class TauriCampaignRepository implements CampaignRepository {
       `SELECT profile.id,profile.username,membership.created_at AS addedAt
        FROM campaign_players membership
        JOIN users profile ON profile.id=membership.user_id
-       WHERE membership.campaign_id=$1
+       WHERE membership.campaign_id=$1 AND membership.is_npc_controller=0
        ORDER BY profile.username COLLATE NOCASE,profile.id`,
       [campaignId],
     );
@@ -216,7 +228,9 @@ export class TauriCampaignRepository implements CampaignRepository {
   async addCampaignPlayer(campaignId: number, userId: number): Promise<void> {
     const database = await this.databaseProvider();
     await database.execute(
-      "INSERT INTO campaign_players (campaign_id,user_id) VALUES ($1,$2)",
+      `INSERT INTO campaign_players (campaign_id,user_id,is_npc_controller)
+       VALUES ($1,$2,0)
+       ON CONFLICT(campaign_id,user_id) DO UPDATE SET is_npc_controller=0`,
       [campaignId, userId],
     );
   }
@@ -234,8 +248,23 @@ export class TauriCampaignRepository implements CampaignRepository {
        FROM campaign_characters character
        LEFT JOIN campaign_character_profiles profile ON profile.character_id=character.id
        WHERE character.campaign_id=$1 AND character.player_user_id=$2
+         AND character.is_npc=0
        ORDER BY character.name COLLATE NOCASE,character.id`,
       [campaignId, playerUserId],
+    );
+  }
+
+  async listCampaignNpcs(campaignId: number): Promise<CampaignNpcReference[]> {
+    const database = await this.databaseProvider();
+    return database.select<CampaignNpcReference[]>(
+      `SELECT character.id,character.campaign_id AS campaignId,character.name,
+         character.created_at AS createdAt,character.updated_at AS updatedAt,
+         profile.creation_completed_at AS creationCompletedAt
+       FROM campaign_characters character
+       LEFT JOIN campaign_character_profiles profile ON profile.character_id=character.id
+       WHERE character.campaign_id=$1 AND character.is_npc=1
+       ORDER BY character.name COLLATE NOCASE,character.id`,
+      [campaignId],
     );
   }
 
@@ -247,7 +276,7 @@ export class TauriCampaignRepository implements CampaignRepository {
       `SELECT campaign.id,campaign.name
        FROM campaign_players membership
        JOIN campaigns campaign ON campaign.id=membership.campaign_id
-       WHERE membership.user_id=$1
+       WHERE membership.user_id=$1 AND membership.is_npc_controller=0
        ORDER BY campaign.name COLLATE NOCASE,campaign.id`,
       [playerUserId],
     );

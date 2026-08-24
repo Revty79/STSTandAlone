@@ -24,11 +24,13 @@ describe("dashboard shells", () => {
       <HeavensDashboardPage
         session={sessionWith([USER_ROLE.GOD, USER_ROLE.PLAYER])}
         onCreateCampaign={vi.fn()}
+        onEditCampaign={vi.fn()}
         onOpenRaces={vi.fn()}
         onOpenSkills={vi.fn()}
         onOpenCreatures={vi.fn()}
         onOpenEquipment={vi.fn()}
         onOpenInventory={vi.fn()}
+        onOpenNpcs={vi.fn()}
         onOpenCharacter={vi.fn()}
         onReturn={vi.fn()}
         onLogout={vi.fn()}
@@ -39,6 +41,7 @@ describe("dashboard shells", () => {
         campaign={null}
         loading={false}
         error=""
+        onEdit={vi.fn()}
         onClose={vi.fn()}
       />,
     );
@@ -65,6 +68,7 @@ describe("dashboard shells", () => {
         id: 12, name: "Tidefall", attributePoints: 50, skillPoints: 100,
         maxStartingSkill: 35, pointsToUnlockNextTier: 25, maxPointsInSkill: 75,
         startingCreditAmount: 200, currencySystem: "Derived Currency",
+        fatePointMethod: "Assigned", assignedFatePoints: 3,
         createdByUserId: 1, createdAt: "created", updatedAt: "updated",
       },
       derivedCurrencies: [{
@@ -87,12 +91,13 @@ describe("dashboard shells", () => {
         campaign={campaign}
         loading={false}
         error=""
+        onEdit={vi.fn()}
         onClose={vi.fn()}
       />,
     );
 
     for (const value of [
-      "Tidefall", "Penny", "Spellcraft", "Human", "Fantasy", "Travel Pack", "ITEM-0007",
+      "Tidefall", "Edit Campaign", "Penny", "Spellcraft", "Human", "Fantasy", "Travel Pack", "ITEM-0007",
     ]) {
       expect(information).toContain(value);
     }

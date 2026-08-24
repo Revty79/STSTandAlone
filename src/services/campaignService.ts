@@ -7,6 +7,7 @@ import {
   type CampaignAggregate,
   type CampaignCharacterReference,
   type CampaignPlayerReference,
+  type CampaignNpcReference,
   type CampaignProfileReference,
   type CampaignSummary,
   type CampaignSystemOption,
@@ -32,6 +33,14 @@ function nonNegative(value: number, label: string): number {
     throw new CampaignValidationError(`${label} must be a number zero or greater.`);
   }
   return value;
+}
+
+function wholeNonNegative(value: number, label: string): number {
+  const result = nonNegative(value, label);
+  if (!Number.isInteger(result)) {
+    throw new CampaignValidationError(`${label} must be a whole number.`);
+  }
+  return result;
 }
 
 function uniqueNumbers(values: readonly number[], label: string): number[] {
@@ -70,6 +79,9 @@ export function normalizeCampaignAggregate(
     throw new CampaignValidationError("Campaign creator must reference a saved profile.");
   }
   const allowedSystems = uniqueText(input.allowedSystems);
+  if (input.core.fatePointMethod !== "Assigned" && input.core.fatePointMethod !== "Rolled") {
+    throw new CampaignValidationError("Fate Points must be Assigned or Rolled.");
+  }
   if (allowedSystems.some((system) =>
     !CAMPAIGN_SYSTEM_OPTIONS.includes(system as CampaignSystemOption))) {
     throw new CampaignValidationError("Campaign includes an unsupported Allowed System.");
@@ -99,6 +111,9 @@ export function normalizeCampaignAggregate(
     }
     currencyNames.add(key);
   }
+  const assignedFatePoints = input.core.fatePointMethod === "Assigned"
+    ? wholeNonNegative(input.core.assignedFatePoints ?? Number.NaN, "Assigned Fate Points")
+    : null;
 
   return {
     id: input.id,
@@ -123,6 +138,7 @@ export function normalizeCampaignAggregate(
         input.core.startingCreditAmount,
         "Starting Credit Amount",
       ),
+      assignedFatePoints,
     },
     derivedCurrencies,
     allowedSystems: allowedSystems as CampaignSystemOption[],
@@ -170,6 +186,10 @@ export class CampaignService {
       savedId(campaignId, "Campaign"),
       savedId(playerProfileId, "Player Profile"),
     );
+  }
+
+  async listNpcs(campaignId: number): Promise<CampaignNpcReference[]> {
+    return this.repository.listCampaignNpcs(savedId(campaignId, "Campaign"));
   }
 
   async listPlayerCampaigns(

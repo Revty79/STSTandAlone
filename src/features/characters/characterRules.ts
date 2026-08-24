@@ -642,7 +642,9 @@ export function evaluateCharacterReadiness(
       && draft.profile.eyeColor.trim()
       && draft.profile.hairColor.trim()
       && draft.profile.deity.trim()
-      && draft.profile.definingMarks.trim(),
+      && draft.profile.definingMarks.trim()
+      && (aggregate.campaign.fatePointMethod !== "Rolled"
+        || draft.profile.fatePoints !== null),
   );
   if (!identityComplete) issues.push("Required Identity fields are incomplete.");
   const raceComplete = draft.profile.raceId !== null && race !== null;

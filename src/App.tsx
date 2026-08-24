@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { CharacterCreationPage } from "./pages/CharacterCreationPage";
 import { CharacterAdvancementPage } from "./pages/CharacterAdvancementPage";
+import { NpcsPage } from "./pages/NpcsPage";
 import { RacesPage } from "./pages/RacesPage";
 import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -37,7 +38,9 @@ function App() {
     campaignId: number;
     characterId: number;
     editorMode: CharacterEditorMode;
+    returnDestination: "heavens" | "realms" | "npcs";
   } | null>(null);
+  const [campaignEditId, setCampaignEditId] = useState<number | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -75,6 +78,7 @@ function App() {
 
   function logout() {
     setCharacterContext(null);
+    setCampaignEditId(null);
     setSession(null);
     setScreen("login");
   }
@@ -113,14 +117,27 @@ function App() {
         return (
           <HeavensDashboardPage
             session={session}
-            onCreateCampaign={() => navigateAuthenticated("campaign-create")}
+            onCreateCampaign={() => {
+              setCampaignEditId(null);
+              navigateAuthenticated("campaign-create");
+            }}
+            onEditCampaign={(campaignId) => {
+              setCampaignEditId(campaignId);
+              navigateAuthenticated("campaign-create");
+            }}
             onOpenRaces={() => navigateAuthenticated("races")}
             onOpenSkills={() => navigateAuthenticated("skills")}
             onOpenCreatures={() => navigateAuthenticated("creatures")}
             onOpenEquipment={() => navigateAuthenticated("equipment")}
             onOpenInventory={() => navigateAuthenticated("inventory")}
+            onOpenNpcs={() => navigateAuthenticated("npcs")}
             onOpenCharacter={(campaignId, characterId) => {
-              setCharacterContext({ campaignId, characterId, editorMode: "god" });
+              setCharacterContext({
+                campaignId,
+                characterId,
+                editorMode: "god",
+                returnDestination: "heavens",
+              });
               navigateAuthenticated("character-create");
             }}
             onReturn={() => navigateAuthenticated("access-choice")}
@@ -131,6 +148,7 @@ function App() {
         return (
           <CampaignPrototypePage
             session={session}
+            initialCampaignId={campaignEditId}
             onBack={() => navigateAuthenticated("heavens")}
             onLogout={logout}
           />
@@ -175,6 +193,23 @@ function App() {
             onLogout={logout}
           />
         );
+      case "npcs":
+        return (
+          <NpcsPage
+            session={session}
+            onOpenNpc={(campaignId, characterId) => {
+              setCharacterContext({
+                campaignId,
+                characterId,
+                editorMode: "god",
+                returnDestination: "npcs",
+              });
+              navigateAuthenticated("character-create");
+            }}
+            onBack={() => navigateAuthenticated("heavens")}
+            onLogout={logout}
+          />
+        );
       case "realms":
         return (
           <RealmsDashboardPage
@@ -186,11 +221,11 @@ function App() {
             }
             onLogout={logout}
             onOpenCharacter={(campaignId, characterId) => {
-              setCharacterContext({ campaignId, characterId, editorMode: "player" });
+              setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
               navigateAuthenticated("character-create");
             }}
             onAdvanceCharacter={(campaignId, characterId) => {
-              setCharacterContext({ campaignId, characterId, editorMode: "player" });
+              setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
               navigateAuthenticated("character-advance");
             }}
           />
@@ -207,11 +242,11 @@ function App() {
               }
               onLogout={logout}
               onOpenCharacter={(campaignId, characterId) => {
-                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-create");
               }}
               onAdvanceCharacter={(campaignId, characterId) => {
-                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-advance");
               }}
             />
@@ -224,9 +259,7 @@ function App() {
             characterId={characterContext.characterId}
             editorMode={characterContext.editorMode}
             onBack={() => {
-              const returnDestination = characterContext.editorMode === "god"
-                ? "heavens"
-                : "realms";
+              const returnDestination = characterContext.returnDestination;
               setCharacterContext(null);
               navigateAuthenticated(returnDestination);
             }}
@@ -245,11 +278,11 @@ function App() {
               }
               onLogout={logout}
               onOpenCharacter={(campaignId, characterId) => {
-                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-create");
               }}
               onAdvanceCharacter={(campaignId, characterId) => {
-                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-advance");
               }}
             />

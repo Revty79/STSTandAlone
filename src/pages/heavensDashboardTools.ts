@@ -36,13 +36,14 @@ export const HEAVENS_CORE_TOOLS: readonly PortalActionDefinition[] = [
 
 export function getHeavensToolDestination(
   toolId: string,
-): "races" | "skills" | "creatures" | "equipment" | "inventory" | null {
+): "races" | "skills" | "creatures" | "equipment" | "inventory" | "npcs" | null {
   if (
     toolId === "races" ||
     toolId === "skills" ||
     toolId === "creatures" ||
     toolId === "equipment" ||
-    toolId === "inventory"
+    toolId === "inventory" ||
+    toolId === "npcs"
   ) return toolId;
   return null;
 }

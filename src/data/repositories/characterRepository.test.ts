@@ -33,6 +33,7 @@ function databaseFixture() {
         createdAt: "created", updatedAt: "updated", attributePoints: 150,
         skillPoints: 10, maxStartingSkill: 5, pointsToUnlockNextTier: 5,
         maxPointsInSkill: 75, startingCreditAmount: 100, currencySystem: "Derived Currency",
+        fatePointMethod: "Assigned", assignedFatePoints: 3,
       }] as T;
       if (/from campaign_character_profiles/i.test(query)) return [{
         characterId: 9, raceId: 3, age: 24, sex: "Female",
@@ -40,7 +41,7 @@ function databaseFixture() {
         weight: 65, skinColor: "Bronze", eyeColor: "Green", hairColor: "Black",
         deity: "", definingMarks: "", personality: "", goals: "", secrets: "",
         backstory: "", motivations: "", fame: 0, experience: 0, totalExperience: 0,
-        quintessence: 0, totalQuintessence: 0, creditsRemaining: 80,
+        quintessence: 0, totalQuintessence: 0, fatePoints: 3, creditsRemaining: 80,
         creationCompletedAt: null,
         createdAt: "created", updatedAt: "updated",
       }] as T;
@@ -61,6 +62,9 @@ function databaseFixture() {
         characterId: 9, itemId: 7, canonicalId: "ITEM-7", name: "Rope",
         catalogScope: "inventory", equipmentGroup: null, recordType: "Item",
         category: "Gear", quantity: 2, unitCostCredits: 10, acquiredAt: "created",
+      }] as T;
+      if (/from campaign_character_currency_holdings/i.test(query)) return [{
+        characterId: 9, currencyId: 1, quantity: 10,
       }] as T;
       if (/from campaign_allowed_systems/i.test(query)) return [
         { systemName: "Tier 1" }, { systemName: "Tier 2" },
@@ -105,9 +109,10 @@ describe("TauriCharacterRepository", () => {
     const loaded = await repository.getCharacterAggregate(9, 12, 2);
     expect(loaded).toMatchObject({
       character: { id: 9, campaignId: 12, playerUserId: 2, name: "Neris" },
-      profile: { raceId: 3, creditsRemaining: 80 },
+      profile: { raceId: 3, creditsRemaining: 50 },
       skillAllocations: [{ skillId: 1, points: 5 }],
       items: [{ itemId: 7, quantity: 2 }],
+      currencyHoldings: [{ currencyId: 1, quantity: 10 }],
       campaign: {
         attributePoints: 150, skillPoints: 10, currencySystem: "Derived Currency",
         allowedSystems: ["Tier 1", "Tier 2"],
@@ -120,7 +125,7 @@ describe("TauriCharacterRepository", () => {
     expect(loaded?.attributes[0]).toMatchObject({ attributeKey: "STR", value: 25 });
     expect(fixture.calls[0]).toMatchObject({ values: [9, 12, 2, 0] });
     expect(fixture.calls[0]?.query).toMatch(
-      /\$4=0 AND character\.player_user_id=\$3[\s\S]*actor_role\.role='god'/i,
+      /\$4=0 AND character\.is_npc=0 AND character\.player_user_id=\$3[\s\S]*actor_role\.role='god'/i,
     );
     expect(races.getRaceAggregate).toHaveBeenCalledWith(3);
   });
@@ -131,12 +136,14 @@ describe("TauriCharacterRepository", () => {
     const createInvoker = vi.fn(async () => 9);
     const saveInvoker = vi.fn(async () => 9);
     const advanceSkillInvoker = vi.fn(async () => 9);
+    const createNpcInvoker = vi.fn(async () => 9);
     const repository = new TauriCharacterRepository(
       async () => fixture.database,
       races,
       createInvoker,
       saveInvoker,
       advanceSkillInvoker,
+      createNpcInvoker,
     );
     const input = {
       characterId: 9, campaignId: 12, requestingUserId: 2, name: "Neris",
@@ -148,19 +155,25 @@ describe("TauriCharacterRepository", () => {
         skinColor: "Bronze", eyeColor: "Green", hairColor: "Black", deity: "",
         definingMarks: "", personality: "", goals: "", secrets: "", backstory: "",
         motivations: "", fame: 0, experience: 0, totalExperience: 0,
-        quintessence: 0, totalQuintessence: 0, creditsRemaining: 80,
+        quintessence: 0, totalQuintessence: 0, fatePoints: 3, creditsRemaining: 80,
       },
       attributes: ["STR", "DEX", "CON", "INT", "WIS", "CHR"].map((attributeKey) => ({
         attributeKey: attributeKey as "STR", value: 25,
       })),
       skillAllocations: [],
       items: [],
+      currencyHoldings: [],
     } satisfies SaveCharacterAggregate;
 
     await expect(repository.createCharacterAggregate(12, 2)).resolves.toMatchObject({
       character: { id: 9 },
     });
     expect(createInvoker).toHaveBeenCalledWith(12, 2);
+    await expect(repository.createNpcAggregate(12, 1)).resolves.toMatchObject({
+      character: { id: 9 },
+    });
+    expect(createNpcInvoker).toHaveBeenCalledWith(12, 1);
+    expect(fixture.calls.some((call) => call.values.join(",") === "9,12,1,1")).toBe(true);
     await expect(repository.saveCharacterAggregate(input)).resolves.toMatchObject({
       character: { id: 9 },
     });

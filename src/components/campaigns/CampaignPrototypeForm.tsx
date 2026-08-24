@@ -189,6 +189,56 @@ export function CampaignPrototypeForm({
         </div>
       </section>
 
+      <section className="campaign-prototype__section" aria-labelledby="campaign-fate-heading">
+        <div className="campaign-prototype__section-heading">
+          <p>FATE POINTS</p>
+          <h2 id="campaign-fate-heading">Starting Fate</h2>
+        </div>
+        <div className="campaign-prototype__choice-grid campaign-prototype__choice-grid--fate">
+          <label className={`campaign-prototype__choice${draft.fatePointMethod === "Assigned" ? " is-selected" : ""}`}>
+            <input
+              type="radio"
+              name="fate-point-method"
+              value="Assigned"
+              checked={draft.fatePointMethod === "Assigned"}
+              onChange={() => update("fatePointMethod", "Assigned")}
+            />
+            <span>Assigned</span>
+            <em>Every new character receives the campaign value.</em>
+          </label>
+          <label className={`campaign-prototype__choice${draft.fatePointMethod === "Rolled" ? " is-selected" : ""}`}>
+            <input
+              type="radio"
+              name="fate-point-method"
+              value="Rolled"
+              checked={draft.fatePointMethod === "Rolled"}
+              onChange={() => update("fatePointMethod", "Rolled")}
+            />
+            <span>Rolled</span>
+            <em>Each player enters their result in Character Identity.</em>
+          </label>
+        </div>
+        {errors.fatePointMethod ? <small className="campaign-prototype__fate-error" role="alert">{errors.fatePointMethod}</small> : null}
+        {draft.fatePointMethod === "Assigned" ? (
+          <div className="campaign-prototype__field-grid campaign-prototype__field-grid--fate">
+            <label>
+              <span>Assigned Fate Points</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
+                value={draft.assignedFatePoints}
+                aria-invalid={Boolean(errors.assignedFatePoints)}
+                aria-describedby={errors.assignedFatePoints ? "assigned-fate-points-error" : undefined}
+                onChange={(event) => update("assignedFatePoints", event.target.value)}
+              />
+              {errors.assignedFatePoints ? <small id="assigned-fate-points-error">{errors.assignedFatePoints}</small> : null}
+            </label>
+          </div>
+        ) : null}
+      </section>
+
       <section className="campaign-prototype__section" aria-labelledby="campaign-economy-heading">
         <div className="campaign-prototype__section-heading">
           <p>STARTING ECONOMY</p>

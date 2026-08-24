@@ -3,7 +3,9 @@ import type { CampaignDerivedCurrencyRecord } from "../../types/campaign";
 import {
   convertCreditsToDerivedUnits,
   formatCampaignMoney,
+  getCanonicalCreditsFromHoldings,
   getCampaignMoneyBreakdown,
+  getStoredCampaignMoneyBreakdown,
 } from "./currencyRules";
 
 const currencies: CampaignDerivedCurrencyRecord[] = [
@@ -41,5 +43,20 @@ describe("Campaign currency rules", () => {
     expect(result.fullyRepresented).toBe(false);
     expect(result.formatted).toContain("denomination gap");
     expect(result.formatted).not.toContain("Credits");
+  });
+
+  it("preserves exact held denominations instead of normalizing their total value", () => {
+    const holdings = [{ currencyId: 5, quantity: 10 }];
+    const purse = getStoredCampaignMoneyBreakdown(
+      10,
+      "Derived Currency",
+      currencies,
+      holdings,
+    );
+
+    expect(purse.formatted).toBe("10 Dollar");
+    expect(purse.entries.find((entry) => entry.name === "Five Dollar Bill")?.quantity).toBe(0);
+    expect(purse.entries.find((entry) => entry.name === "Dollar")?.quantity).toBe(10);
+    expect(getCanonicalCreditsFromHoldings(currencies, holdings)).toBe(10);
   });
 });

@@ -484,6 +484,28 @@
   line-height: 1.55;
 }
 
+.campaign-information__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.campaign-information__edit {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid rgb(201 181 141 / 42%);
+  border-radius: 3px;
+  color: #e2d5ba;
+  background: rgb(90 72 39 / 34%);
+  font: 600 0.72rem "Palatino Linotype", Georgia, serif;
+  cursor: pointer;
+}
+
+.campaign-information__edit:hover {
+  border-color: rgb(222 195 139 / 68%);
+  background: rgb(108 84 40 / 48%);
+}
+
 .campaign-information__message--error {
   color: #dda9a1;
 }

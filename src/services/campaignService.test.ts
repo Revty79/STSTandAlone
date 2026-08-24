@@ -3,6 +3,7 @@ import type { CampaignRepository } from "../data/repositories/campaignRepository
 import type {
   CampaignAggregate,
   CampaignCharacterReference,
+  CampaignNpcReference,
   CampaignPlayerReference,
   CampaignProfileReference,
   CampaignSummary,
@@ -16,6 +17,7 @@ class RecordingCampaignRepository implements CampaignRepository {
   addedPlayer: { campaignId: number; userId: number } | null = null;
   memberships: Array<{ campaignId: number; userId: number }> = [];
   characters: CampaignCharacterReference[] = [];
+  npcs: CampaignNpcReference[] = [];
 
   async listCampaigns(): Promise<CampaignSummary[]> { return []; }
   async getCampaignAggregate(): Promise<CampaignAggregate | null> { return null; }
@@ -37,6 +39,9 @@ class RecordingCampaignRepository implements CampaignRepository {
     return this.characters.filter((character) =>
       character.campaignId === campaignId && character.playerUserId === playerUserId,
     );
+  }
+  async listCampaignNpcs(campaignId: number): Promise<CampaignNpcReference[]> {
+    return this.npcs.filter((npc) => npc.campaignId === campaignId);
   }
   async listCampaignsForPlayerMembership(
     playerUserId: number,
@@ -80,6 +85,7 @@ function draft(): SaveCampaignAggregate {
       name: "  Tidefall  ", attributePoints: 50, skillPoints: 100,
       maxStartingSkill: 35, pointsToUnlockNextTier: 25, maxPointsInSkill: 75,
       startingCreditAmount: 200, currencySystem: "Derived Currency", createdByUserId: 1,
+      fatePointMethod: "Assigned", assignedFatePoints: 3,
     },
     derivedCurrencies: [{
       name: " Penny ", description: " A copper coin. ", creditsPerUnit: 0.01,
@@ -122,6 +128,10 @@ describe("CampaignService", () => {
     await expect(service.saveCampaign(invalidSystem)).rejects.toThrow(/unsupported/i);
     const noCurrency = draft(); noCurrency.derivedCurrencies = [];
     await expect(service.saveCampaign(noCurrency)).rejects.toThrow(/at least one/i);
+    const noAssignedFate = draft(); noAssignedFate.core.assignedFatePoints = null;
+    await expect(service.saveCampaign(noAssignedFate)).rejects.toThrow(/Assigned Fate Points/i);
+    const invalidFateMethod = draft(); invalidFateMethod.core.fatePointMethod = "Chosen" as never;
+    await expect(service.saveCampaign(invalidFateMethod)).rejects.toThrow(/Assigned or Rolled/i);
     expect(repository.saved).toBeNull();
   });
 
@@ -131,6 +141,18 @@ describe("CampaignService", () => {
     input.core.currencySystem = "Credits";
     await new CampaignService(repository).saveCampaign(input);
     expect(repository.saved?.derivedCurrencies).toEqual([]);
+  });
+
+  it("does not store an Assigned value when each player rolls Fate Points", async () => {
+    const repository = new RecordingCampaignRepository();
+    const input = draft();
+    input.core.fatePointMethod = "Rolled";
+    input.core.assignedFatePoints = 99;
+    await new CampaignService(repository).saveCampaign(input);
+    expect(repository.saved?.core).toMatchObject({
+      fatePointMethod: "Rolled",
+      assignedFatePoints: null,
+    });
   });
 
   it("uses a typed validation error", async () => {
@@ -167,5 +189,25 @@ describe("CampaignService", () => {
       { id: 13, name: "Campaign 13" },
     ]);
     await expect(service.listPlayerCampaigns(0)).rejects.toThrow(/Player Profile/i);
+  });
+
+  it("lists the Campaign-scoped NPC master records", async () => {
+    const repository = new RecordingCampaignRepository();
+    const service = new CampaignService(repository);
+    repository.npcs.push(
+      {
+        id: 31, campaignId: 12, name: "Harbormaster Vey",
+        createdAt: "created", updatedAt: "updated", creationCompletedAt: null,
+      },
+      {
+        id: 32, campaignId: 13, name: "The Other Captain",
+        createdAt: "created", updatedAt: "updated", creationCompletedAt: null,
+      },
+    );
+
+    await expect(service.listNpcs(12)).resolves.toEqual([
+      expect.objectContaining({ id: 31, name: "Harbormaster Vey" }),
+    ]);
+    await expect(service.listNpcs(0)).rejects.toThrow(/Campaign/i);
   });
 });

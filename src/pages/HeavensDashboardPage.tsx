@@ -26,11 +26,13 @@ import "../styles/heavens-dashboard.css";
 type HeavensDashboardPageProps = {
   session: AuthSession;
   onCreateCampaign: () => void;
+  onEditCampaign: (campaignId: number) => void;
   onOpenRaces: () => void;
   onOpenSkills: () => void;
   onOpenCreatures: () => void;
   onOpenEquipment: () => void;
   onOpenInventory: () => void;
+  onOpenNpcs: () => void;
   onOpenCharacter: (campaignId: number, characterId: number) => void;
   onReturn: () => void;
   onLogout: () => void;
@@ -45,11 +47,13 @@ const CONTROL_PLACEHOLDERS = {
 export function HeavensDashboardPage({
   session,
   onCreateCampaign,
+  onEditCampaign,
   onOpenRaces,
   onOpenSkills,
   onOpenCreatures,
   onOpenEquipment,
   onOpenInventory,
+  onOpenNpcs,
   onOpenCharacter,
   onReturn,
   onLogout,
@@ -294,6 +298,10 @@ export function HeavensDashboardPage({
       onOpenInventory();
       return;
     }
+    if (destination === "npcs") {
+      onOpenNpcs();
+      return;
+    }
     showComingSoon(tool.title);
   }
 
@@ -456,6 +464,7 @@ export function HeavensDashboardPage({
               campaign={selectedCampaign}
               loading={campaignInformationLoading}
               error={campaignInformationError}
+              onEdit={() => selectedCampaign && onEditCampaign(selectedCampaign.campaign.id)}
               onClose={() => setIsCampaignInformationOpen(false)}
             />
           )}
