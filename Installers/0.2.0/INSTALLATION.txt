@@ -1,0 +1,15 @@
+Serrian Tide 0.2.0 - Windows x64
+
+Recommended installer:
+  Serrian-Tide-Setup-0.2.0-x64.exe
+
+Copy the installer to the other Windows computer and run it. The MSI is also
+included for Windows Installer or managed deployment.
+
+These installers are not code-signed. Windows SmartScreen may display an
+Unknown Publisher warning. On a computer you trust, choose More info and then
+Run anyway to continue.
+
+Each computer receives its own local Serrian Tide database. Existing Campaigns,
+Characters, and other saved records from this computer are not embedded in the
+installer.
