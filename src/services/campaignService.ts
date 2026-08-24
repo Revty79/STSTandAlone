@@ -166,20 +166,10 @@ export class CampaignService {
     );
   }
 
-  async createCharacter(
-    campaignId: number,
-    playerProfileId: number,
-  ): Promise<CampaignCharacterReference> {
-    return this.repository.createCampaignCharacter(
-      savedId(campaignId, "Campaign"),
-      savedId(playerProfileId, "Player Profile"),
-    );
-  }
-
   async listPlayerCampaigns(
     playerProfileId: number,
   ): Promise<PlayerCampaignReference[]> {
-    return this.repository.listCampaignsForPlayerWithCharacters(
+    return this.repository.listCampaignsForPlayerMembership(
       savedId(playerProfileId, "Player Profile"),
     );
   }

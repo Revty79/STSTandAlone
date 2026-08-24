@@ -1,6 +1,7 @@
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 mod campaign_commands;
+mod character_commands;
 mod creature_commands;
 mod item_commands;
 mod race_commands;
@@ -32,6 +33,12 @@ const CAMPAIGN_PLAYERS_MIGRATION: &str =
     include_str!("../migrations/0016_create_campaign_players.sql");
 const CAMPAIGN_CHARACTERS_MIGRATION: &str =
     include_str!("../migrations/0017_create_campaign_characters.sql");
+const CHARACTER_AGGREGATE_MIGRATION: &str =
+    include_str!("../migrations/0018_create_character_aggregate.sql");
+const LOCK_COMPLETED_CHARACTER_CREATION_MIGRATION: &str =
+    include_str!("../migrations/0019_lock_completed_character_creation.sql");
+const CHARACTER_HEIGHT_UNITS_MIGRATION: &str =
+    include_str!("../migrations/0020_add_character_height_units.sql");
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -138,11 +145,31 @@ pub fn run() {
             sql: CAMPAIGN_CHARACTERS_MIGRATION,
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 18,
+            description: "create_character_aggregate",
+            sql: CHARACTER_AGGREGATE_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 19,
+            description: "lock_completed_character_creation",
+            sql: LOCK_COMPLETED_CHARACTER_CREATION_MIGRATION,
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 20,
+            description: "add_character_height_units",
+            sql: CHARACTER_HEIGHT_UNITS_MIGRATION,
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             campaign_commands::save_campaign_aggregate,
+            character_commands::create_character_aggregate,
+            character_commands::save_character_aggregate,
             creature_commands::save_creature_aggregate,
             creature_commands::clone_creature_as_variant,
             item_commands::save_item_aggregate,

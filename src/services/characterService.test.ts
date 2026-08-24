@@ -1,0 +1,150 @@
+import { describe, expect, it } from "vitest";
+import type { CharacterRepository } from "../data/repositories/characterRepository";
+import type {
+  CharacterAggregate,
+  CharacterDraft,
+  SaveCharacterAggregate,
+} from "../types/character";
+import type { RaceAggregate } from "../types/race";
+import {
+  CharacterService,
+  CharacterValidationError,
+  characterAggregateToDraft,
+} from "./characterService";
+
+function characterAggregate(): CharacterAggregate {
+  return {
+    character: {
+      id: 9, campaignId: 12, playerUserId: 2, name: "New Character",
+      campaignName: "Tidefall", playerUsername: "Mariner",
+      createdAt: "created", updatedAt: "updated",
+    },
+    profile: {
+      characterId: 9, raceId: null, age: null, sex: "",
+      heightFeet: null, heightInches: null, weight: null,
+      skinColor: "", eyeColor: "", hairColor: "", deity: "", definingMarks: "",
+      personality: "", goals: "", secrets: "", backstory: "", motivations: "",
+      fame: 0, experience: 0, totalExperience: 0, quintessence: 0,
+      totalQuintessence: 0, creditsRemaining: 100,
+      creationCompletedAt: null,
+      createdAt: "created", updatedAt: "updated",
+    },
+    attributes: ["STR", "DEX", "CON", "INT", "WIS", "CHR"].map((attributeKey) => ({
+      characterId: 9, attributeKey: attributeKey as "STR", value: 25,
+    })),
+    skillAllocations: [], items: [],
+    campaign: {
+      id: 12, name: "Tidefall", attributePoints: 150, skillPoints: 10,
+      maxStartingSkill: 5, pointsToUnlockNextTier: 5, maxPointsInSkill: 75,
+      startingCreditAmount: 100, currencySystem: "Credits",
+      allowedSystems: ["Tier 1", "Tier 2"], derivedCurrencies: [],
+    },
+    allowedRaces: [{ id: 3, name: "Human" }], selectedRace: null,
+    skillCatalog: [], skillRelationships: [], authorizedItems: [],
+  };
+}
+
+class RecordingCharacterRepository implements CharacterRepository {
+  aggregate = characterAggregate();
+  createdWith: [number, number] | null = null;
+  saved: SaveCharacterAggregate | null = null;
+  readWith: [number, number, number] | null = null;
+
+  async getCharacterAggregate(
+    characterId: number,
+    campaignId: number,
+    requestingUserId: number,
+  ): Promise<CharacterAggregate | null> {
+    this.readWith = [characterId, campaignId, requestingUserId];
+    return this.aggregate;
+  }
+
+  async createCharacterAggregate(
+    campaignId: number,
+    playerUserId: number,
+  ): Promise<CharacterAggregate> {
+    this.createdWith = [campaignId, playerUserId];
+    return this.aggregate;
+  }
+
+  async saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate> {
+    this.saved = structuredClone(input);
+    return this.aggregate;
+  }
+
+  async getAllowedRaceForCharacter(): Promise<RaceAggregate | null> {
+    return null;
+  }
+}
+
+describe("CharacterService", () => {
+  it("creates and reads only saved Campaign, Character, and logged-in Player identities", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+
+    await expect(service.createCharacter(12, 2)).resolves.toMatchObject({
+      character: { id: 9, playerUserId: 2 },
+    });
+    expect(repository.createdWith).toEqual([12, 2]);
+    await service.getCharacter(9, 12, 2);
+    expect(repository.readWith).toEqual([9, 12, 2]);
+    await expect(service.createCharacter(0, 2)).rejects.toBeInstanceOf(CharacterValidationError);
+  });
+
+  it("normalizes one aggregate save and preserves self-referencing Skill branch context", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+    const draft: CharacterDraft = {
+      ...characterAggregateToDraft(repository.aggregate),
+      name: "  Neris  ",
+      skillAllocations: [
+        { draftId: 1, skillId: 10, parentDraftId: null, points: 5 },
+        { draftId: 2, skillId: 20, parentDraftId: 1, points: 3 },
+        { draftId: 3, skillId: 30, parentDraftId: 2, points: 2 },
+      ],
+    };
+
+    await service.saveCharacter(repository.aggregate, draft, 2);
+    expect(repository.saved).toMatchObject({
+      characterId: 9,
+      campaignId: 12,
+      requestingUserId: 2,
+      completeCreation: false,
+      name: "Neris",
+      skillAllocations: [{
+        skillId: 10,
+        points: 5,
+        children: [{
+          skillId: 20,
+          points: 3,
+          children: [{ skillId: 30, points: 2, children: [] }],
+        }],
+      }],
+    });
+    await service.saveCharacter(repository.aggregate, draft, 2, true);
+    expect(repository.saved?.completeCreation).toBe(true);
+  });
+
+  it("rejects a save when the logged-in Player does not own the Character", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+    await expect(service.saveCharacter(
+      repository.aggregate,
+      characterAggregateToDraft(repository.aggregate),
+      99,
+    )).rejects.toThrow(/own Character/i);
+    expect(repository.saved).toBeNull();
+  });
+
+  it("rejects ordinary creation saves after permanent completion", async () => {
+    const repository = new RecordingCharacterRepository();
+    repository.aggregate.profile.creationCompletedAt = "completed";
+    const service = new CharacterService(repository);
+    await expect(service.saveCharacter(
+      repository.aggregate,
+      characterAggregateToDraft(repository.aggregate),
+      2,
+    )).rejects.toThrow(/permanently locked/i);
+    expect(repository.saved).toBeNull();
+  });
+});

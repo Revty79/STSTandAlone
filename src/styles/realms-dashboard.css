@@ -235,6 +235,15 @@
     0 0 18px rgb(174 145 91 / 7%);
 }
 
+.realm-control__create:disabled {
+  transform: none;
+  border-color: rgb(132 158 160 / 18%);
+  color: rgb(213 216 211 / 38%);
+  background: rgb(4 11 15 / 38%);
+  box-shadow: none;
+  cursor: default;
+}
+
 .realm-control__create:active,
 .realms-dashboard__return:active {
   transform: translateY(1px);

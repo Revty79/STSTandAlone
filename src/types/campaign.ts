@@ -81,6 +81,7 @@ export type CampaignCharacterReference = {
   name: string;
   createdAt: string;
   updatedAt: string;
+  creationCompletedAt?: string | null;
 };
 
 export type PlayerCampaignReference = Pick<CampaignCore, "id" | "name">;

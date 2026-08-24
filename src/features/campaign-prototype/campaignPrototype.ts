@@ -119,15 +119,6 @@ export function createEmptyDerivedCurrencyDraft(): CampaignDerivedCurrencyDraft 
   return { name: "", description: "", creditsPerUnit: "" };
 }
 
-export function convertCreditsToDerivedUnits(
-  credits: number,
-  creditsPerUnit: number,
-): number | null {
-  if (!Number.isFinite(credits) || credits < 0) return null;
-  if (!Number.isFinite(creditsPerUnit) || creditsPerUnit <= 0) return null;
-  return credits / creditsPerUnit;
-}
-
 export function deduplicateCampaignInventoryItems(
   items: readonly CampaignInventoryItem[],
 ): CampaignInventoryItem[] {
@@ -236,3 +227,4 @@ export function completeCampaignPrototype(
     },
   };
 }
+export { convertCreditsToDerivedUnits } from "../currency/currencyRules";

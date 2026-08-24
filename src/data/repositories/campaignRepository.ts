@@ -76,11 +76,7 @@ export interface CampaignRepository {
     campaignId: number,
     playerUserId: number,
   ): Promise<CampaignCharacterReference[]>;
-  createCampaignCharacter(
-    campaignId: number,
-    playerUserId: number,
-  ): Promise<CampaignCharacterReference>;
-  listCampaignsForPlayerWithCharacters(
+  listCampaignsForPlayerMembership(
     playerUserId: number,
   ): Promise<PlayerCampaignReference[]>;
 }
@@ -230,49 +226,27 @@ export class TauriCampaignRepository implements CampaignRepository {
   ): Promise<CampaignCharacterReference[]> {
     const database = await this.databaseProvider();
     return database.select<CampaignCharacterReference[]>(
-      `SELECT id,campaign_id AS campaignId,player_user_id AS playerUserId,
-         name,created_at AS createdAt,updated_at AS updatedAt
-       FROM campaign_characters
-       WHERE campaign_id=$1 AND player_user_id=$2
-       ORDER BY name COLLATE NOCASE,id`,
+      `SELECT character.id,character.campaign_id AS campaignId,
+         character.player_user_id AS playerUserId,character.name,
+         character.created_at AS createdAt,character.updated_at AS updatedAt,
+         profile.creation_completed_at AS creationCompletedAt
+       FROM campaign_characters character
+       LEFT JOIN campaign_character_profiles profile ON profile.character_id=character.id
+       WHERE character.campaign_id=$1 AND character.player_user_id=$2
+       ORDER BY character.name COLLATE NOCASE,character.id`,
       [campaignId, playerUserId],
     );
   }
 
-  async createCampaignCharacter(
-    campaignId: number,
-    playerUserId: number,
-  ): Promise<CampaignCharacterReference> {
-    const database = await this.databaseProvider();
-    const result = await database.execute(
-      "INSERT INTO campaign_characters (campaign_id,player_user_id) VALUES ($1,$2)",
-      [campaignId, playerUserId],
-    );
-    if (result.lastInsertId === undefined) {
-      throw new Error("SQLite did not return the new Character identifier.");
-    }
-    const rows = await database.select<CampaignCharacterReference[]>(
-      `SELECT id,campaign_id AS campaignId,player_user_id AS playerUserId,
-         name,created_at AS createdAt,updated_at AS updatedAt
-       FROM campaign_characters WHERE id=$1 LIMIT 1`,
-      [result.lastInsertId],
-    );
-    if (!rows[0]) throw new Error("The saved Character could not be reloaded.");
-    return rows[0];
-  }
-
-  async listCampaignsForPlayerWithCharacters(
+  async listCampaignsForPlayerMembership(
     playerUserId: number,
   ): Promise<PlayerCampaignReference[]> {
     const database = await this.databaseProvider();
     return database.select<PlayerCampaignReference[]>(
       `SELECT campaign.id,campaign.name
-       FROM campaigns campaign
-       WHERE EXISTS (
-         SELECT 1 FROM campaign_characters character
-         WHERE character.campaign_id=campaign.id
-           AND character.player_user_id=$1
-       )
+       FROM campaign_players membership
+       JOIN campaigns campaign ON campaign.id=membership.campaign_id
+       WHERE membership.user_id=$1
        ORDER BY campaign.name COLLATE NOCASE,campaign.id`,
       [playerUserId],
     );

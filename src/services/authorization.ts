@@ -24,6 +24,7 @@ export function canAccessDestination(
     case "inventory":
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
+    case "character-create":
       return (
         hasRole(session, USER_ROLE.GOD) ||
         hasRole(session, USER_ROLE.PLAYER)

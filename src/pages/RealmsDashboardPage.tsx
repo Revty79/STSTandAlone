@@ -10,19 +10,24 @@ import type {
   PlayerCampaignReference,
 } from "../types/campaign";
 import { campaignService } from "../services/campaignService";
-import { REALMS_DASHBOARD_ACTIONS } from "./realmsDashboardActions";
+import {
+  REALMS_DASHBOARD_ACTIONS,
+  canOpenCharacterCreation,
+} from "./realmsDashboardActions";
 import "../styles/realms-dashboard.css";
 
 type RealmsDashboardPageProps = {
   session: AuthSession;
   onReturn?: () => void;
   onLogout: () => void;
+  onOpenCharacter?: (campaignId: number, characterId: number) => void;
 };
 
 export function RealmsDashboardPage({
   session,
   onReturn,
   onLogout,
+  onOpenCharacter,
 }: RealmsDashboardPageProps) {
   const [notice, setNotice] = useState("");
   const [campaigns, setCampaigns] = useState<PlayerCampaignReference[]>([]);
@@ -33,6 +38,9 @@ export function RealmsDashboardPage({
   const [charactersLoading, setCharactersLoading] = useState(false);
   const [charactersError, setCharactersError] = useState("");
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
+  const selectedCharacter = characters.find(
+    (character) => String(character.id) === selectedCharacterId,
+  );
 
   useEffect(() => {
     let active = true;
@@ -92,6 +100,10 @@ export function RealmsDashboardPage({
   }
 
   function selectAction(action: PortalActionDefinition) {
+    if (action.id === "character-sheet" && selectedCampaignId && selectedCharacterId) {
+      onOpenCharacter?.(Number(selectedCampaignId), Number(selectedCharacterId));
+      return;
+    }
     showComingSoon(action.title);
   }
 
@@ -132,7 +144,7 @@ export function RealmsDashboardPage({
                   {campaignsLoading
                     ? "Reading Campaigns…"
                     : campaigns.length === 0
-                      ? "No Campaigns with Characters"
+                      ? "No Campaign Memberships"
                       : "No Campaign Selected"}
                 </option>
                 {campaigns.map((campaign) => (
@@ -163,9 +175,13 @@ export function RealmsDashboardPage({
               <button
                 className="realm-control__create"
                 type="button"
-                onClick={() => showComingSoon("Create Character")}
+                disabled={!canOpenCharacterCreation(selectedCampaignId, selectedCharacter)}
+                onClick={() => onOpenCharacter?.(
+                  Number(selectedCampaignId),
+                  Number(selectedCharacterId),
+                )}
               >
-                Create Character
+                {selectedCharacter?.creationCompletedAt ? "Character Complete" : "Create Character"}
               </button>
             </div>
           </div>

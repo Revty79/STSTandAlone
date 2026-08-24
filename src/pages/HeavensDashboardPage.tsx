@@ -13,6 +13,7 @@ import {
   getHeavensToolDestination,
 } from "./heavensDashboardTools";
 import { campaignService } from "../services/campaignService";
+import { characterService } from "../services/characterService";
 import type {
   CampaignAggregate,
   CampaignCharacterReference,
@@ -243,7 +244,7 @@ export function HeavensDashboardPage({
     setCampaignCharactersError("");
     setCharacterMessage("");
     try {
-      const character = await campaignService.createCharacter(
+      const characterAggregate = await characterService.createCharacter(
         Number(selectedCampaignId),
         Number(selectedPlayerId),
       );
@@ -252,7 +253,7 @@ export function HeavensDashboardPage({
         Number(selectedPlayerId),
       );
       setCampaignCharacters(characters);
-      setSelectedCharacterId(String(character.id));
+      setSelectedCharacterId(String(characterAggregate.character.id));
       setCharacterMessage(
         "New Character is saved and linked to this Player and Campaign.",
       );

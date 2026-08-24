@@ -31,6 +31,7 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "equipment")).toBe(true);
     expect(canAccessDestination(session, "inventory")).toBe(true);
     expect(canAccessDestination(session, "realms")).toBe(true);
+    expect(canAccessDestination(session, "character-create")).toBe(true);
   });
 
   it("routes a Player-only profile directly to Realms", () => {
@@ -46,6 +47,7 @@ describe("role authorization", () => {
     expect(canAccessDestination(session, "equipment")).toBe(false);
     expect(canAccessDestination(session, "inventory")).toBe(false);
     expect(canAccessDestination(session, "realms")).toBe(true);
+    expect(canAccessDestination(session, "character-create")).toBe(true);
   });
 
   it("redirects unauthorized G.O.D. destinations through the central guard", () => {

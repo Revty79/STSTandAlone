@@ -169,34 +169,24 @@ describe("TauriCampaignRepository", () => {
     ]);
   });
 
-  it("creates program-ID New Character placeholders linked to one Campaign Player", async () => {
-    const execute = vi.fn(async () => ({ rowsAffected: 1, lastInsertId: 31 }));
+  it("lists program-ID Characters linked to one Campaign Player", async () => {
     const character = {
       id: 31, campaignId: 12, playerUserId: 2, name: "New Character",
       createdAt: "created", updatedAt: "updated",
     };
     const database: CampaignDatabase = {
-      async select<T>(query: string, values: unknown[] = []): Promise<T> {
-        if (/where id=\$1 limit 1/i.test(query)) {
-          expect(values).toEqual([31]);
-          return [character] as T;
-        }
+      async select<T>(_query: string, values: unknown[] = []): Promise<T> {
         expect(values).toEqual([12, 2]);
         return [character, { ...character, id: 32 }] as T;
       },
-      execute,
+      async execute() { return { rowsAffected: 0 }; },
     };
     const repository = new TauriCampaignRepository(async () => database);
 
-    await expect(repository.createCampaignCharacter(12, 2)).resolves.toEqual(character);
-    expect(execute).toHaveBeenCalledWith(
-      "INSERT INTO campaign_characters (campaign_id,player_user_id) VALUES ($1,$2)",
-      [12, 2],
-    );
     await expect(repository.listCampaignCharacters(12, 2)).resolves.toHaveLength(2);
   });
 
-  it("lists only Campaigns where the requested Player owns a Character", async () => {
+  it("lists every Campaign where the requested Player is a member", async () => {
     const calls: Array<{ query: string; values: unknown[] }> = [];
     const database: CampaignDatabase = {
       async select<T>(query: string, values: unknown[] = []): Promise<T> {
@@ -207,12 +197,12 @@ describe("TauriCampaignRepository", () => {
     };
     const repository = new TauriCampaignRepository(async () => database);
 
-    await expect(repository.listCampaignsForPlayerWithCharacters(2)).resolves.toEqual([
+    await expect(repository.listCampaignsForPlayerMembership(2)).resolves.toEqual([
       { id: 12, name: "Tidefall" },
     ]);
     expect(calls[0]?.values).toEqual([2]);
     expect(calls[0]?.query).toMatch(
-      /where exists[\s\S]*from campaign_characters[\s\S]*player_user_id=\$1/i,
+      /from campaign_players membership[\s\S]*membership\.user_id=\$1/i,
     );
   });
 });

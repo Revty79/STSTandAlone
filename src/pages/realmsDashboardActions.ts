@@ -1,4 +1,12 @@
 import type { PortalActionDefinition } from "../components/PortalActionCard";
+import type { CampaignCharacterReference } from "../types/campaign";
+
+export function canOpenCharacterCreation(
+  campaignId: string,
+  character: CampaignCharacterReference | undefined,
+): boolean {
+  return Boolean(campaignId && character && !character.creationCompletedAt);
+}
 
 export const REALMS_DASHBOARD_ACTIONS: readonly PortalActionDefinition[] = [
   {

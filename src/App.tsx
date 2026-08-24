@@ -6,6 +6,7 @@ import { CampaignPrototypePage } from "./pages/CampaignPrototypePage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
+import { CharacterCreationPage } from "./pages/CharacterCreationPage";
 import { RacesPage } from "./pages/RacesPage";
 import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -30,6 +31,10 @@ function App() {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [databaseState, setDatabaseState] =
     useState<DatabaseState>("initializing");
+  const [characterContext, setCharacterContext] = useState<{
+    campaignId: number;
+    characterId: number;
+  } | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -66,6 +71,7 @@ function App() {
   }
 
   function logout() {
+    setCharacterContext(null);
     setSession(null);
     setScreen("login");
   }
@@ -171,6 +177,40 @@ function App() {
                 ? () => navigateAuthenticated("access-choice")
                 : undefined
             }
+            onLogout={logout}
+            onOpenCharacter={(campaignId, characterId) => {
+              setCharacterContext({ campaignId, characterId });
+              navigateAuthenticated("character-create");
+            }}
+          />
+        );
+      case "character-create":
+        if (!characterContext) {
+          return (
+            <RealmsDashboardPage
+              session={session}
+              onReturn={
+                canAccessDestination(session, "access-choice")
+                  ? () => navigateAuthenticated("access-choice")
+                  : undefined
+              }
+              onLogout={logout}
+              onOpenCharacter={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId });
+                navigateAuthenticated("character-create");
+              }}
+            />
+          );
+        }
+        return (
+          <CharacterCreationPage
+            session={session}
+            campaignId={characterContext.campaignId}
+            characterId={characterContext.characterId}
+            onBack={() => {
+              setCharacterContext(null);
+              navigateAuthenticated("realms");
+            }}
             onLogout={logout}
           />
         );

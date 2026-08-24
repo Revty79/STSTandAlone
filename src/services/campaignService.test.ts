@@ -14,6 +14,7 @@ import { CampaignService, CampaignValidationError } from "./campaignService";
 class RecordingCampaignRepository implements CampaignRepository {
   saved: SaveCampaignAggregate | null = null;
   addedPlayer: { campaignId: number; userId: number } | null = null;
+  memberships: Array<{ campaignId: number; userId: number }> = [];
   characters: CampaignCharacterReference[] = [];
 
   async listCampaigns(): Promise<CampaignSummary[]> { return []; }
@@ -37,28 +38,13 @@ class RecordingCampaignRepository implements CampaignRepository {
       character.campaignId === campaignId && character.playerUserId === playerUserId,
     );
   }
-  async createCampaignCharacter(
-    campaignId: number,
-    playerUserId: number,
-  ): Promise<CampaignCharacterReference> {
-    const character = {
-      id: this.characters.length + 1,
-      campaignId,
-      playerUserId,
-      name: "New Character",
-      createdAt: "now",
-      updatedAt: "now",
-    };
-    this.characters.push(character);
-    return character;
-  }
-  async listCampaignsForPlayerWithCharacters(
+  async listCampaignsForPlayerMembership(
     playerUserId: number,
   ): Promise<PlayerCampaignReference[]> {
     const campaignIds = new Set(
-      this.characters
-        .filter((character) => character.playerUserId === playerUserId)
-        .map((character) => character.campaignId),
+      this.memberships
+        .filter((membership) => membership.userId === playerUserId)
+        .map((membership) => membership.campaignId),
     );
     return [...campaignIds].map((id) => ({ id, name: `Campaign ${id}` }));
   }
@@ -166,25 +152,14 @@ describe("CampaignService", () => {
     await expect(service.addPlayer(12, -1)).rejects.toThrow(/Profile/i);
   });
 
-  it("creates multiple New Character records for one Campaign Player", async () => {
+  it("lists every Campaign membership, including Campaigns without Characters", async () => {
     const repository = new RecordingCampaignRepository();
     const service = new CampaignService(repository);
-    await expect(service.createCharacter(12, 2)).resolves.toMatchObject({
-      id: 1, campaignId: 12, playerUserId: 2, name: "New Character",
-    });
-    await expect(service.createCharacter(12, 2)).resolves.toMatchObject({
-      id: 2, campaignId: 12, playerUserId: 2, name: "New Character",
-    });
-    await expect(service.listCharacters(12, 2)).resolves.toHaveLength(2);
-    await expect(service.createCharacter(0, 2)).rejects.toThrow(/Campaign/i);
-  });
-
-  it("lists only Campaigns represented by the logged-in Player's Characters", async () => {
-    const repository = new RecordingCampaignRepository();
-    const service = new CampaignService(repository);
-    await service.createCharacter(12, 2);
-    await service.createCharacter(13, 2);
-    await service.createCharacter(14, 3);
+    repository.memberships.push(
+      { campaignId: 12, userId: 2 },
+      { campaignId: 13, userId: 2 },
+      { campaignId: 14, userId: 3 },
+    );
 
     await expect(service.listPlayerCampaigns(2)).resolves.toEqual([
       { id: 12, name: "Campaign 12" },
