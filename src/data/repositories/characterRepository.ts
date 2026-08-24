@@ -6,6 +6,7 @@ import {
 } from "../../types/campaign";
 import {
   CHARACTER_ATTRIBUTE_KEYS,
+  type AdvanceCharacterSkill,
   type CharacterAggregate,
   type CharacterAttributeAllocation,
   type CharacterAttributeKey,
@@ -65,6 +66,7 @@ export interface CharacterRepository {
     playerUserId: number,
   ): Promise<CharacterAggregate>;
   saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate>;
+  advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate>;
   getAllowedRaceForCharacter(
     characterId: number,
     campaignId: number,
@@ -87,6 +89,8 @@ export class TauriCharacterRepository implements CharacterRepository {
     ),
     private readonly saveInvoker: (input: SaveCharacterAggregate) => Promise<number> =
       (input) => invoke<number>("save_character_aggregate", { input }),
+    private readonly advanceSkillInvoker: (input: AdvanceCharacterSkill) => Promise<number> =
+      (input) => invoke<number>("advance_character_skill", { input }),
   ) {}
 
   async getCharacterAggregate(
@@ -327,6 +331,18 @@ export class TauriCharacterRepository implements CharacterRepository {
       input.administrativeOverride,
     );
     if (!aggregate) throw new Error("The saved Character aggregate could not be reloaded.");
+    return aggregate;
+  }
+
+  async advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate> {
+    const id = await this.advanceSkillInvoker(input);
+    const aggregate = await this.getCharacterAggregate(
+      id,
+      input.campaignId,
+      input.requestingUserId,
+      false,
+    );
+    if (!aggregate) throw new Error("The advanced Character aggregate could not be reloaded.");
     return aggregate;
   }
 

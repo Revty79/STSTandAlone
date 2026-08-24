@@ -6,6 +6,7 @@ use tauri::{AppHandle, Manager};
 
 const DATABASE_FILENAME: &str = "serrian-tide.db";
 const ATTRIBUTE_KEYS: [&str; 6] = ["STR", "DEX", "CON", "INT", "WIS", "CHR"];
+const SPECIAL_ABILITY_EFFECTIVE_MAXIMUM: f64 = 100.0;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +28,17 @@ pub struct SaveCharacterAggregateInput {
     attributes: Vec<CharacterAttributeInput>,
     skill_allocations: Vec<CharacterSkillAllocationInput>,
     items: Vec<CharacterItemInput>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AdvanceCharacterSkillInput {
+    character_id: i64,
+    campaign_id: i64,
+    requesting_user_id: i64,
+    skill_id: i64,
+    parent_allocation_id: Option<i64>,
+    points_to_add: i64,
 }
 
 #[derive(Deserialize)]
@@ -291,6 +303,15 @@ pub fn save_character_aggregate(
 ) -> Result<i64, String> {
     let mut connection = open_database(&app)?;
     save_character_aggregate_in_connection(&mut connection, input)
+}
+
+#[tauri::command]
+pub fn advance_character_skill(
+    app: AppHandle,
+    input: AdvanceCharacterSkillInput,
+) -> Result<i64, String> {
+    let mut connection = open_database(&app)?;
+    advance_character_skill_in_connection(&mut connection, input)
 }
 
 fn save_character_aggregate_in_connection(
@@ -644,6 +665,372 @@ fn save_character_aggregate_in_connection(
     Ok(input.character_id)
 }
 
+fn build_saved_character_mana_pools(
+    transaction: &Transaction<'_>,
+    character_id: i64,
+    race_id: Option<i64>,
+    racial_skill_values: &HashMap<i64, f64>,
+) -> Result<HashMap<String, f64>, String> {
+    let base_magic = if let Some(race_id) = race_id {
+        transaction
+            .query_row(
+                "SELECT COALESCE(base_magic,0) FROM races WHERE id=?1",
+                [race_id],
+                |row| row.get::<_, f64>(0),
+            )
+            .map_err(|error| format!("Race Base Magic could not be read: {error}"))?
+    } else {
+        0.0
+    };
+    let mut source_ids = HashMap::new();
+    let mut statement = transaction
+        .prepare(
+            "SELECT id,lower(name) FROM skills
+             WHERE lower(name) IN ('channeling','devotion','psionic channeling','resonance attunement')
+             ORDER BY id",
+        )
+        .map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+    let rows = statement
+        .query_map([], |row| {
+            Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))
+        })
+        .map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+    for row in rows {
+        let (skill_id, name) =
+            row.map_err(|error| format!("Mana source Skills could not be read: {error}"))?;
+        source_ids.entry(name).or_insert(skill_id);
+    }
+    drop(statement);
+
+    let mana_for = |source_name: &str| -> Result<f64, String> {
+        let Some(skill_id) = source_ids.get(source_name) else {
+            return Ok(0.0);
+        };
+        let purchased: f64 = transaction
+            .query_row(
+                "SELECT COALESCE(MAX(points),0)
+                 FROM campaign_character_skill_allocations
+                 WHERE character_id=?1 AND skill_id=?2",
+                params![character_id, skill_id],
+                |row| row.get(0),
+            )
+            .map_err(|error| format!("Character Mana Skills could not be read: {error}"))?;
+        Ok((purchased + racial_skill_values.get(skill_id).copied().unwrap_or(0.0)) * base_magic)
+    };
+    let channeling_mana = mana_for("channeling")?;
+    Ok(HashMap::from([
+        ("Spellcraft".to_string(), channeling_mana),
+        ("Talismanism".to_string(), channeling_mana),
+        ("Faith".to_string(), mana_for("devotion")?),
+        ("Psyonics".to_string(), mana_for("psionic channeling")?),
+        (
+            "Bardic Resonance".to_string(),
+            mana_for("resonance attunement")?,
+        ),
+    ]))
+}
+
+fn advance_character_skill_in_connection(
+    connection: &mut Connection,
+    input: AdvanceCharacterSkillInput,
+) -> Result<i64, String> {
+    if input.character_id <= 0
+        || input.campaign_id <= 0
+        || input.requesting_user_id <= 0
+        || input.skill_id <= 0
+        || input.parent_allocation_id.is_some_and(|id| id <= 0)
+        || input.points_to_add <= 0
+    {
+        return Err("Character advancement must reference saved records.".to_string());
+    }
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|error| {
+            format!("The Character advancement transaction could not begin: {error}")
+        })?;
+    let context: Option<(f64, f64, Option<i64>, f64, f64, Option<String>, i64)> = transaction
+        .query_row(
+            "SELECT campaign.points_to_unlock_next_tier,campaign.max_points_in_skill,
+                    profile.race_id,profile.experience,profile.total_experience,
+                    profile.creation_completed_at,character.player_user_id
+             FROM campaign_characters character
+             JOIN campaign_players membership
+               ON membership.campaign_id=character.campaign_id
+              AND membership.user_id=character.player_user_id
+             JOIN campaigns campaign ON campaign.id=character.campaign_id
+             JOIN campaign_character_profiles profile ON profile.character_id=character.id
+             WHERE character.id=?1 AND character.campaign_id=?2",
+            params![input.character_id, input.campaign_id],
+            |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                    row.get(6)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|error| format!("Character advancement access could not be checked: {error}"))?;
+    let Some((
+        tier_unlock_points,
+        max_points_in_skill,
+        race_id,
+        available_experience,
+        lifetime_experience,
+        creation_completed_at,
+        character_owner_id,
+    )) = context
+    else {
+        return Err("The Character does not belong to the requested Campaign.".to_string());
+    };
+    if character_owner_id != input.requesting_user_id {
+        return Err("A Player may only advance their own Character.".to_string());
+    }
+    if creation_completed_at.is_none() {
+        return Err(
+            "Character creation must be completed before Experience can be spent.".to_string(),
+        );
+    }
+
+    let allowed_systems = {
+        let mut statement = transaction
+            .prepare("SELECT system_name FROM campaign_allowed_systems WHERE campaign_id=?1")
+            .map_err(|error| format!("Campaign Skill access could not be read: {error}"))?;
+        let rows = statement
+            .query_map([input.campaign_id], |row| row.get::<_, String>(0))
+            .map_err(|error| format!("Campaign Skill access could not be read: {error}"))?;
+        rows.collect::<Result<HashSet<_>, _>>()
+            .map_err(|error| format!("Campaign Skill access could not be read: {error}"))?
+    };
+    let (racial_skill_values, racial_skill_ids) = {
+        let mut values = HashMap::new();
+        let mut ids = HashSet::new();
+        if let Some(race_id) = race_id {
+            let mut statement = transaction
+                .prepare("SELECT skill_id,value FROM race_skill_links WHERE race_id=?1")
+                .map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+            let rows = statement
+                .query_map([race_id], |row| {
+                    Ok((row.get::<_, i64>(0)?, row.get::<_, Option<f64>>(1)?))
+                })
+                .map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+            for row in rows {
+                let (skill_id, value) =
+                    row.map_err(|error| format!("Race Skill bonuses could not be read: {error}"))?;
+                ids.insert(skill_id);
+                *values.entry(skill_id).or_insert(0.0) += value.unwrap_or(0.0).max(0.0);
+            }
+        }
+        (values, ids)
+    };
+    let mana_pools = build_saved_character_mana_pools(
+        &transaction,
+        input.character_id,
+        race_id,
+        &racial_skill_values,
+    )?;
+    let rules = CampaignSkillRules {
+        skill_points: 0.0,
+        max_starting_skill: 0.0,
+        points_to_unlock_next_tier: tier_unlock_points,
+        max_points_in_skill,
+        allowed_systems,
+        administrative_override: false,
+        enforce_campaign_tier_limits: false,
+        racial_skill_values,
+        racial_skill_ids,
+        mana_pools,
+    };
+
+    let skill = read_skill(&transaction, input.skill_id)?;
+    let racially_granted = rules.racial_skill_ids.contains(&skill.id);
+    let mut parent_context: Option<(i64, SkillMeta, f64)> = None;
+    let root_skill = if let Some(parent_allocation_id) = input.parent_allocation_id {
+        let parent_row: Option<(i64, Option<i64>, f64)> = transaction
+            .query_row(
+                "SELECT skill_id,parent_allocation_id,points
+                 FROM campaign_character_skill_allocations
+                 WHERE id=?1 AND character_id=?2",
+                params![parent_allocation_id, input.character_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .optional()
+            .map_err(|error| format!("The parent Skill allocation could not be read: {error}"))?;
+        let Some((parent_skill_id, mut ancestor_id, parent_points)) = parent_row else {
+            return Err("The selected parent Skill path no longer exists.".to_string());
+        };
+        let parent_skill = read_skill(&transaction, parent_skill_id)?;
+        let linked: bool = transaction
+            .query_row(
+                "SELECT EXISTS(
+                   SELECT 1 FROM skill_relationships
+                   WHERE skill_id=?1 AND related_skill_id=?2
+                     AND relationship_type='parent' COLLATE NOCASE
+                 )",
+                params![skill.id, parent_skill.id],
+                |row| row.get(0),
+            )
+            .map_err(|error| {
+                format!("The Skill parent relationship could not be checked: {error}")
+            })?;
+        if !linked {
+            return Err(format!(
+                "Skill {:?} is not a child of {:?}.",
+                skill.name, parent_skill.name
+            ));
+        }
+        if let (Some(parent_tier), Some(child_tier)) = (parent_skill.tier, skill.tier) {
+            if child_tier != parent_tier + 1 {
+                return Err(
+                    "Skill advancement tiers do not follow their parent branch.".to_string()
+                );
+            }
+        }
+        let mut root = parent_skill.clone();
+        let mut visited = HashSet::from([parent_allocation_id]);
+        while let Some(next_id) = ancestor_id {
+            if !visited.insert(next_id) {
+                return Err("The saved Skill path contains a cycle.".to_string());
+            }
+            let ancestor: Option<(i64, Option<i64>)> = transaction
+                .query_row(
+                    "SELECT skill_id,parent_allocation_id
+                     FROM campaign_character_skill_allocations
+                     WHERE id=?1 AND character_id=?2",
+                    params![next_id, input.character_id],
+                    |row| Ok((row.get(0)?, row.get(1)?)),
+                )
+                .optional()
+                .map_err(|error| format!("The Skill ancestry could not be read: {error}"))?;
+            let Some((ancestor_skill_id, next_parent_id)) = ancestor else {
+                return Err("The saved Skill path has a missing parent.".to_string());
+            };
+            root = read_skill(&transaction, ancestor_skill_id)?;
+            ancestor_id = next_parent_id;
+        }
+        parent_context = Some((parent_allocation_id, parent_skill, parent_points));
+        root
+    } else {
+        if skill.tier.is_some_and(|tier| tier != 1) {
+            return Err(
+                "Tier 2 and Tier 3 Skills require an unlocked parent allocation.".to_string(),
+            );
+        }
+        skill.clone()
+    };
+    validate_skill_access(&skill, &root_skill, &rules, racially_granted)?;
+    if let Some((_, parent_skill, parent_points)) = &parent_context {
+        let unlock_threshold = skill_unlock_threshold(&root_skill, tier_unlock_points)?;
+        let parent_effective_points = parent_points
+            + rules
+                .racial_skill_values
+                .get(&parent_skill.id)
+                .copied()
+                .unwrap_or(0.0);
+        if !racially_granted && parent_effective_points + 0.000_001 < unlock_threshold {
+            return Err(format!(
+                "Skill {:?} is locked until its parent reaches {unlock_threshold} points.",
+                skill.name
+            ));
+        }
+    }
+
+    let existing: Option<(i64, f64)> = transaction
+        .query_row(
+            "SELECT id,points FROM campaign_character_skill_allocations
+             WHERE character_id=?1 AND skill_id=?2 AND parent_allocation_id IS ?3
+             LIMIT 1",
+            params![input.character_id, skill.id, input.parent_allocation_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(|error| format!("The current Skill allocation could not be read: {error}"))?;
+    let purchased_points = existing.map(|(_, points)| points).unwrap_or(0.0);
+    let racial_minimum = rules
+        .racial_skill_values
+        .get(&skill.id)
+        .copied()
+        .unwrap_or(0.0);
+    let effective_points = purchased_points + racial_minimum;
+    let points_to_add = input.points_to_add as f64;
+    let effective_maximum = effective_skill_maximum(&skill, max_points_in_skill);
+    if effective_points + points_to_add > effective_maximum + 0.000_001 {
+        return Err(format!(
+            "Skill {:?} is already at its maximum of {effective_maximum} effective points.",
+            skill.name
+        ));
+    }
+    let mut experience_cost = 0.0;
+    let mut projected_points = effective_points;
+    for _ in 0..input.points_to_add {
+        experience_cost += if projected_points > 0.000_001 {
+            projected_points
+        } else {
+            10.0
+        };
+        projected_points += 1.0;
+    }
+    if available_experience + 0.000_001 < experience_cost {
+        return Err(format!(
+            "Skill {:?} costs {experience_cost} Experience, but only {available_experience} is available.",
+            skill.name
+        ));
+    }
+
+    if let Some((allocation_id, _)) = existing {
+        transaction
+            .execute(
+                "UPDATE campaign_character_skill_allocations
+                 SET points=points+?2,updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                 WHERE id=?1",
+                params![allocation_id, points_to_add],
+            )
+            .map_err(|error| format!("The Skill advancement could not be saved: {error}"))?;
+    } else {
+        transaction
+            .execute(
+                "INSERT INTO campaign_character_skill_allocations
+                 (character_id,skill_id,parent_allocation_id,points)
+                 VALUES (?1,?2,?3,?4)",
+                params![
+                    input.character_id,
+                    skill.id,
+                    input.parent_allocation_id,
+                    points_to_add
+                ],
+            )
+            .map_err(|error| format!("The new Skill could not be purchased: {error}"))?;
+    }
+    transaction
+        .execute(
+            "UPDATE campaign_character_profiles
+             SET experience=?2,total_experience=?3,
+                 updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE character_id=?1",
+            params![
+                input.character_id,
+                (available_experience - experience_cost).max(0.0),
+                lifetime_experience + experience_cost,
+            ],
+        )
+        .map_err(|error| format!("Character Experience could not be spent: {error}"))?;
+    transaction
+        .execute(
+            "UPDATE campaign_characters
+             SET updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1",
+            [input.character_id],
+        )
+        .map_err(|error| format!("Character advancement time could not be recorded: {error}"))?;
+    transaction.commit().map_err(|error| {
+        format!("The Character advancement transaction could not be committed: {error}")
+    })?;
+    Ok(input.character_id)
+}
+
 fn validate_attributes(
     transaction: &Transaction<'_>,
     attributes: &[CharacterAttributeInput],
@@ -839,29 +1226,30 @@ fn validate_spell_mana_access(
         return Ok(());
     }
     let classification = skill.classification.trim().to_lowercase();
-    let is_spell = skill.spell_level.is_some()
+    let requires_casting_level = skill.spell_level.is_some()
         || matches!(
             classification.as_str(),
             "spell" | "psionic skill" | "reverberation"
-        );
-    if !is_spell {
+        )
+        || (skill.tier == Some(3) && magic_system_for_root(root).is_some());
+    if !requires_casting_level {
         return Ok(());
     }
     let system = magic_system_for_root(root).ok_or_else(|| {
         format!(
-            "Spell {:?} is not attached to a recognized supernatural Skill tree.",
+            "Spell or supernatural Skill {:?} is not attached to a recognized casting tree.",
             skill.name
         )
     })?;
     let spell_level = skill.spell_level.as_deref().ok_or_else(|| {
         format!(
-            "Spell {:?} has no recorded spell level and cannot be assigned.",
+            "Spell or Tier 3 supernatural Skill {:?} has no recorded casting level and cannot be assigned to a Player.",
             skill.name
         )
     })?;
     let required_level = spell_level_index(spell_level).ok_or_else(|| {
         format!(
-            "Spell {:?} has an unrecognized spell level {:?}.",
+            "Spell or Tier 3 supernatural Skill {:?} has an unrecognized casting level {:?}.",
             skill.name, spell_level
         )
     })?;
@@ -876,7 +1264,7 @@ fn validate_spell_mana_access(
         .map(|cost| format!("; recorded cost {cost} Mana"))
         .unwrap_or_default();
     Err(format!(
-        "Spell {:?} requires {spell_level} spell access ({required_mana} Mana), but the {system} pool is {mana_pool}{mana_cost}.",
+        "Spell or Tier 3 supernatural Skill {:?} requires {spell_level} casting access ({required_mana} Mana), but the {system} pool is {mana_pool}{mana_cost}.",
         skill.name
     ))
 }
@@ -903,6 +1291,21 @@ fn root_systems(skill: &SkillMeta) -> Result<Vec<&'static str>, String> {
             "Skill {:?} cannot be used as a root Character allocation.",
             skill.name
         )),
+    }
+}
+
+fn is_special_ability(skill: &SkillMeta) -> bool {
+    matches!(
+        skill.classification.trim().to_lowercase().as_str(),
+        "special ability" | "special abilities"
+    )
+}
+
+fn effective_skill_maximum(skill: &SkillMeta, campaign_maximum: f64) -> f64 {
+    if is_special_ability(skill) {
+        SPECIAL_ABILITY_EFFECTIVE_MAXIMUM
+    } else {
+        campaign_maximum
     }
 }
 
@@ -972,6 +1375,7 @@ fn validate_and_insert_skill(
         .copied()
         .unwrap_or(0.0);
     let racially_granted = rules.racial_skill_ids.contains(&allocation.skill_id);
+    let skill = read_skill(transaction, allocation.skill_id)?;
     if points <= 0.0 && !racially_granted && allocation.children.is_empty() {
         return Err(
             "A zero-point Skill allocation must be a racial Skill or a structural parent."
@@ -979,13 +1383,15 @@ fn validate_and_insert_skill(
         );
     }
     if !rules.administrative_override && points > rules.max_starting_skill + 0.000_001 {
-        return Err("A starting Skill allocation exceeds Max Starting Skill.".to_string());
+        return Err(
+            "Purchased starting points exceed Max Starting Points Spent per Skill.".to_string(),
+        );
     }
-    let purchased_maximum = (rules.max_points_in_skill - racial_minimum).max(0.0);
+    let purchased_maximum =
+        (effective_skill_maximum(&skill, rules.max_points_in_skill) - racial_minimum).max(0.0);
     if points > purchased_maximum + 0.000_001 {
-        return Err("A Skill allocation exceeds Max Points in a Skill.".to_string());
+        return Err("A Skill allocation exceeds its effective maximum.".to_string());
     }
-    let skill = read_skill(transaction, allocation.skill_id)?;
     let root_skill = root.unwrap_or(&skill);
     validate_skill_access(&skill, root_skill, rules, racially_granted)?;
 
@@ -1540,6 +1946,496 @@ mod tests {
     }
 
     #[test]
+    fn advancement_spends_current_points_or_ten_for_a_new_skill_atomically() {
+        let mut fixture = setup();
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let input = save_input(&fixture, character_id);
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("save Character");
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles
+                 SET experience=30,total_experience=40,creation_completed_at='completed'
+                 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("completed Character with Experience");
+
+        advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: fixture.root_skill_id,
+                parent_allocation_id: None,
+                points_to_add: 2,
+            },
+        )
+        .expect("advance an owned Skill twice for five plus six Experience");
+        let after_owned: (f64, f64, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT allocation.points,profile.experience,profile.total_experience
+                 FROM campaign_character_skill_allocations allocation
+                 JOIN campaign_character_profiles profile ON profile.character_id=allocation.character_id
+                 WHERE allocation.character_id=?1 AND allocation.skill_id=?2",
+                params![character_id, fixture.root_skill_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("owned advancement");
+        assert_eq!(after_owned, (7.0, 19.0, 51.0));
+
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Survival','standard',1,'WIS')",
+                [],
+            )
+            .expect("locked branch root");
+        let locked_root_skill_id = fixture.connection.last_insert_rowid();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Foraging','standard',2,'WIS')",
+                [],
+            )
+            .expect("locked branch child");
+        let locked_child_skill_id = fixture.connection.last_insert_rowid();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skill_relationships
+                 (skill_id,related_skill_id,relationship_type,sort_order)
+                 VALUES (?1,?2,'parent',0)",
+                params![locked_child_skill_id, locked_root_skill_id],
+            )
+            .expect("locked branch relationship");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO campaign_character_skill_allocations
+                 (character_id,skill_id,parent_allocation_id,points)
+                 VALUES (?1,?2,NULL,4)",
+                params![character_id, locked_root_skill_id],
+            )
+            .expect("locked parent allocation");
+        let locked_parent_allocation_id = fixture.connection.last_insert_rowid();
+        let locked_error = advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: locked_child_skill_id,
+                parent_allocation_id: Some(locked_parent_allocation_id),
+                points_to_add: 1,
+            },
+        )
+        .expect_err("a child remains locked below the campaign threshold");
+        assert!(locked_error.contains("locked until its parent reaches 5"));
+
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Navigation','standard',1,'INT')",
+                [],
+            )
+            .expect("new Skill");
+        let new_skill_id = fixture.connection.last_insert_rowid();
+        advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: new_skill_id,
+                parent_allocation_id: None,
+                points_to_add: 3,
+            },
+        )
+        .expect("purchase three points in a new Skill for ten plus one plus two Experience");
+        let after_new: (f64, f64, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT allocation.points,profile.experience,profile.total_experience
+                 FROM campaign_character_skill_allocations allocation
+                 JOIN campaign_character_profiles profile ON profile.character_id=allocation.character_id
+                 WHERE allocation.character_id=?1 AND allocation.skill_id=?2",
+                params![character_id, new_skill_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("new Skill advancement");
+        assert_eq!(after_new, (3.0, 6.0, 64.0));
+
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles SET experience=0 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("empty Experience pool");
+        let error = advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: new_skill_id,
+                parent_allocation_id: None,
+                points_to_add: 1,
+            },
+        )
+        .expect_err("an unaffordable advancement must roll back");
+        assert!(error.contains("only 0 is available"));
+        let unchanged_points: f64 = fixture
+            .connection
+            .query_row(
+                "SELECT points FROM campaign_character_skill_allocations
+                 WHERE character_id=?1 AND skill_id=?2",
+                params![character_id, new_skill_id],
+                |row| row.get(0),
+            )
+            .expect("rolled back Skill");
+        assert_eq!(unchanged_points, 3.0);
+    }
+
+    #[test]
+    fn advancement_counts_racial_points_and_enforces_unlocks_and_the_absolute_maximum() {
+        let mut fixture = setup();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id,skill_id,link_type,value,sort_order)
+                 VALUES (?1,?2,'bonus',10,0)",
+                params![fixture.race_id, fixture.root_skill_id],
+            )
+            .expect("racial Skill bonus");
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let mut input = save_input(&fixture, character_id);
+        input.skill_allocations[0].points = 0.0;
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("save racial anchor");
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles
+                 SET experience=20,total_experience=0,creation_completed_at='completed'
+                 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("completed Character");
+
+        advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: fixture.root_skill_id,
+                parent_allocation_id: None,
+                points_to_add: 1,
+            },
+        )
+        .expect("racial ten advances to eleven for ten Experience");
+        let racial_result: (f64, f64, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT allocation.points,profile.experience,profile.total_experience
+                 FROM campaign_character_skill_allocations allocation
+                 JOIN campaign_character_profiles profile ON profile.character_id=allocation.character_id
+                 WHERE allocation.character_id=?1 AND allocation.skill_id=?2",
+                params![character_id, fixture.root_skill_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("racial advancement");
+        assert_eq!(racial_result, (1.0, 10.0, 10.0));
+
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaigns SET max_points_in_skill=11 WHERE id=?1",
+                [fixture.campaign_id],
+            )
+            .expect("absolute maximum");
+        let error = advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: fixture.root_skill_id,
+                parent_allocation_id: None,
+                points_to_add: 1,
+            },
+        )
+        .expect_err("effective points cannot exceed the absolute maximum");
+        assert!(error.contains("already at its maximum"));
+    }
+
+    #[test]
+    fn advancement_blocks_tier_three_supernatural_skills_above_casting_level() {
+        let mut fixture = setup();
+        fixture
+            .connection
+            .execute(
+                "UPDATE races SET base_magic=1 WHERE id=?1",
+                [fixture.race_id],
+            )
+            .expect("Base Magic");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id,skill_id,link_type,value,sort_order)
+                 VALUES (?1,?2,'bonus',1,0)",
+                params![fixture.race_id, fixture.channeling_skill_id],
+            )
+            .expect("Apprentice Channeling Mana");
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let mut input = save_input(&fixture, character_id);
+        input.skill_allocations = vec![CharacterSkillAllocationInput {
+            skill_id: fixture.spellcraft_skill_id,
+            points: 1.0,
+            children: vec![CharacterSkillAllocationInput {
+                skill_id: fixture.sphere_skill_id,
+                points: 1.0,
+                children: vec![],
+            }],
+        }];
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("save supernatural tree");
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles
+                 SET experience=100,creation_completed_at='completed'
+                 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("completed caster");
+        let sphere_allocation_id: i64 = fixture
+            .connection
+            .query_row(
+                "SELECT id FROM campaign_character_skill_allocations
+                 WHERE character_id=?1 AND skill_id=?2",
+                params![character_id, fixture.sphere_skill_id],
+                |row| row.get(0),
+            )
+            .expect("Sphere allocation");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Arcane Technique','supernatural technique',3,'INT')",
+                [],
+            )
+            .expect("Tier 3 supernatural Skill");
+        let technique_skill_id = fixture.connection.last_insert_rowid();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skill_relationships
+                 (skill_id,related_skill_id,relationship_type,sort_order)
+                 VALUES (?1,?2,'parent',0)",
+                params![technique_skill_id, fixture.sphere_skill_id],
+            )
+            .expect("supernatural relationship");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skill_extensions
+                 (skill_id,extension_type,schema_version,data_json)
+                 VALUES (?1,'spell-import-source',1,?2)",
+                params![
+                    technique_skill_id,
+                    r#"{"spreadsheetReference":{"masteryLabel":"Novice","statedSpellCost":8}}"#
+                ],
+            )
+            .expect("Novice casting level");
+
+        let error = advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: technique_skill_id,
+                parent_allocation_id: Some(sphere_allocation_id),
+                points_to_add: 1,
+            },
+        )
+        .expect_err("an Apprentice caster cannot purchase a Novice Tier 3 Skill");
+        assert!(error.contains("requires Novice casting access"));
+
+        fixture
+            .connection
+            .execute(
+                "UPDATE skill_extensions
+                 SET data_json=?2 WHERE skill_id=?1 AND extension_type='spell-import-source'",
+                params![
+                    technique_skill_id,
+                    r#"{"spreadsheetReference":{"masteryLabel":"Apprentice","statedSpellCost":8}}"#
+                ],
+            )
+            .expect("Apprentice casting level");
+        advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: technique_skill_id,
+                parent_allocation_id: Some(sphere_allocation_id),
+                points_to_add: 1,
+            },
+        )
+        .expect("an Apprentice caster may purchase an Apprentice Tier 3 Skill");
+    }
+
+    #[test]
+    fn special_abilities_use_purchased_starting_points_and_an_effective_maximum_of_one_hundred() {
+        let mut fixture = setup();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO campaign_allowed_systems (campaign_id,system_name,sort_order)
+                 VALUES (?1,'Special Abilities',20)",
+                [fixture.campaign_id],
+            )
+            .expect("Special Abilities Campaign access");
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO skills (name,classification,tier,primary_attribute)
+                 VALUES ('Moonshadow Omen','special ability',NULL,NULL)",
+                [],
+            )
+            .expect("Special Ability");
+        let special_ability_id = fixture.connection.last_insert_rowid();
+        fixture
+            .connection
+            .execute(
+                "INSERT INTO race_skill_links (race_id,skill_id,link_type,value,sort_order)
+                 VALUES (?1,?2,'bonus',4,0)",
+                params![fixture.race_id, special_ability_id],
+            )
+            .expect("racial Special Ability points");
+        let character_id = create_character_aggregate_in_connection(
+            &mut fixture.connection,
+            CreateCharacterInput {
+                campaign_id: fixture.campaign_id,
+                player_user_id: fixture.user_id,
+            },
+        )
+        .expect("create Character");
+        let mut input = save_input(&fixture, character_id);
+        input.skill_allocations = vec![CharacterSkillAllocationInput {
+            skill_id: special_ability_id,
+            points: 10.0,
+            children: vec![],
+        }];
+        save_character_aggregate_in_connection(&mut fixture.connection, input)
+            .expect("ten purchased starting points may stack with four racial points");
+        let starting_points: f64 = fixture
+            .connection
+            .query_row(
+                "SELECT points FROM campaign_character_skill_allocations
+                 WHERE character_id=?1 AND skill_id=?2",
+                params![character_id, special_ability_id],
+                |row| row.get(0),
+            )
+            .expect("starting Special Ability allocation");
+        assert_eq!(starting_points, 10.0);
+        assert_eq!(starting_points + 4.0, 14.0);
+
+        let mut too_many_starting_points = save_input(&fixture, character_id);
+        too_many_starting_points.skill_allocations = vec![CharacterSkillAllocationInput {
+            skill_id: special_ability_id,
+            points: 11.0,
+            children: vec![],
+        }];
+        let error = save_character_aggregate_in_connection(
+            &mut fixture.connection,
+            too_many_starting_points,
+        )
+        .expect_err("racial points do not reduce or increase the purchased starting cap");
+        assert!(error.contains("Purchased starting points exceed"));
+
+        fixture
+            .connection
+            .execute(
+                "UPDATE campaign_character_profiles
+                 SET experience=5000,total_experience=0,creation_completed_at='completed'
+                 WHERE character_id=?1",
+                [character_id],
+            )
+            .expect("completed Character with Experience");
+        advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: special_ability_id,
+                parent_allocation_id: None,
+                points_to_add: 86,
+            },
+        )
+        .expect("Special Ability advances from effective fourteen to one hundred");
+        let maximum_result: (f64, f64, f64) = fixture
+            .connection
+            .query_row(
+                "SELECT allocation.points,profile.experience,profile.total_experience
+                 FROM campaign_character_skill_allocations allocation
+                 JOIN campaign_character_profiles profile ON profile.character_id=allocation.character_id
+                 WHERE allocation.character_id=?1 AND allocation.skill_id=?2",
+                params![character_id, special_ability_id],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .expect("Special Ability at one hundred effective points");
+        assert_eq!(maximum_result, (96.0, 141.0, 4859.0));
+
+        let error = advance_character_skill_in_connection(
+            &mut fixture.connection,
+            AdvanceCharacterSkillInput {
+                character_id,
+                campaign_id: fixture.campaign_id,
+                requesting_user_id: fixture.user_id,
+                skill_id: special_ability_id,
+                parent_allocation_id: None,
+                points_to_add: 1,
+            },
+        )
+        .expect_err("Special Abilities cannot exceed one hundred effective points");
+        assert!(error.contains("maximum of 100 effective points"));
+    }
+
+    #[test]
     fn save_replaces_the_aggregate_and_rolls_back_invalid_rules_or_ownership() {
         let mut fixture = setup();
         let character_id = create_character_aggregate_in_connection(
@@ -1597,7 +2493,7 @@ mod tests {
         let error =
             save_character_aggregate_in_connection(&mut fixture.connection, unavailable_spell)
                 .expect_err("an Apprentice spell requires an Apprentice mana pool");
-        assert!(error.contains("requires Apprentice spell access"));
+        assert!(error.contains("requires Apprentice casting access"));
 
         fixture
             .connection

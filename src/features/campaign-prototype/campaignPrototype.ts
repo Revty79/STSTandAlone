@@ -93,9 +93,9 @@ export type CampaignPrototypeCompletion =
 const NUMERIC_FIELDS: readonly [NumericDraftField, string][] = [
   ["attributePoints", "Attribute Points"],
   ["skillPoints", "Skill Points"],
-  ["maxStartingSkill", "Max Starting Skill"],
+  ["maxStartingSkill", "Max Starting Points Spent per Skill"],
   ["pointsToUnlockNextTier", "Needed to Unlock Next Tier"],
-  ["maxPointsInSkill", "Max Points in a Skill"],
+  ["maxPointsInSkill", "Max Points in a Standard Skill"],
   ["startingCreditAmount", "Starting Credit Amount"],
 ];
 

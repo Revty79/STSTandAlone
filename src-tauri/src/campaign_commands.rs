@@ -120,13 +120,18 @@ fn save_campaign_aggregate_in_connection(
     let name = required(&input.core.name, "Campaign Name")?;
     let attribute_points = non_negative(input.core.attribute_points, "Attribute Points")?;
     let skill_points = non_negative(input.core.skill_points, "Skill Points")?;
-    let max_starting_skill = non_negative(input.core.max_starting_skill, "Max Starting Skill")?;
+    let max_starting_skill = non_negative(
+        input.core.max_starting_skill,
+        "Max Starting Points Spent per Skill",
+    )?;
     let points_to_unlock_next_tier = non_negative(
         input.core.points_to_unlock_next_tier,
         "Needed to Unlock Next Tier",
     )?;
-    let max_points_in_skill =
-        non_negative(input.core.max_points_in_skill, "Max Points in a Skill")?;
+    let max_points_in_skill = non_negative(
+        input.core.max_points_in_skill,
+        "Max Points in a Standard Skill",
+    )?;
     let starting_credit_amount =
         non_negative(input.core.starting_credit_amount, "Starting Credit Amount")?;
     if !matches!(

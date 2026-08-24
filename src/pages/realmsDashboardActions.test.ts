@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   REALMS_DASHBOARD_ACTIONS,
+  canAdvanceCharacter,
   canOpenCharacterCreation,
 } from "./realmsDashboardActions";
 
@@ -32,5 +33,16 @@ describe("Realms dashboard actions", () => {
       ...unfinished,
       creationCompletedAt: "completed",
     })).toBe(false);
+  });
+
+  it("opens advancement only for a selected completed Character", () => {
+    const character = {
+      id: 31, campaignId: 12, playerUserId: 2, name: "Neris",
+      createdAt: "created", updatedAt: "updated", creationCompletedAt: "completed",
+    };
+    expect(canAdvanceCharacter("", character)).toBe(false);
+    expect(canAdvanceCharacter("12", undefined)).toBe(false);
+    expect(canAdvanceCharacter("12", { ...character, creationCompletedAt: null })).toBe(false);
+    expect(canAdvanceCharacter("12", character)).toBe(true);
   });
 });

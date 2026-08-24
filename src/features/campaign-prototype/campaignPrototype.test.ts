@@ -34,9 +34,9 @@ describe("Campaign prototype completion", () => {
       name: "Campaign Name is required.",
       attributePoints: "Attribute Points is required.",
       skillPoints: "Skill Points is required.",
-      maxStartingSkill: "Max Starting Skill is required.",
+      maxStartingSkill: "Max Starting Points Spent per Skill is required.",
       pointsToUnlockNextTier: "Needed to Unlock Next Tier is required.",
-      maxPointsInSkill: "Max Points in a Skill is required.",
+      maxPointsInSkill: "Max Points in a Standard Skill is required.",
       startingCreditAmount: "Starting Credit Amount is required.",
       currencySystem: "Choose Credits or Derived Currency.",
     });

@@ -5,6 +5,7 @@ import {
 import {
   CHARACTER_ATTRIBUTE_KEYS,
   type CharacterAggregate,
+  type AdvanceCharacterSkill,
   type CharacterAttributeKey,
   type CharacterDraft,
   type CharacterEditorMode,
@@ -218,6 +219,37 @@ export class CharacterService {
         completeCreation,
       ),
     );
+  }
+
+  async advanceSkill(
+    aggregate: CharacterAggregate,
+    requestingUserId: number,
+    skillId: number,
+    parentAllocationId: number | null,
+    pointsToAdd = 1,
+  ): Promise<CharacterAggregate> {
+    if (aggregate.character.playerUserId !== requestingUserId) {
+      throw new CharacterValidationError("A Player may only advance their own Character.");
+    }
+    if (!aggregate.profile.creationCompletedAt) {
+      throw new CharacterValidationError(
+        "Character creation must be completed before Experience can be spent.",
+      );
+    }
+    if (!Number.isInteger(pointsToAdd) || pointsToAdd <= 0) {
+      throw new CharacterValidationError("Skill advancement points must be a positive whole number.");
+    }
+    const input: AdvanceCharacterSkill = {
+      characterId: savedId(aggregate.character.id, "Character"),
+      campaignId: savedId(aggregate.campaign.id, "Campaign"),
+      requestingUserId: savedId(requestingUserId, "Player Profile"),
+      skillId: savedId(skillId, "Skill"),
+      parentAllocationId: parentAllocationId === null
+        ? null
+        : savedId(parentAllocationId, "Parent Skill Allocation"),
+      pointsToAdd,
+    };
+    return this.repository.advanceCharacterSkill(input);
   }
 
   async getAllowedRace(

@@ -6,7 +6,7 @@ import {
   getCampaignMoneyBreakdown,
 } from "../features/currency/currencyRules";
 import {
-  canAccessSpellAtLevel,
+  canAccessSupernaturalSkillAtLevel,
   evaluateCharacterReadiness,
   getAttributeModifier,
   getAttributePointsUsed,
@@ -19,6 +19,8 @@ import {
   getCharacterSkillRanks,
   getCharacterSkillGroupKey,
   getEffectiveSkillPoints,
+  getCreationPurchasedSkillMaximum,
+  getPurchasedSkillMaximum,
   getMovementInitiative,
   getRaceAttributeCap,
   getRacialSkillGrant,
@@ -31,11 +33,12 @@ import {
   getStartingFundsRemaining,
   hasSkillPoints,
   isSkillAllowedByCampaign,
-  isSpellSkill,
+  requiresCastingLevel,
   isSpecialAbilitySkill,
   normalizeSkillAttributeKey,
   reconcileRacialSkillAnchors,
   type CharacterManaProfile,
+  SPECIAL_ABILITY_EFFECTIVE_MAXIMUM,
 } from "../features/characters/characterRules";
 import {
   characterAggregateToDraft,
@@ -180,16 +183,24 @@ function SkillBranch({
   const visibleChildren = children.filter((child) =>
     (effectivePoints >= unlockThreshold
       || getRacialSkillGrant(selectedRace, child.id).granted)
-      && (administrativeOverride || !isSpellSkill(child) || canAccessSpellAtLevel(child, spellAccessLevel)),
+      && (administrativeOverride
+        || canAccessSupernaturalSkillAtLevel(child, rootSkill, spellAccessLevel)),
   );
-  const hiddenSpellCount = children.filter(isSpellSkill).length
-    - visibleChildren.filter(isSpellSkill).length;
-  const maxPurchased = Math.min(
-    administrativeOverride
-      ? aggregate.campaign.maxPointsInSkill
-      : aggregate.campaign.maxStartingSkill,
-    Math.max(0, aggregate.campaign.maxPointsInSkill - racialGrant.minimum),
-  );
+  const hiddenSpellCount = children.filter((child) =>
+    requiresCastingLevel(child, rootSkill)).length
+    - visibleChildren.filter((child) => requiresCastingLevel(child, rootSkill)).length;
+  const maxPurchased = administrativeOverride
+    ? getPurchasedSkillMaximum(
+        skill,
+        aggregate.campaign.maxPointsInSkill,
+        racialGrant.minimum,
+      )
+    : getCreationPurchasedSkillMaximum(
+        skill,
+        aggregate.campaign.maxStartingSkill,
+        aggregate.campaign.maxPointsInSkill,
+        racialGrant.minimum,
+      );
   const maxTotal = racialGrant.minimum + maxPurchased;
   const rollTarget = !hasPoints
     ? null
@@ -620,16 +631,27 @@ export function CharacterCreationPage({
     if (!aggregate || !draft || creationLocked) return;
     const currentAllocation = allocationFor(draft, skillId, parentDraftId);
     const currentPoints = currentAllocation?.points ?? 0;
+    const skill = aggregate.skillCatalog.find((candidate) => candidate.id === skillId);
+    if (!skill) return;
     const racialGrant = getRacialSkillGrant(selectedRace, skillId);
     const remainingWithCurrent = aggregate.campaign.skillPoints
       - getSkillPointsUsed(draft)
       + currentPoints;
+    const rulesMaximum = isGodEditor
+      ? getPurchasedSkillMaximum(
+          skill,
+          aggregate.campaign.maxPointsInSkill,
+          racialGrant.minimum,
+        )
+      : getCreationPurchasedSkillMaximum(
+          skill,
+          aggregate.campaign.maxStartingSkill,
+          aggregate.campaign.maxPointsInSkill,
+          racialGrant.minimum,
+        );
     const maximum = Math.min(
-      isGodEditor
-        ? aggregate.campaign.maxPointsInSkill
-        : aggregate.campaign.maxStartingSkill,
-      Math.max(0, aggregate.campaign.maxPointsInSkill - racialGrant.minimum),
-      isGodEditor ? aggregate.campaign.maxPointsInSkill : Math.max(0, remainingWithCurrent),
+      rulesMaximum,
+      isGodEditor ? rulesMaximum : Math.max(0, remainingWithCurrent),
     );
     const points = Math.min(Math.max(0, requested), maximum);
     const rootSkill = getRootSkillForPath(skillId, parentDraftId);
@@ -896,9 +918,10 @@ export function CharacterCreationPage({
           <span>{isGodEditor ? `${displayNumber(used)} invested points` : `${displayNumber(used)} / ${displayNumber(aggregate.campaign.skillPoints)} points`}</span>
         </header>
         <div className="character-rule-ledger">
-          <span>Max Starting Skill <strong>{displayNumber(aggregate.campaign.maxStartingSkill)}</strong></span>
+          <span>Max Starting Points Spent per Skill <strong>{displayNumber(aggregate.campaign.maxStartingSkill)}</strong></span>
           <span>Unlock Next Tier <strong>{displayNumber(aggregate.campaign.pointsToUnlockNextTier)}</strong><small>Spellcraft, Talismanism, Faith, Psyonics, and Bardic Resonance require 1.</small></span>
-          <span>Max Points in a Skill <strong>{displayNumber(aggregate.campaign.maxPointsInSkill)}</strong></span>
+          <span>Standard Skill Maximum <strong>{displayNumber(aggregate.campaign.maxPointsInSkill)}</strong></span>
+          <span>Special Ability Maximum <strong>{displayNumber(SPECIAL_ABILITY_EFFECTIVE_MAXIMUM)}</strong></span>
           <span>Allowed <strong>{aggregate.campaign.allowedSystems.join(" · ") || "None"}</strong></span>
         </div>
         <p className="character-panel__note">A nested Skill appears beneath each valid parent path. Only Campaign-authorized tiers and systems are shown.</p>

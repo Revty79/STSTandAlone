@@ -210,6 +210,7 @@ pub fn run() {
             campaign_commands::save_campaign_aggregate,
             character_commands::create_character_aggregate,
             character_commands::save_character_aggregate,
+            character_commands::advance_character_skill,
             creature_commands::save_creature_aggregate,
             creature_commands::clone_creature_as_variant,
             item_commands::save_item_aggregate,

@@ -48,9 +48,9 @@ export function CampaignInformationPanel({
           <dl className="campaign-information__rules">
             <div><dt>Attribute Points</dt><dd>{campaign.campaign.attributePoints}</dd></div>
             <div><dt>Skill Points</dt><dd>{campaign.campaign.skillPoints}</dd></div>
-            <div><dt>Max Starting Skill</dt><dd>{campaign.campaign.maxStartingSkill}</dd></div>
+            <div><dt>Max Starting Points Spent per Skill</dt><dd>{campaign.campaign.maxStartingSkill}</dd></div>
             <div><dt>Unlock Next Tier</dt><dd>{campaign.campaign.pointsToUnlockNextTier}</dd></div>
-            <div><dt>Max Points in Skill</dt><dd>{campaign.campaign.maxPointsInSkill}</dd></div>
+            <div><dt>Max Points in a Standard Skill</dt><dd>{campaign.campaign.maxPointsInSkill}</dd></div>
             <div><dt>Starting Credits</dt><dd>{campaign.campaign.startingCreditAmount}</dd></div>
           </dl>
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { RaceRepository } from "./raceRepository";
 import type { RaceAggregate } from "../../types/race";
-import type { SaveCharacterAggregate } from "../../types/character";
+import type { AdvanceCharacterSkill, SaveCharacterAggregate } from "../../types/character";
 import {
   TauriCharacterRepository,
   type CharacterDatabase,
@@ -130,11 +130,13 @@ describe("TauriCharacterRepository", () => {
     const races = { getRaceAggregate: vi.fn(async () => selectedRace()) } as unknown as RaceRepository;
     const createInvoker = vi.fn(async () => 9);
     const saveInvoker = vi.fn(async () => 9);
+    const advanceSkillInvoker = vi.fn(async () => 9);
     const repository = new TauriCharacterRepository(
       async () => fixture.database,
       races,
       createInvoker,
       saveInvoker,
+      advanceSkillInvoker,
     );
     const input = {
       characterId: 9, campaignId: 12, requestingUserId: 2, name: "Neris",
@@ -163,5 +165,17 @@ describe("TauriCharacterRepository", () => {
       character: { id: 9 },
     });
     expect(saveInvoker).toHaveBeenCalledWith(input);
+    const advancement = {
+      characterId: 9,
+      campaignId: 12,
+      requestingUserId: 2,
+      skillId: 1,
+      parentAllocationId: null,
+      pointsToAdd: 3,
+    } satisfies AdvanceCharacterSkill;
+    await expect(repository.advanceCharacterSkill(advancement)).resolves.toMatchObject({
+      character: { id: 9 },
+    });
+    expect(advanceSkillInvoker).toHaveBeenCalledWith(advancement);
   });
 });

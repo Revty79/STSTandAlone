@@ -107,12 +107,18 @@ export function normalizeCampaignAggregate(
       name: required(input.core.name, "Campaign Name"),
       attributePoints: nonNegative(input.core.attributePoints, "Attribute Points"),
       skillPoints: nonNegative(input.core.skillPoints, "Skill Points"),
-      maxStartingSkill: nonNegative(input.core.maxStartingSkill, "Max Starting Skill"),
+      maxStartingSkill: nonNegative(
+        input.core.maxStartingSkill,
+        "Max Starting Points Spent per Skill",
+      ),
       pointsToUnlockNextTier: nonNegative(
         input.core.pointsToUnlockNextTier,
         "Needed to Unlock Next Tier",
       ),
-      maxPointsInSkill: nonNegative(input.core.maxPointsInSkill, "Max Points in a Skill"),
+      maxPointsInSkill: nonNegative(
+        input.core.maxPointsInSkill,
+        "Max Points in a Standard Skill",
+      ),
       startingCreditAmount: nonNegative(
         input.core.startingCreditAmount,
         "Starting Credit Amount",

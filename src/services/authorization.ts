@@ -25,6 +25,7 @@ export function canAccessDestination(
       return hasRole(session, USER_ROLE.GOD);
     case "realms":
     case "character-create":
+    case "character-advance":
       return (
         hasRole(session, USER_ROLE.GOD) ||
         hasRole(session, USER_ROLE.PLAYER)

@@ -3,6 +3,7 @@ import type { CharacterRepository } from "../data/repositories/characterReposito
 import type {
   CharacterAggregate,
   CharacterDraft,
+  AdvanceCharacterSkill,
   SaveCharacterAggregate,
 } from "../types/character";
 import type { RaceAggregate } from "../types/race";
@@ -49,6 +50,7 @@ class RecordingCharacterRepository implements CharacterRepository {
   createdWith: [number, number] | null = null;
   saved: SaveCharacterAggregate | null = null;
   readWith: [number, number, number, boolean] | null = null;
+  advancedWith: AdvanceCharacterSkill | null = null;
 
   async getCharacterAggregate(
     characterId: number,
@@ -70,6 +72,11 @@ class RecordingCharacterRepository implements CharacterRepository {
 
   async saveCharacterAggregate(input: SaveCharacterAggregate): Promise<CharacterAggregate> {
     this.saved = structuredClone(input);
+    return this.aggregate;
+  }
+
+  async advanceCharacterSkill(input: AdvanceCharacterSkill): Promise<CharacterAggregate> {
+    this.advancedWith = structuredClone(input);
     return this.aggregate;
   }
 
@@ -148,6 +155,33 @@ describe("CharacterService", () => {
       2,
     )).rejects.toThrow(/permanently locked/i);
     expect(repository.saved).toBeNull();
+  });
+
+  it("advances only the completed Character owned by the logged-in Player", async () => {
+    const repository = new RecordingCharacterRepository();
+    repository.aggregate.profile.creationCompletedAt = "completed";
+    const service = new CharacterService(repository);
+
+    await service.advanceSkill(repository.aggregate, 2, 17, 21);
+    expect(repository.advancedWith).toEqual({
+      characterId: 9,
+      campaignId: 12,
+      requestingUserId: 2,
+      skillId: 17,
+      parentAllocationId: 21,
+      pointsToAdd: 1,
+    });
+    await expect(service.advanceSkill(repository.aggregate, 99, 17, null))
+      .rejects.toThrow(/own Character/i);
+  });
+
+  it("does not allow Experience advancement before Character creation is complete", async () => {
+    const repository = new RecordingCharacterRepository();
+    const service = new CharacterService(repository);
+
+    await expect(service.advanceSkill(repository.aggregate, 2, 17, null))
+      .rejects.toThrow(/must be completed/i);
+    expect(repository.advancedWith).toBeNull();
   });
 
   it("allows an explicit G.O.D. administrative save for another Player's completed Character", async () => {

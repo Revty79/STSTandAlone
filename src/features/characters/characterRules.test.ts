@@ -5,6 +5,7 @@ import {
   CHARACTER_SPELL_ACCESS_LEVELS,
   buildSkillAllocationTree,
   canAccessSpellAtLevel,
+  canAccessSupernaturalSkillAtLevel,
   evaluateCharacterReadiness,
   getAttributeModifier,
   getAttributeRollTarget,
@@ -16,6 +17,9 @@ import {
   getCharacterSkillGroupKey,
   getCharacterSkillRanks,
   getEffectiveSkillPoints,
+  getEffectiveSkillMaximum,
+  getCreationPurchasedSkillMaximum,
+  getPurchasedSkillMaximum,
   getMovementInitiative,
   getSpellAccessLevelForManaPool,
   getRacialSkillGrant,
@@ -31,6 +35,7 @@ import {
   isSpecialAbilitySkill,
   normalizeSkillAttributeKey,
   reconcileRacialSkillAnchors,
+  requiresCastingLevel,
 } from "./characterRules";
 
 function race(): RaceAggregate {
@@ -321,6 +326,29 @@ describe("Character rules", () => {
     expect(canAccessSpellAtLevel(apprenticeSpell, "Apprentice")).toBe(true);
     expect(canAccessSpellAtLevel(noviceSpell, "Apprentice")).toBe(false);
     expect(canAccessSpellAtLevel(noviceSpell, "Novice")).toBe(true);
+    const spellcraftRoot = character.skillCatalog.find((skill) => skill.id === 20)!;
+    const supernaturalTierThree = {
+      ...noviceSpell,
+      name: "Arcane Technique",
+      classification: "supernatural technique",
+      tier: 3,
+    };
+    expect(requiresCastingLevel(supernaturalTierThree, spellcraftRoot)).toBe(true);
+    expect(canAccessSupernaturalSkillAtLevel(
+      supernaturalTierThree,
+      spellcraftRoot,
+      "Apprentice",
+    )).toBe(false);
+    expect(canAccessSupernaturalSkillAtLevel(
+      supernaturalTierThree,
+      spellcraftRoot,
+      "Novice",
+    )).toBe(true);
+    expect(canAccessSupernaturalSkillAtLevel(
+      { ...supernaturalTierThree, spellLevel: null },
+      spellcraftRoot,
+      "Grand Master",
+    )).toBe(false);
     expect(getSkillTierLabel(apprenticeSpell)).toBe("Apprentice Spell · Tier 3");
   });
 
@@ -338,6 +366,11 @@ describe("Character rules", () => {
     expect(isSpecialAbilitySkill(specialAbility)).toBe(true);
     expect(isSpecialAbilitySkill({ ...specialAbility, classification: "special abilities" })).toBe(true);
     expect(isSpecialAbilitySkill(spellcraft)).toBe(false);
+    expect(getEffectiveSkillMaximum(spellcraft, 75)).toBe(75);
+    expect(getEffectiveSkillMaximum(specialAbility, 75)).toBe(100);
+    expect(getCreationPurchasedSkillMaximum(spellcraft, 10, 75, 4)).toBe(10);
+    expect(getCreationPurchasedSkillMaximum(specialAbility, 10, 75, 4)).toBe(10);
+    expect(getPurchasedSkillMaximum(specialAbility, 75, 4)).toBe(96);
     expect(isSkillAllowedByCampaign(
       specialAbility,
       specialAbility,

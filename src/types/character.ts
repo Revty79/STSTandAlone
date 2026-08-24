@@ -209,6 +209,15 @@ export type SaveCharacterAggregate = {
   }>;
 };
 
+export type AdvanceCharacterSkill = {
+  characterId: number;
+  campaignId: number;
+  requestingUserId: number;
+  skillId: number;
+  parentAllocationId: number | null;
+  pointsToAdd: number;
+};
+
 export type CharacterSkillAllocationDraft = {
   draftId: number;
   skillId: number;

@@ -8,6 +8,13 @@ export function canOpenCharacterCreation(
   return Boolean(campaignId && character && !character.creationCompletedAt);
 }
 
+export function canAdvanceCharacter(
+  campaignId: string,
+  character: CampaignCharacterReference | undefined,
+): boolean {
+  return Boolean(campaignId && character?.creationCompletedAt);
+}
+
 export const REALMS_DASHBOARD_ACTIONS: readonly PortalActionDefinition[] = [
   {
     id: "character-sheet",

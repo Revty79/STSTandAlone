@@ -10,6 +10,7 @@ export type AuthenticatedDestination =
   | "equipment"
   | "inventory"
   | "realms"
-  | "character-create";
+  | "character-create"
+  | "character-advance";
 
 export type AppScreen = PublicScreen | AuthenticatedDestination;

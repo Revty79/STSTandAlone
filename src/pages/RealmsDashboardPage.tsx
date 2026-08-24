@@ -12,6 +12,7 @@ import type {
 import { campaignService } from "../services/campaignService";
 import {
   REALMS_DASHBOARD_ACTIONS,
+  canAdvanceCharacter,
   canOpenCharacterCreation,
 } from "./realmsDashboardActions";
 import "../styles/realms-dashboard.css";
@@ -21,6 +22,7 @@ type RealmsDashboardPageProps = {
   onReturn?: () => void;
   onLogout: () => void;
   onOpenCharacter?: (campaignId: number, characterId: number) => void;
+  onAdvanceCharacter?: (campaignId: number, characterId: number) => void;
 };
 
 export function RealmsDashboardPage({
@@ -28,6 +30,7 @@ export function RealmsDashboardPage({
   onReturn,
   onLogout,
   onOpenCharacter,
+  onAdvanceCharacter,
 }: RealmsDashboardPageProps) {
   const [notice, setNotice] = useState("");
   const [campaigns, setCampaigns] = useState<PlayerCampaignReference[]>([]);
@@ -102,6 +105,18 @@ export function RealmsDashboardPage({
   function selectAction(action: PortalActionDefinition) {
     if (action.id === "character-sheet" && selectedCampaignId && selectedCharacterId) {
       onOpenCharacter?.(Number(selectedCampaignId), Number(selectedCharacterId));
+      return;
+    }
+    if (action.id === "advance-character") {
+      if (!selectedCampaignId || !selectedCharacter) {
+        setNotice("Select a Campaign and Character before opening advancement.");
+        return;
+      }
+      if (!canAdvanceCharacter(selectedCampaignId, selectedCharacter)) {
+        setNotice("Complete Character creation before spending Experience or Quintessence.");
+        return;
+      }
+      onAdvanceCharacter?.(Number(selectedCampaignId), selectedCharacter.id);
       return;
     }
     showComingSoon(action.title);

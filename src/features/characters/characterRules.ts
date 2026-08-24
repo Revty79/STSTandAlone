@@ -11,6 +11,7 @@ import {
 import type { RaceAggregate } from "../../types/race";
 
 const EPSILON = 0.000_001;
+export const SPECIAL_ABILITY_EFFECTIVE_MAXIMUM = 100;
 
 export const CHARACTER_SPELL_ACCESS_LEVELS = [
   { name: "Apprentice", minimumMana: 1, midpointMana: 6, twoSpellUnlockMana: 12 },
@@ -168,6 +169,35 @@ export function isSpecialAbilitySkill(skill: CharacterSkillReference): boolean {
   return classification === "special ability" || classification === "special abilities";
 }
 
+export function getEffectiveSkillMaximum(
+  skill: CharacterSkillReference,
+  campaignMaximum: number,
+): number {
+  return isSpecialAbilitySkill(skill)
+    ? SPECIAL_ABILITY_EFFECTIVE_MAXIMUM
+    : campaignMaximum;
+}
+
+export function getPurchasedSkillMaximum(
+  skill: CharacterSkillReference,
+  campaignMaximum: number,
+  racialPoints: number,
+): number {
+  return Math.max(0, getEffectiveSkillMaximum(skill, campaignMaximum) - racialPoints);
+}
+
+export function getCreationPurchasedSkillMaximum(
+  skill: CharacterSkillReference,
+  maxStartingSkill: number,
+  campaignMaximum: number,
+  racialPoints: number,
+): number {
+  return Math.min(
+    maxStartingSkill,
+    getPurchasedSkillMaximum(skill, campaignMaximum, racialPoints),
+  );
+}
+
 export function isSpellSkill(skill: CharacterSkillReference): boolean {
   const classification = skill.classification.trim().toLocaleLowerCase();
   return classification === "spell"
@@ -240,6 +270,31 @@ export function canAccessSpellAtLevel(
     (level) => level.name === spellAccessLevel,
   );
   return spellIndex >= 0 && accessIndex >= spellIndex;
+}
+
+export function requiresCastingLevel(
+  skill: CharacterSkillReference,
+  rootSkill: CharacterSkillReference,
+): boolean {
+  return isSpellSkill(skill)
+    || (skill.tier === 3 && getCharacterMagicSystem(rootSkill) !== null);
+}
+
+export function canAccessSupernaturalSkillAtLevel(
+  skill: CharacterSkillReference,
+  rootSkill: CharacterSkillReference,
+  spellAccessLevel: CharacterSpellAccessLevel | null,
+): boolean {
+  if (!requiresCastingLevel(skill, rootSkill)) return true;
+  const spellLevel = getRecordedSpellLevel(skill);
+  if (!spellLevel || !spellAccessLevel) return false;
+  const requiredIndex = CHARACTER_SPELL_ACCESS_LEVELS.findIndex(
+    (level) => level.name === spellLevel,
+  );
+  const accessIndex = CHARACTER_SPELL_ACCESS_LEVELS.findIndex(
+    (level) => level.name === spellAccessLevel,
+  );
+  return requiredIndex >= 0 && accessIndex >= requiredIndex;
 }
 
 export type RacialSkillGrant = {
@@ -636,10 +691,11 @@ export function evaluateCharacterReadiness(
     if (!skill
       || allocationPathKeys.has(pathKey)
       || allocation.points < 0
-      || allocation.points > aggregate.campaign.maxStartingSkill + EPSILON
-      || allocation.points > Math.max(
-        0,
-        aggregate.campaign.maxPointsInSkill - racialGrant.minimum,
+      || allocation.points > getCreationPurchasedSkillMaximum(
+        skill,
+        aggregate.campaign.maxStartingSkill,
+        aggregate.campaign.maxPointsInSkill,
+        racialGrant.minimum,
       ) + EPSILON
       || (allocation.points <= EPSILON
         && !racialGrant.granted
@@ -684,12 +740,16 @@ export function evaluateCharacterReadiness(
       cursor = parent;
       rootSkill = skillCatalog.get(parent.skillId) ?? rootSkill;
     }
-    if (isSpellSkill(skill)) {
+    if (requiresCastingLevel(skill, rootSkill)) {
       const magicSystem = getCharacterMagicSystem(rootSkill);
       const spellAccessLevel = magicSystem
         ? manaProfiles.find((profile) => profile.system === magicSystem)?.spellAccessLevel ?? null
         : null;
-      if (!magicSystem || !canAccessSpellAtLevel(skill, spellAccessLevel)) {
+      if (!magicSystem || !canAccessSupernaturalSkillAtLevel(
+        skill,
+        rootSkill,
+        spellAccessLevel,
+      )) {
         skillRulesValid = false;
       }
     }

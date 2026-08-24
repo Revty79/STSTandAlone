@@ -7,6 +7,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RealmsDashboardPage } from "./pages/RealmsDashboardPage";
 import { CharacterCreationPage } from "./pages/CharacterCreationPage";
+import { CharacterAdvancementPage } from "./pages/CharacterAdvancementPage";
 import { RacesPage } from "./pages/RacesPage";
 import { CreaturesPage } from "./pages/CreaturesPage";
 import { SkillsPage } from "./pages/SkillsPage";
@@ -188,6 +189,10 @@ function App() {
               setCharacterContext({ campaignId, characterId, editorMode: "player" });
               navigateAuthenticated("character-create");
             }}
+            onAdvanceCharacter={(campaignId, characterId) => {
+              setCharacterContext({ campaignId, characterId, editorMode: "player" });
+              navigateAuthenticated("character-advance");
+            }}
           />
         );
       case "character-create":
@@ -205,6 +210,10 @@ function App() {
                 setCharacterContext({ campaignId, characterId, editorMode: "player" });
                 navigateAuthenticated("character-create");
               }}
+              onAdvanceCharacter={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                navigateAuthenticated("character-advance");
+              }}
             />
           );
         }
@@ -220,6 +229,40 @@ function App() {
                 : "realms";
               setCharacterContext(null);
               navigateAuthenticated(returnDestination);
+            }}
+            onLogout={logout}
+          />
+        );
+      case "character-advance":
+        if (!characterContext) {
+          return (
+            <RealmsDashboardPage
+              session={session}
+              onReturn={
+                canAccessDestination(session, "access-choice")
+                  ? () => navigateAuthenticated("access-choice")
+                  : undefined
+              }
+              onLogout={logout}
+              onOpenCharacter={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                navigateAuthenticated("character-create");
+              }}
+              onAdvanceCharacter={(campaignId, characterId) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player" });
+                navigateAuthenticated("character-advance");
+              }}
+            />
+          );
+        }
+        return (
+          <CharacterAdvancementPage
+            session={session}
+            campaignId={characterContext.campaignId}
+            characterId={characterContext.characterId}
+            onBack={() => {
+              setCharacterContext(null);
+              navigateAuthenticated("realms");
             }}
             onLogout={logout}
           />

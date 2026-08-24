@@ -47,9 +47,9 @@ export function CampaignPrototypeReview({ campaignId, snapshot, onEdit }: Props)
         <dl className="campaign-review__details campaign-review__details--rules">
           <div><dt>Attribute Points</dt><dd>{snapshot.attributePoints}</dd></div>
           <div><dt>Skill Points</dt><dd>{snapshot.skillPoints}</dd></div>
-          <div><dt>Max Starting Skill</dt><dd>{snapshot.maxStartingSkill}</dd></div>
+          <div><dt>Max Starting Points Spent per Skill</dt><dd>{snapshot.maxStartingSkill}</dd></div>
           <div><dt>Needed to Unlock Next Tier</dt><dd>{snapshot.pointsToUnlockNextTier}</dd></div>
-          <div><dt>Max Points in a Skill</dt><dd>{snapshot.maxPointsInSkill}</dd></div>
+          <div><dt>Max Points in a Standard Skill</dt><dd>{snapshot.maxPointsInSkill}</dd></div>
         </dl>
       </section>
 
