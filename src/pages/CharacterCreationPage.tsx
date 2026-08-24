@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandLogo } from "../components/BrandLogo";
 import { CharacterHitLocationChart } from "../components/characters/CharacterHitLocationChart";
+import { GuidedRandomCharacterDialog } from "../components/characters/GuidedRandomCharacterDialog";
 import {
   formatCampaignMoney,
   getCanonicalCreditsFromHoldings,
@@ -59,8 +60,16 @@ import {
 } from "../types/character";
 import type { RaceAggregate } from "../types/race";
 import type { AuthSession } from "../types/user";
+import {
+  availableRandomMagicSystems,
+  createCompletelyRandomAnswers,
+  generateRandomCharacterDraft,
+  type CharacterGenerationMode,
+  type GuidedRandomCharacterAnswers,
+} from "../features/characters/randomCharacter";
 import "../styles/skills-page.css";
 import "../styles/character-creation.css";
+import "../styles/random-character.css";
 
 const TABS = [
   ["identity", "Identity"],
@@ -80,6 +89,7 @@ type Props = {
   campaignId: number;
   characterId: number;
   editorMode: CharacterEditorMode;
+  generationMode?: CharacterGenerationMode;
   onBack: () => void;
   onLogout: () => void;
 };
@@ -303,6 +313,7 @@ export function CharacterCreationPage({
   campaignId,
   characterId,
   editorMode,
+  generationMode,
   onBack,
   onLogout,
 }: Props) {
@@ -321,8 +332,11 @@ export function CharacterCreationPage({
   const [describedSkill, setDescribedSkill] = useState<CharacterSkillReference | null>(null);
   const [equipmentSearch, setEquipmentSearch] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState<"all" | "weapon" | "armor" | "general" | "inventory">("all");
+  const [guidedGenerationOpen, setGuidedGenerationOpen] = useState(generationMode === "guided");
+  const [generatingCharacter, setGeneratingCharacter] = useState(generationMode === "complete");
   const [activeSkillGroup, setActiveSkillGroup] = useState("STR");
   const nextDraftId = useRef(-1);
+  const generationStarted = useRef(false);
   const isNpc = Boolean(aggregate?.character.isNpc);
 
   useEffect(() => {
@@ -400,6 +414,16 @@ export function CharacterCreationPage({
   const creationLocked = !isGodEditor && aggregate?.profile.creationCompletedAt !== null
     && aggregate?.profile.creationCompletedAt !== undefined;
   const enforceCampaignTierLimits = !isGodEditor && !aggregate?.profile.creationCompletedAt;
+
+  useEffect(() => {
+    if (generationMode !== "complete"
+      || generationStarted.current
+      || !aggregate
+      || !draft
+      || creationLocked) return;
+    generationStarted.current = true;
+    void generateAndSaveCharacter(createCompletelyRandomAnswers(aggregate));
+  }, [aggregate, creationLocked, draft, generationMode]);
 
   const visibleTabs = TABS.filter(([id]) => id !== "god" || isGodEditor);
 
@@ -791,6 +815,75 @@ export function CharacterCreationPage({
       profile: { ...current.profile, creditsRemaining },
       currencyHoldings: holdings,
     }));
+  }
+
+  async function generateAndSaveCharacter(answers: GuidedRandomCharacterAnswers) {
+    if (!aggregate || !draft || creationLocked || generatingCharacter && generationMode !== "complete") return;
+    setGeneratingCharacter(true);
+    setFeedback(null);
+    let generatedDraft: CharacterDraft | null = null;
+    let generatedRace: RaceAggregate | null = null;
+    try {
+      const raceId = answers.raceId
+        ?? aggregate.allowedRaces[Math.floor(Math.random() * aggregate.allowedRaces.length)]?.id;
+      if (!raceId) throw new Error("This Campaign has no allowed Race available for Character generation.");
+      const race = await characterService.getAllowedRace(
+        aggregate,
+        session.userId,
+        raceId,
+        editorMode,
+      );
+      if (!race) throw new Error("The selected Campaign Race could not be opened for Character generation.");
+      generatedRace = race;
+      const result = generateRandomCharacterDraft(aggregate, race, draft, answers);
+      generatedDraft = result.draft;
+      setSelectedRace(race);
+      setDraft(result.draft);
+      setDirty(true);
+      const saved = await characterService.saveCharacter(
+        aggregate,
+        result.draft,
+        session.userId,
+        false,
+        editorMode,
+      );
+      const savedDraft = characterAggregateToDraft(saved);
+      setAggregate(saved);
+      setDraft({
+        ...savedDraft,
+        skillAllocations: reconcileRacialSkillAnchors(
+          savedDraft.skillAllocations,
+          saved.selectedRace,
+          saved.skillRelationships,
+          () => nextDraftId.current--,
+        ),
+      });
+      setSelectedRace(saved.selectedRace);
+      setActiveTab("identity");
+      setDirty(false);
+      setGuidedGenerationOpen(false);
+      setFeedback({
+        kind: "success",
+        message: result.warnings.length > 0
+          ? `Random Character draft saved for review. ${result.warnings.join(" ")}`
+          : "Random Character draft saved. Review it, make any desired changes, and complete it only when you are ready to lock creation.",
+      });
+    } catch (error) {
+      if (generatedDraft && generatedRace) {
+        setDraft(generatedDraft);
+        setSelectedRace(generatedRace);
+        setDirty(true);
+        setGuidedGenerationOpen(false);
+      }
+      setFeedback({
+        kind: "error",
+        message: error instanceof Error
+          ? `The random Character could not be saved: ${error.message}`
+          : "The random Character could not be saved.",
+      });
+    } finally {
+      setGeneratingCharacter(false);
+    }
   }
 
   async function saveCharacter(completeCreation = false) {
@@ -1473,6 +1566,24 @@ export function CharacterCreationPage({
 
       {pendingExit ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="discard-character-title"><div><p id="discard-character-title">Unsaved changes</p><span>Leave this {isNpc ? "NPC" : "Character"} and discard the changes you have not saved?</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setPendingExit(null)}>Keep Editing</button><button className="skills-danger-button" type="button" onClick={discardAndExit}>Discard Changes</button></div></div> : null}
       {confirmCompletion ? <div className="skills-page__discard-confirm" role="alertdialog" aria-modal="true" aria-labelledby="complete-character-title"><div><p id="complete-character-title">Complete this Character?</p><span>Identity, Story, Attributes, Skills, and starting Equipment are complete. This permanently locks Character creation; later changes use their controlled workflows.</span></div><div className="skills-page__discard-actions"><button type="button" onClick={() => setConfirmCompletion(false)}>Keep Editing</button><button className="character-complete-confirm" type="button" disabled={saving} onClick={() => { setConfirmCompletion(false); void saveCharacter(true); }}>Complete Character</button></div></div> : null}
+      {guidedGenerationOpen && aggregate && draft && !creationLocked ? (
+        <GuidedRandomCharacterDialog
+          races={aggregate.allowedRaces}
+          magicSystems={availableRandomMagicSystems(aggregate.campaign.allowedSystems)}
+          generating={generatingCharacter}
+          onGenerate={(answers) => void generateAndSaveCharacter(answers)}
+          onCancel={() => setGuidedGenerationOpen(false)}
+        />
+      ) : null}
+      {generationMode === "complete" && aggregate && draft && generatingCharacter ? (
+        <div className="random-character-guide" role="presentation">
+          <section className="random-character-generating" role="dialog" aria-modal="true" aria-labelledby="random-character-generating-title">
+            <p>COMPLETELY RANDOM</p>
+            <h2 id="random-character-generating-title">Creating a Campaign-valid Character…</h2>
+            <span>The program is choosing a Race, assigning points, purchasing Equipment, and writing a starting story.</span>
+          </section>
+        </div>
+      ) : null}
       {describedSkill ? (
         <div className="character-skill-description-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setDescribedSkill(null); }}>
           <section id={`skill-description-${describedSkill.id}`} className="character-skill-description" role="dialog" aria-modal="true" aria-labelledby="character-skill-description-title">

@@ -15,6 +15,7 @@ import {
   canAdvanceCharacter,
   canOpenCharacterCreation,
 } from "./realmsDashboardActions";
+import type { CharacterGenerationMode } from "../features/characters/randomCharacter";
 import "../styles/realms-dashboard.css";
 
 type RealmsDashboardPageProps = {
@@ -22,6 +23,7 @@ type RealmsDashboardPageProps = {
   onReturn?: () => void;
   onLogout: () => void;
   onOpenCharacter?: (campaignId: number, characterId: number) => void;
+  onOpenRandomCharacter?: (campaignId: number, characterId: number, mode: CharacterGenerationMode) => void;
   onAdvanceCharacter?: (campaignId: number, characterId: number) => void;
   onOpenSpellbook?: (campaignId: number, characterId: number) => void;
   onOpenMagicCalculator?: (campaignId: number, characterId: number) => void;
@@ -32,6 +34,7 @@ export function RealmsDashboardPage({
   onReturn,
   onLogout,
   onOpenCharacter,
+  onOpenRandomCharacter,
   onAdvanceCharacter,
   onOpenSpellbook,
   onOpenMagicCalculator,
@@ -45,6 +48,7 @@ export function RealmsDashboardPage({
   const [charactersLoading, setCharactersLoading] = useState(false);
   const [charactersError, setCharactersError] = useState("");
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
+  const [randomChoiceOpen, setRandomChoiceOpen] = useState(false);
   const selectedCharacter = characters.find(
     (character) => String(character.id) === selectedCharacterId,
   );
@@ -203,17 +207,27 @@ export function RealmsDashboardPage({
                   <option key={character.id} value={character.id}>{character.name}</option>
                 )) : null}
               </select>
-              <button
-                className="realm-control__create"
-                type="button"
-                disabled={!canOpenCharacterCreation(selectedCampaignId, selectedCharacter)}
-                onClick={() => onOpenCharacter?.(
-                  Number(selectedCampaignId),
-                  Number(selectedCharacterId),
-                )}
-              >
-                {selectedCharacter?.creationCompletedAt ? "Character Complete" : "Create Character"}
-              </button>
+              <div className="realm-control__character-actions">
+                <button
+                  className="realm-control__create"
+                  type="button"
+                  disabled={!canOpenCharacterCreation(selectedCampaignId, selectedCharacter)}
+                  onClick={() => onOpenCharacter?.(
+                    Number(selectedCampaignId),
+                    Number(selectedCharacterId),
+                  )}
+                >
+                  {selectedCharacter?.creationCompletedAt ? "Character Complete" : "Create Character"}
+                </button>
+                <button
+                  className="realm-control__create realm-control__create--random"
+                  type="button"
+                  disabled={!canOpenCharacterCreation(selectedCampaignId, selectedCharacter)}
+                  onClick={() => setRandomChoiceOpen(true)}
+                >
+                  Random Character
+                </button>
+              </div>
             </div>
           </div>
           {campaignsError || charactersError ? (
@@ -268,6 +282,26 @@ export function RealmsDashboardPage({
           </button>
         </footer>
       </div>
+      {randomChoiceOpen && selectedCharacter ? (
+        <div className="realm-random-choice" role="presentation">
+          <section role="dialog" aria-modal="true" aria-labelledby="realm-random-choice-title">
+            <p>RANDOM CHARACTER</p>
+            <h2 id="realm-random-choice-title">How should this Character be created?</h2>
+            <span>Both choices replace the selected unfinished Character&apos;s current creation fields, save the result as a reviewable draft, and leave completion unlocked.</span>
+            <div>
+              <button type="button" onClick={() => {
+                setRandomChoiceOpen(false);
+                onOpenRandomCharacter?.(Number(selectedCampaignId), selectedCharacter.id, "guided");
+              }}><strong>Guided Random</strong><small>Answer a few questions while the program handles points, Skills, and Equipment.</small></button>
+              <button type="button" onClick={() => {
+                setRandomChoiceOpen(false);
+                onOpenRandomCharacter?.(Number(selectedCampaignId), selectedCharacter.id, "complete");
+              }}><strong>Completely Random</strong><small>Let the program make every safe choice and open the finished draft for review.</small></button>
+              <button className="realm-random-choice__cancel" type="button" onClick={() => setRandomChoiceOpen(false)}>Cancel</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

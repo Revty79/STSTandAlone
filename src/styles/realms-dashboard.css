@@ -225,6 +225,16 @@
     box-shadow 160ms ease;
 }
 
+.realm-control__character-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.realm-control__create--random {
+  border-color: rgb(126 166 164 / 42%);
+}
+
 .realm-control__create:hover,
 .realms-dashboard__return:hover {
   transform: translateY(-1px);
@@ -338,6 +348,90 @@
   color: #ecd9b0;
 }
 
+.realm-random-choice {
+  display: grid;
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  padding: 22px;
+  background: rgb(1 5 8 / 76%);
+  backdrop-filter: blur(7px);
+  place-items: center;
+}
+
+.realm-random-choice > section {
+  width: min(100%, 560px);
+  padding: 25px;
+  border: 1px solid rgb(190 162 105 / 38%);
+  border-radius: 7px;
+  color: #eee6d8;
+  background: linear-gradient(145deg, rgb(24 43 49 / 98%), rgb(6 14 19 / 99%));
+  box-shadow: 0 28px 80px rgb(0 0 0 / 58%);
+}
+
+.realm-random-choice > section > p {
+  margin: 0 0 7px;
+  color: #bda978;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.realm-random-choice h2 {
+  margin: 0;
+  color: #f0e7d8;
+  font: 400 1.55rem/1.2 "Palatino Linotype", Georgia, serif;
+}
+
+.realm-random-choice > section > span {
+  display: block;
+  margin-top: 10px;
+  color: rgb(218 214 203 / 58%);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.realm-random-choice > section > div {
+  display: grid;
+  margin-top: 19px;
+  gap: 8px;
+}
+
+.realm-random-choice button {
+  display: flex;
+  min-height: 70px;
+  padding: 12px 14px;
+  border: 1px solid rgb(130 166 166 / 28%);
+  border-radius: 5px;
+  color: #eee5d5;
+  background: rgb(8 21 26 / 82%);
+  text-align: left;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.realm-random-choice button:hover {
+  border-color: rgb(211 180 118 / 65%);
+  background: rgb(23 42 45 / 95%);
+}
+
+.realm-random-choice button strong {
+  font: 400 1rem "Palatino Linotype", Georgia, serif;
+}
+
+.realm-random-choice button small {
+  color: rgb(218 214 203 / 52%);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.realm-random-choice button.realm-random-choice__cancel {
+  min-height: 40px;
+  color: rgb(214 204 185 / 67%);
+  align-items: center;
+}
+
 @media (max-width: 900px) {
   .realms-actions__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -390,6 +484,11 @@
   .realm-control__create {
     width: fit-content;
     margin-top: 2px;
+  }
+
+  .realm-control__character-actions {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

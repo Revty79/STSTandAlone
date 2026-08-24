@@ -28,6 +28,7 @@ import type {
 } from "./types/navigation";
 import type { AuthSession } from "./types/user";
 import type { CharacterEditorMode } from "./types/character";
+import type { CharacterGenerationMode } from "./features/characters/randomCharacter";
 import "./styles/app-shell.css";
 
 type DatabaseState = "initializing" | "ready" | "error";
@@ -42,6 +43,7 @@ function App() {
     characterId: number;
     editorMode: CharacterEditorMode;
     returnDestination: "heavens" | "realms" | "npcs";
+    generationMode?: CharacterGenerationMode;
   } | null>(null);
   const [campaignEditId, setCampaignEditId] = useState<number | null>(null);
   const [creatureNpcContext, setCreatureNpcContext] = useState<{
@@ -122,6 +124,10 @@ function App() {
         onLogout={logout}
         onOpenCharacter={(campaignId, characterId) => {
           setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+          navigateAuthenticated("character-create");
+        }}
+        onOpenRandomCharacter={(campaignId, characterId, generationMode) => {
+          setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms", generationMode });
           navigateAuthenticated("character-create");
         }}
         onAdvanceCharacter={(campaignId, characterId) => {
@@ -280,6 +286,10 @@ function App() {
               setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
               navigateAuthenticated("character-create");
             }}
+            onOpenRandomCharacter={(campaignId, characterId, generationMode) => {
+              setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms", generationMode });
+              navigateAuthenticated("character-create");
+            }}
             onAdvanceCharacter={(campaignId, characterId) => {
               setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
               navigateAuthenticated("character-advance");
@@ -309,6 +319,10 @@ function App() {
                 setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-create");
               }}
+              onOpenRandomCharacter={(campaignId, characterId, generationMode) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms", generationMode });
+                navigateAuthenticated("character-create");
+              }}
               onAdvanceCharacter={(campaignId, characterId) => {
                 setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
                 navigateAuthenticated("character-advance");
@@ -330,6 +344,7 @@ function App() {
             campaignId={characterContext.campaignId}
             characterId={characterContext.characterId}
             editorMode={characterContext.editorMode}
+            generationMode={characterContext.generationMode}
             onBack={() => {
               const returnDestination = characterContext.returnDestination;
               setCharacterContext(null);
@@ -351,6 +366,10 @@ function App() {
               onLogout={logout}
               onOpenCharacter={(campaignId, characterId) => {
                 setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms" });
+                navigateAuthenticated("character-create");
+              }}
+              onOpenRandomCharacter={(campaignId, characterId, generationMode) => {
+                setCharacterContext({ campaignId, characterId, editorMode: "player", returnDestination: "realms", generationMode });
                 navigateAuthenticated("character-create");
               }}
               onAdvanceCharacter={(campaignId, characterId) => {
