@@ -23,9 +23,10 @@ describe("CharacterHitLocationChart", () => {
       expect(markup).toContain(label);
     }
     expect(markup).toContain("Right Leg</span><strong>8 HP");
-    expect(markup).toContain("15% of total · one pool shared by results 3 + 4");
-    expect(markup).toContain("15% of total · one pool shared by results 5 + 6");
-    expect(markup).toContain("30% of total · one pool shared by results 7 + 8 + 9");
+    expect(markup).toContain("One pool shared by results 3 + 4 · record damage in the Hit Points table");
+    expect(markup).toContain("One pool shared by results 5 + 6 · record damage in the Hit Points table");
+    expect(markup).toContain("One pool shared by results 7 + 8 + 9 · record damage in the Hit Points table");
+    expect(markup).not.toContain("% of total");
     expect(markup).toContain("Uses the one Right Leg pool");
     expect(markup).toContain("HP is assigned once to each complete body region");
   });

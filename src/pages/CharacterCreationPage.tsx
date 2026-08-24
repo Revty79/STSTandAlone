@@ -42,6 +42,7 @@ import {
   type CharacterManaProfile,
   SPECIAL_ABILITY_EFFECTIVE_MAXIMUM,
 } from "../features/characters/characterRules";
+import { getCharacterWeaponDamageSummary } from "../features/characters/characterSheetRules";
 import {
   characterAggregateToDraft,
   characterService,
@@ -1277,12 +1278,22 @@ export function CharacterCreationPage({
       ? purse.entries.filter((entry) => entry.quantity > 0)
       : purse.entries.slice(-1);
     const hpBreakdown = getCharacterHpBreakdown(totalHp);
+    const hitResultsByPool = new Map(hpBreakdown.pools.map((pool) => [
+      pool.key,
+      hpBreakdown.locations
+        .filter((location) => location.poolKey === pool.key)
+        .map((location) => location.result)
+        .join(" + "),
+    ]));
     const ownedItemRows = ownedItems.map((owned) => ({
       owned,
       item: aggregate.authorizedItems.find((candidate) => candidate.id === owned.itemId),
     }));
     const weaponRows = ownedItemRows.filter(({ item }) => item?.equipmentGroup === "weapon");
     const armorRows = ownedItemRows.filter(({ item }) => item?.equipmentGroup === "armor");
+    const generalItemRows = ownedItemRows.filter(({ item }) =>
+      item?.equipmentGroup !== "weapon" && item?.equipmentGroup !== "armor",
+    );
     const rootSkillFor = (allocation: CharacterSkillAllocationDraft): CharacterSkillReference | null => {
       let cursor: CharacterSkillAllocationDraft | undefined = allocation;
       const visited = new Set<number>();
@@ -1347,7 +1358,7 @@ export function CharacterCreationPage({
           <article className="character-sheet__ledger character-sheet__ledger--health">
             <h3>Hit Points</h3>
             <div className="character-sheet__ledger-total"><span>Total HP</span><strong>{displayNumber(totalHp)}</strong></div>
-            <table><tbody>{hpBreakdown.pools.map((pool) => <tr key={pool.key}><th>{pool.name}</th><td>{pool.hp} HP</td><td>{pool.percentage}%</td></tr>)}</tbody></table>
+            <table className="character-sheet__hp-table"><thead><tr><th>Location</th><th>HP</th><th>Damage</th></tr></thead><tbody>{hpBreakdown.pools.map((pool) => <tr key={pool.key}><th><small className="character-sheet__hp-result">{hitResultsByPool.get(pool.key)}</small>{pool.name}</th><td>{pool.hp} HP</td><td className="character-sheet__write-in" aria-label={`${pool.name} damage taken`}><span aria-hidden="true" /></td></tr>)}</tbody></table>
           </article>
           <article className="character-sheet__ledger character-sheet__ledger--movement">
             <h3>Movement & Initiative</h3>
@@ -1371,21 +1382,26 @@ export function CharacterCreationPage({
           </article>
         </section>
 
-        <section className="character-sheet__section character-sheet__health"><div className="character-sheet__section-heading"><p>BODY TARGET</p><h3>Health & Hit Locations</h3><span>Total HP = CON {displayNumber(draft.attributes.CON)} × 2 + CON Modifier {signedNumber(getAttributeModifier(draft.attributes.CON))}. Location pools round up.</span></div><CharacterHitLocationChart totalHp={totalHp} /></section>
+        <div className="character-sheet__play-reference">
+          <section className="character-sheet__section character-sheet__health"><div className="character-sheet__section-heading"><p>BODY TARGET</p><h3>Health & Hit Locations</h3><span>Total HP = CON {displayNumber(draft.attributes.CON)} × 2 + CON Modifier {signedNumber(getAttributeModifier(draft.attributes.CON))}. Location pools round up.</span></div><CharacterHitLocationChart totalHp={totalHp} /></section>
 
-        <section className="character-sheet__section character-sheet__combat"><div className="character-sheet__section-heading"><p>COMBAT RECORD</p><h3>Weapons & Armor</h3></div>
-          <div className="character-sheet__table-block"><h4>Weapons</h4>{weaponRows.length > 0 ? <div className="character-sheet__table-scroll"><table><thead><tr><th>Weapon</th><th>Qty</th><th>Type</th><th>Range / Reach</th><th>Durability</th><th>Damage</th><th>Damage Type</th></tr></thead><tbody>{weaponRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td>{item?.weaponType || item?.recordType || "—"}</td><td>{item?.rangeText || item?.reachText || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td><td>{item?.damage || "—"}</td><td>{item?.damageType || "—"}</td></tr>)}</tbody></table></div> : <p className="character-empty">No weapons recorded.</p>}</div>
-          <div className="character-sheet__table-block"><h4>Armor</h4>{armorRows.length > 0 ? <div className="character-sheet__table-scroll"><table><thead><tr><th>Armor</th><th>Qty</th><th>Type</th><th>Area Covered</th><th>Durability</th><th>Base Soak</th><th>Special Properties</th></tr></thead><tbody>{armorRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td>{item?.armorType || item?.recordType || "—"}</td><td>{item?.coverage || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td><td>{item?.baseSoak === null || item?.baseSoak === undefined ? "—" : displayNumber(item.baseSoak)}</td><td>{item?.armorRulesText || item?.armorDamageModifiers || "—"}</td></tr>)}</tbody></table></div> : <p className="character-empty">No armor recorded.</p>}</div>
-        </section>
+          <section className="character-sheet__section character-sheet__combat"><div className="character-sheet__section-heading"><p>COMBAT RECORD</p><h3>Weapons & Armor</h3></div>
+            <div className="character-sheet__table-block"><h4>Weapons</h4>{weaponRows.length > 0 ? <div className="character-sheet__table-scroll"><table className="character-sheet__weapons-table"><thead><tr><th>Weapon</th><th>Qty</th><th>%</th><th>Damage Type</th><th>Damage</th><th>Mod</th><th>Total Damage</th><th>Range / Reach</th><th>Dur.</th></tr></thead><tbody>{weaponRows.map(({ owned, item }) => {
+              const damage = item ? getCharacterWeaponDamageSummary(item, draft.attributes) : null;
+              return <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td className="character-sheet__write-in" aria-label={`${item?.name ?? `Item ${owned.itemId}`} attack percentage`}><span aria-hidden="true" /></td><td>{item?.damageType || "—"}</td><td>{item?.damage || "—"}</td><td>{damage?.modifier ?? "—"}</td><td>{damage?.totalDamage ?? "—"}</td><td>{[item?.rangeText, item?.reachText].filter(Boolean).join(" / ") || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td></tr>;
+            })}</tbody></table></div> : <p className="character-empty">No weapons recorded.</p>}</div>
+            <div className="character-sheet__table-block"><h4>Armor</h4>{armorRows.length > 0 ? <div className="character-sheet__table-scroll"><table><thead><tr><th>Armor</th><th>Qty</th><th>Type</th><th>Area Covered</th><th>Durability</th><th>Base Soak</th><th>Special Properties</th></tr></thead><tbody>{armorRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{owned.quantity}</td><td>{item?.armorType || item?.recordType || "—"}</td><td>{item?.coverage || "—"}</td><td>{item?.durability === null || item?.durability === undefined ? "—" : displayNumber(item.durability)}</td><td>{item?.baseSoak === null || item?.baseSoak === undefined ? "—" : displayNumber(item.baseSoak)}</td><td>{item?.armorRulesText || item?.armorDamageModifiers || "—"}</td></tr>)}</tbody></table></div> : <p className="character-empty">No armor recorded.</p>}</div>
+          </section>
+        </div>
 
-        <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>TRAINING RECORD</p><h3>Skills & Abilities</h3><span>Only Skills and Abilities with actual points are shown.</span></div>{sheetSkillSections.length > 0 ? <div className="character-sheet__skill-ledgers">{sheetSkillSections.map((section) => {
+        <section className="character-sheet__section character-sheet__training"><div className="character-sheet__section-heading"><p>TRAINING RECORD</p><h3>Skills & Abilities</h3><span>Only Skills and Abilities with actual points are shown.</span></div>{sheetSkillSections.length > 0 ? <div className="character-sheet__skill-ledgers">{sheetSkillSections.map((section) => {
           const profile = manaProfiles.find((candidate) => candidate.system === section.key);
           return <article key={section.key} className="character-sheet__skill-ledger"><header><h4>{section.label}</h4>{profile ? <span>{displayNumber(profile.manaPool)} Mana · {profile.spellAccessLevel ?? "Below Apprentice"}</span> : null}</header><table><thead><tr><th>Skill</th><th>#</th><th>Rank</th><th>%</th></tr></thead><tbody>{section.rows.map((row) => <tr key={row.id}><th>{row.name}</th><td title={row.pointNote}>{displayNumber(row.points)}{row.pointNote ? <small>R</small> : null}</td><td>{displayNumber(row.rank)}</td><td>{row.target === null ? "N/A" : `${displayNumber(row.target)}%+`}</td></tr>)}</tbody></table></article>;
         })}</div> : <p className="character-empty">No Skills or Abilities with points are recorded.</p>}</section>
 
-        <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>POSSESSIONS</p><h3>Inventory & Equipment</h3></div>{ownedItemRows.length > 0 ? <div className="character-sheet__table-scroll"><table className="character-sheet__inventory-table"><thead><tr><th>Item</th><th>Catalog</th><th>Type</th><th>Qty</th><th>Weight</th><th>Unit Cost</th><th>Total Value</th></tr></thead><tbody>{ownedItemRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{item?.equipmentGroup || item?.catalogScope || "Inventory"}</td><td>{item?.recordType || item?.category || "Item"}</td><td>{owned.quantity}</td><td>{item?.weight === null || item?.weight === undefined ? "—" : `${displayNumber(item.weight * owned.quantity)} ${item.weightUnit}`}</td><td>{campaignMoney(owned.unitCostCredits)}</td><td>{campaignMoney(owned.quantity * owned.unitCostCredits)}</td></tr>)}</tbody></table></div> : <p className="character-empty">No Equipment or Inventory is currently recorded.</p>}</section>
+        <section className="character-sheet__section character-sheet__inventory"><div className="character-sheet__section-heading"><p>POSSESSIONS</p><h3>Inventory & General Equipment</h3><span>Weapons and armor are listed once in the Combat Record above.</span></div>{generalItemRows.length > 0 ? <div className="character-sheet__table-scroll"><table className="character-sheet__inventory-table"><thead><tr><th>Item</th><th>Catalog</th><th>Type</th><th>Qty</th><th>Weight</th><th>Unit Cost</th><th>Total Value</th></tr></thead><tbody>{generalItemRows.map(({ owned, item }) => <tr key={owned.itemId}><th>{item?.name ?? `Item ${owned.itemId}`}</th><td>{item?.equipmentGroup || item?.catalogScope || "Inventory"}</td><td>{item?.recordType || item?.category || "Item"}</td><td>{owned.quantity}</td><td>{item?.weight === null || item?.weight === undefined ? "—" : `${displayNumber(item.weight * owned.quantity)} ${item.weightUnit}`}</td><td>{campaignMoney(owned.unitCostCredits)}</td><td>{campaignMoney(owned.quantity * owned.unitCostCredits)}</td></tr>)}</tbody></table></div> : <p className="character-empty">No additional Inventory or General Equipment is currently recorded.</p>}</section>
 
-        {storyDetails.length > 0 ? <section className="character-sheet__section"><div className="character-sheet__section-heading"><p>CHARACTER NOTES</p><h3>Story & Personality</h3></div><div className="character-sheet__story">{storyDetails.map(([label, value]) => <div key={label} className={label === "Backstory" ? "character-sheet__story--wide" : undefined}><strong>{label}</strong><p>{value}</p></div>)}</div></section> : null}
+        {storyDetails.length > 0 ? <section className="character-sheet__section character-sheet__story-section"><div className="character-sheet__section-heading"><p>CHARACTER NOTES</p><h3>Story & Personality</h3></div><div className="character-sheet__story">{storyDetails.map(([label, value]) => <div key={label} className={label === "Backstory" ? "character-sheet__story--wide" : undefined}><strong>{label}</strong><p>{value}</p></div>)}</div></section> : null}
       </section>
     );
   }

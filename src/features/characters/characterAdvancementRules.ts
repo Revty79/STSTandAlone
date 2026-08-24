@@ -225,7 +225,11 @@ export function buildCharacterAdvancementSkills(
       allocationId: allocation?.id ?? null,
       parentAllocationId,
       depth,
-      group: getCharacterSkillGroupKey(skill),
+      // Advancement is browsed by complete Skill branches. Shared supernatural
+      // Skills such as Spheres therefore follow the attribute of the access
+      // path being advanced (Faith/WIS, Spellcraft/INT), not the canonical
+      // Sphere record's primary attribute.
+      group: getCharacterSkillGroupKey(rootSkill),
       path,
       tierLabel: getSkillTierLabel(skill),
       purchasedPoints,

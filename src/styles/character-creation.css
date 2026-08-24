@@ -694,6 +694,11 @@
 .character-sheet__ledger--mana table th:first-child { width: 42%; }
 .character-sheet__ledger--currency table th:first-child,
 .character-sheet__ledger--advancement table th:first-child { width: 30%; }
+.character-sheet__hp-table th:first-child { width: 46%; }
+.character-sheet__hp-table th:nth-child(2) { width: 25%; }
+.character-sheet__hp-result { display: inline-grid; min-width: 21px; height: 17px; margin-right: 5px; padding: 0 3px; border: 1px solid rgb(190 162 105 / 28%); border-radius: 9px; color: #d8c18a; place-items: center; font: 700 0.5rem "Segoe UI", sans-serif; }
+.character-sheet__write-in span { display: block; min-width: 24px; height: 0.85rem; border-bottom: 1px solid rgb(218 213 201 / 34%); }
+.character-sheet__play-reference { display: contents; }
 
 .character-sheet__section-heading { display: flex; margin-bottom: 12px; align-items: flex-end; flex-wrap: wrap; gap: 3px 14px; }
 .character-sheet__section-heading > p { width: 100%; margin: 0; color: #8eb1b2; font-size: 0.53rem; font-weight: 700; letter-spacing: 0.18em; }
@@ -708,6 +713,15 @@
 .character-sheet__combat table th:first-child { width: 22%; }
 .character-sheet__combat table th:last-child { width: 22%; }
 .character-sheet__combat .character-empty { margin: 0; padding: 13px; border: 1px solid rgb(190 162 105 / 18%); }
+.character-sheet__weapons-table th:first-child { width: 18%; }
+.character-sheet__weapons-table th:nth-child(2),
+.character-sheet__weapons-table th:nth-child(3),
+.character-sheet__weapons-table th:last-child { width: 6%; }
+.character-sheet__weapons-table th:nth-child(4) { width: 10%; }
+.character-sheet__weapons-table th:nth-child(5) { width: 8%; }
+.character-sheet__weapons-table th:nth-child(6) { width: 13%; }
+.character-sheet__weapons-table th:nth-child(7) { width: 12%; }
+.character-sheet__weapons-table th:nth-child(8) { width: 16%; }
 
 .character-sheet__skill-ledgers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
 .character-sheet__skill-ledger { overflow: hidden; border: 1px solid rgb(190 162 105 / 18%); border-radius: 4px; }
@@ -951,7 +965,7 @@
 }
 
 @media print {
-  @page { margin: 0.45in; }
+  @page { margin: 0.35in; }
 
   html,
   body,
@@ -1094,6 +1108,74 @@
   .character-sheet__skills { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .character-sheet__story { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .character-sheet__story--wide { grid-column: 1 / -1 !important; }
+
+  .character-sheet__play-reference {
+    display: flex;
+    gap: 0.14in;
+    align-items: start;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .character-sheet__play-reference > .character-sheet__section {
+    margin-top: 0.12in;
+    padding-top: 0.1in;
+  }
+
+  .character-sheet__play-reference > .character-sheet__health {
+    flex: 0 0 1.72in;
+    min-width: 0;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .character-sheet__play-reference > .character-sheet__combat {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .character-sheet__health .character-sheet__section-heading > span,
+  .character-sheet__health .character-hit-chart > header,
+  .character-sheet__health .character-hit-chart__records,
+  .character-sheet__health .character-hit-chart figcaption,
+  .character-sheet__story-section {
+    display: none !important;
+  }
+
+  .character-sheet__health .character-hit-chart__layout {
+    display: block;
+    padding: 0.04in;
+  }
+
+  .character-sheet__health .character-hit-chart figure { padding: 0.03in; }
+  .character-sheet__health .character-hit-chart svg { max-height: 1.8in; }
+  .character-sheet__health .character-hit-chart__target circle {
+    r: 34px;
+    stroke-width: 3.5px;
+  }
+  .character-sheet__health .character-hit-chart__target-number {
+    font-size: 32px;
+  }
+  .character-sheet__hp-result { min-width: 0.18in; height: 0.13in; margin-right: 0.035in; padding: 0 0.02in; border-color: #777 !important; font-size: 5.5pt; }
+  .character-sheet__combat .character-sheet__table-block + .character-sheet__table-block { margin-top: 0.08in; }
+  .character-sheet__combat th,
+  .character-sheet__combat td { padding: 0.025in 0.03in; font-size: 5.6pt; }
+  .character-sheet__combat thead th { font-size: 5pt; }
+  .character-sheet__weapons-table th:first-child { width: 17% !important; }
+  .character-sheet__weapons-table th:nth-child(2),
+  .character-sheet__weapons-table th:nth-child(3),
+  .character-sheet__weapons-table th:last-child { width: 6% !important; }
+  .character-sheet__weapons-table th:nth-child(4) { width: 10% !important; }
+  .character-sheet__weapons-table th:nth-child(5) { width: 8% !important; }
+  .character-sheet__weapons-table th:nth-child(6) { width: 13% !important; }
+  .character-sheet__weapons-table th:nth-child(7) { width: 12% !important; }
+  .character-sheet__weapons-table th:nth-child(8) { width: 16% !important; }
+  .character-sheet__write-in span { height: 0.12in; border-bottom: 0.75pt solid #555 !important; }
+
+  .character-sheet__training {
+    break-before: page;
+    page-break-before: always;
+  }
 
   .character-hit-chart__layout {
     padding: 0.07in;

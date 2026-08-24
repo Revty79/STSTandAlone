@@ -99,7 +99,7 @@ export function CharacterHitLocationChart({ totalHp }: Props) {
                 <article key={pool.key} className={poolClass(pool.key)}>
                   <span>{pool.name}</span>
                   <strong>{pool.hp} HP</strong>
-                  <small>{pool.percentage}% of total · one pool shared by result{resultLabelsByPool.get(pool.key)?.includes("+") ? "s" : ""} {resultLabelsByPool.get(pool.key)} · rounded up</small>
+                  <small>One pool shared by result{resultLabelsByPool.get(pool.key)?.includes("+") ? "s" : ""} {resultLabelsByPool.get(pool.key)} · record damage in the Hit Points table</small>
                 </article>
               ))}
             </div>

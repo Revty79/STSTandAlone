@@ -157,6 +157,46 @@ describe("Character advancement rules", () => {
     });
   });
 
+  it("keeps shared Spheres visible and independently owned under Faith and Spellcraft", () => {
+    const character = aggregate();
+    character.campaign.allowedSystems.push("Spellcraft", "Faith");
+    character.profile.experience = 20;
+    character.skillCatalog.push(
+      { id: 4, name: "Spellcraft", classification: "magic access", tier: 1, primaryAttribute: "INT", secondaryAttribute: null, definition: "" },
+      { id: 5, name: "Faith", classification: "magic access", tier: 1, primaryAttribute: "WIS", secondaryAttribute: null, definition: "" },
+      { id: 6, name: "Life", classification: "sphere", tier: 2, primaryAttribute: "INT", secondaryAttribute: "WIS", definition: "" },
+    );
+    character.skillRelationships.push(
+      { skillId: 6, relatedSkillId: 4, relationshipType: "parent", sortOrder: 0 },
+      { skillId: 6, relatedSkillId: 5, relationshipType: "parent", sortOrder: 0 },
+    );
+    character.skillAllocations.push(
+      { id: 20, characterId: 9, skillId: 4, skillName: "Spellcraft", skillClassification: "magic access", skillTier: 1, primaryAttribute: "INT", parentAllocationId: null, points: 1, createdAt: "created", updatedAt: "updated" },
+      { id: 21, characterId: 9, skillId: 6, skillName: "Life", skillClassification: "sphere", skillTier: 2, primaryAttribute: "INT", parentAllocationId: 20, points: 1, createdAt: "created", updatedAt: "updated" },
+      { id: 22, characterId: 9, skillId: 5, skillName: "Faith", skillClassification: "magic access", skillTier: 1, primaryAttribute: "WIS", parentAllocationId: null, points: 1, createdAt: "created", updatedAt: "updated" },
+    );
+
+    const lifeEntries = buildCharacterAdvancementSkills(character)
+      .filter((entry) => entry.skill.id === 6);
+
+    expect(lifeEntries).toHaveLength(2);
+    expect(lifeEntries.find((entry) => entry.rootSkill.name === "Spellcraft")).toMatchObject({
+      key: "20:6",
+      parentAllocationId: 20,
+      group: "INT",
+      owned: true,
+      effectivePoints: 1,
+    });
+    expect(lifeEntries.find((entry) => entry.rootSkill.name === "Faith")).toMatchObject({
+      key: "22:6",
+      parentAllocationId: 22,
+      group: "WIS",
+      owned: false,
+      effectivePoints: 0,
+      experienceCost: 10,
+    });
+  });
+
   it("uses 100 as the effective advancement maximum for Special Abilities", () => {
     const character = aggregate();
     character.campaign.allowedSystems.push("Special Abilities");
